@@ -1,0 +1,911 @@
+/* ==========================================================================
+   Chart of accounts (Settings > General Ledger)
+   Layout/utility helpers only — colors and radii are pulled from the
+   Bootstrap CSS variables already themed by variables.scss.
+   ========================================================================== */
+
+.min-width-0 {
+    min-width: 0;
+}
+
+/* .app-body (flex:1 inside the fixed-height app shell) never gives its
+   SimpleBar child a bounded height, so long pages grow past the shell and
+   the whole document scrolls instead of just this region — dragging the
+   independently-scrollable ModuleSidebar along with it. Bound it here so
+   the sidebar and the page body scroll independently, as intended. */
+.app-body > .nicescroll-bar {
+    height: 100%;
+}
+
+.coa-spine {
+    background: var(--bs-tertiary-bg, #f8f9fa);
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+    padding: 8px 12px;
+}
+
+.coa-spine-label {
+    font-size: 10.5px;
+    letter-spacing: .06em;
+}
+
+.coa-seg {
+    font-family: var(--bs-font-monospace);
+    font-size: 12.5px;
+    font-weight: 500;
+    background: var(--bs-body-bg);
+    border: 1px solid var(--bs-border-color);
+    padding: 2px 8px;
+    border-radius: calc(var(--bs-border-radius) - 2px);
+    display: inline-flex;
+    gap: 7px;
+    align-items: center;
+
+    em {
+        font-family: var(--bs-body-font-family);
+        font-style: normal;
+        font-size: 11.5px;
+        color: var(--bs-secondary-color);
+    }
+
+    &.is-live {
+        background: rgba(var(--bs-primary-rgb), .1);
+        border-color: rgba(var(--bs-primary-rgb), .35);
+        color: var(--bs-primary);
+
+        em {
+            color: var(--bs-primary);
+        }
+    }
+}
+
+.coa-code {
+    font-family: var(--bs-font-monospace);
+    font-size: 12px;
+    font-weight: 500;
+    flex: none;
+}
+
+.coa-icon-btn {
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.coa-cols {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+
+    @media (min-width: 1200px) {
+        grid-template-columns: 210px 230px minmax(0, 1fr) 320px;
+    }
+
+    @media (min-width: 992px) and (max-width: 1199.98px) {
+        grid-template-columns: 190px 210px minmax(0, 1fr);
+
+        .coa-col-inspector {
+            grid-column: 1 / -1;
+        }
+    }
+}
+
+.coa-col {
+    min-height: 320px;
+    max-height: 640px;
+}
+
+.coa-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 8px;
+    border-radius: 0;
+
+    .list-group-item {
+        border: 1px solid var(--bs-border-color) !important;
+        border-left: 3px solid var(--bs-border-color) !important;
+        border-radius: var(--bs-border-radius) !important;
+    }
+
+    .list-group-item.active {
+        z-index: 1;
+        background-color: rgba(var(--bs-primary-rgb), .1);
+        border-color: var(--bs-border-color);
+        border-left-color: var(--bs-primary) !important;
+        color: var(--bs-body-color);
+    }
+
+    .list-group-item.active .coa-code {
+        color: var(--bs-primary);
+    }
+
+    .list-group-item.active .text-muted {
+        color: var(--bs-secondary-color) !important;
+    }
+}
+
+.coa-field:last-child {
+    border-bottom: 0 !important;
+}
+
+.offcanvas-header {
+    position: relative;
+
+    .btn-close {
+        position: absolute;
+        top: 0.75rem;
+        right: 0.75rem;
+    }
+}
+
+.require-label:after {
+	content:"*";
+	color: #b00020;
+	margin-left: 2px;
+}
+
+/* ---------- Settings hub (/settings) ---------- */
+.settings-hub {
+	--hub-text: #{$black};
+	--hub-muted: #{$gray_dark_2};
+	--hub-border: #{$gray_light_4};
+	--hub-surface: #{$white};
+
+	.settings-hub-header {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: flex-end;
+		justify-content: space-between;
+		gap: 1rem 2rem;
+		margin-bottom: 2rem;
+	}
+
+	.settings-hub-title {
+		font-size: 1.75rem;
+		font-weight: 600;
+		color: var(--hub-text);
+		margin-bottom: .25rem;
+	}
+
+	.settings-hub-subtitle {
+		color: var(--hub-muted);
+		margin-bottom: 0;
+	}
+
+	.settings-hub-search {
+		position: relative;
+		width: 100%;
+		max-width: 340px;
+
+		.form-control {
+			padding-left: 2.5rem;
+			padding-right: 2.25rem;
+			border-radius: 2rem;
+			height: 2.75rem;
+			background: var(--hub-surface);
+		}
+
+		// hide the browser's own clear button, we render one
+		input[type="search"]::-webkit-search-cancel-button {
+			-webkit-appearance: none;
+		}
+	}
+
+	.settings-hub-search-icon {
+		position: absolute;
+		left: 1rem;
+		top: 50%;
+		transform: translateY(-50%);
+		color: var(--hub-muted);
+		pointer-events: none;
+	}
+
+	.settings-hub-search-clear {
+		position: absolute;
+		right: .75rem;
+		top: 50%;
+		transform: translateY(-50%);
+		display: inline-flex;
+		padding: .25rem;
+		border: 0;
+		border-radius: 50%;
+		background: $gray_light_5;
+		color: var(--hub-muted);
+
+		&:hover {
+			background: $gray_light_4;
+			color: var(--hub-text);
+		}
+	}
+
+	.settings-hub-card {
+		height: 100%;
+		display: flex;
+		flex-direction: column;
+		background: var(--hub-surface);
+		border: 1px solid var(--hub-border);
+		border-radius: 1rem;
+		overflow: hidden;
+		transition: box-shadow .2s ease, transform .2s ease, border-color .2s ease;
+
+		// thin accent strip along the top edge
+		&::before {
+			content: "";
+			height: 3px;
+			background: linear-gradient(90deg, rgb(var(--hub-accent)), rgba(var(--hub-accent), .35));
+		}
+
+		&:hover {
+			border-color: rgba(var(--hub-accent), .35);
+			box-shadow: 0 .75rem 1.75rem -.75rem rgba(var(--hub-accent), .35);
+			transform: translateY(-2px);
+		}
+	}
+
+	.settings-hub-card-header {
+		display: flex;
+		align-items: flex-start;
+		gap: .875rem;
+		padding: 1.25rem 1.25rem 1rem;
+		border-bottom: 1px dashed var(--hub-border);
+	}
+
+	.settings-hub-card-icon {
+		flex-shrink: 0;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 2.75rem;
+		height: 2.75rem;
+		border-radius: .75rem;
+		background: rgba(var(--hub-accent), .12);
+		color: rgb(var(--hub-accent));
+	}
+
+	.settings-hub-card-title {
+		font-size: 1.125rem;
+		font-weight: 600;
+		color: var(--hub-text);
+		margin: .125rem 0 .125rem;
+	}
+
+	.settings-hub-card-desc {
+		font-size: .8125rem;
+		color: var(--hub-muted);
+		margin: 0;
+	}
+
+	.settings-hub-card-count {
+		flex-shrink: 0;
+		min-width: 1.75rem;
+		padding: .125rem .5rem;
+		border-radius: 1rem;
+		font-size: .75rem;
+		font-weight: 600;
+		text-align: center;
+		background: rgba(var(--hub-accent), .1);
+		color: rgb(var(--hub-accent));
+	}
+
+	.settings-hub-list {
+		list-style: none;
+		margin: 0;
+		padding: .5rem;
+	}
+
+	.settings-hub-item {
+		display: flex;
+		align-items: center;
+		gap: .75rem;
+		padding: .625rem .75rem;
+		border-radius: .625rem;
+		color: var(--hub-text);
+		text-decoration: none;
+		transition: background-color .15s ease;
+
+		&:hover,
+		&:focus-visible {
+			background: rgba(var(--hub-accent), .07);
+
+			.settings-hub-item-icon {
+				background: rgb(var(--hub-accent));
+				color: $white;
+			}
+
+			.settings-hub-item-name {
+				color: rgb(var(--hub-accent));
+			}
+
+			.settings-hub-item-chevron {
+				opacity: 1;
+				transform: translateX(0);
+			}
+		}
+
+		&:focus-visible {
+			outline: 2px solid rgba(var(--hub-accent), .5);
+			outline-offset: -2px;
+		}
+
+		&.is-disabled {
+			cursor: default;
+			opacity: .55;
+
+			&:hover {
+				background: transparent;
+			}
+		}
+	}
+
+	.settings-hub-item-icon {
+		flex-shrink: 0;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 2rem;
+		height: 2rem;
+		border-radius: .5rem;
+		background: $gray_light_5;
+		color: var(--hub-muted);
+		transition: background-color .15s ease, color .15s ease;
+	}
+
+	.settings-hub-item-text {
+		flex-grow: 1;
+		min-width: 0;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.settings-hub-item-name {
+		font-weight: 500;
+		transition: color .15s ease;
+	}
+
+	.settings-hub-item-desc {
+		font-size: .75rem;
+		color: var(--hub-muted);
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.settings-hub-item-chevron {
+		flex-shrink: 0;
+		color: rgb(var(--hub-accent));
+		opacity: 0;
+		transform: translateX(-4px);
+		transition: opacity .15s ease, transform .15s ease;
+	}
+
+	.settings-hub-empty {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		padding: 4rem 1rem;
+		color: var(--hub-muted);
+		text-align: center;
+
+		svg {
+			margin-bottom: .75rem;
+			opacity: .6;
+		}
+	}
+
+	.min-w-0 {
+		min-width: 0;
+	}
+
+	@media (max-width: 575.98px) {
+		.settings-hub-search {
+			max-width: none;
+		}
+
+		// no hover on touch screens — keep the chevron visible as an affordance
+		.settings-hub-item-chevron {
+			opacity: .6;
+			transform: none;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.settings-hub-card,
+		.settings-hub-item,
+		.settings-hub-item-chevron {
+			transition: none;
+		}
+
+		.settings-hub-card:hover {
+			transform: none;
+		}
+	}
+}
+
+
+/* ---------- Long document forms (sales) ---------- */
+// buttons pinned to the bottom of the scroll area, with the document total on the left
+.form-sticky-actions {
+	position: sticky;
+	bottom: 0;
+	z-index: 5;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: .5rem;
+	margin: 1.5rem -1rem 0;
+	padding: .75rem 1rem;
+	background: $white;
+	border-top: 1px solid $gray_light_4;
+	box-shadow: 0 -4px 12px rgba($black, .06);
+
+	.form-sticky-actions-summary {
+		margin-right: auto;
+		display: flex;
+		align-items: baseline;
+		gap: .5rem;
+		color: $gray_dark_2;
+	}
+
+	// the summary takes the free space; keep a destructive button next to the others
+	.ms-auto {
+		margin-left: 1rem !important;
+	}
+}
+
+.sales-doc-card {
+	margin-bottom: 1rem;
+
+	.sales-doc-card-header {
+		display: flex;
+		align-items: center;
+		gap: .75rem;
+		padding: .875rem 1.25rem;
+		border-bottom: 1px solid $gray_light_4;
+	}
+
+	.sales-doc-card-icon {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 2rem;
+		height: 2rem;
+		flex-shrink: 0;
+		border-radius: .5rem;
+		color: $teal;
+		background: rgba($teal, .1);
+	}
+
+	.sales-doc-card-title {
+		font-weight: 600;
+		color: $black;
+		line-height: 1.3;
+	}
+
+	.sales-doc-card-hint,
+	.sales-doc-card-summary {
+		font-size: .8125rem;
+		color: $gray_dark_2;
+	}
+
+	.sales-doc-card-toggle {
+		display: flex;
+		flex: 1;
+		align-items: center;
+		justify-content: space-between;
+		gap: .75rem;
+		min-width: 0;
+		padding: 0;
+		text-align: left;
+		background: none;
+		border: 0;
+	}
+
+	.sales-doc-card-chevron {
+		flex-shrink: 0;
+		color: $gray_dark_2;
+		transition: transform .15s ease;
+
+		&.open {
+			transform: rotate(180deg);
+		}
+	}
+
+	.sales-doc-card-body {
+		padding: 1.25rem;
+
+		// fields carry a bottom margin; cancel the last one so cards don't end in a gap
+		> .row:last-child {
+			margin-bottom: -1rem;
+		}
+
+		> .mb-3:last-child {
+			margin-bottom: 0 !important;
+		}
+	}
+
+	// a closed collapsible card is just its header
+	&:not(:has(.sales-doc-card-body)) .sales-doc-card-header {
+		border-bottom: 0;
+	}
+
+	.min-w-0 {
+		min-width: 0;
+	}
+}
+
+// customer credit at a glance, under the customer picker
+.sales-credit-strip {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: .375rem 1.25rem;
+	margin: -.25rem 0 1rem;
+	padding: .5rem .75rem;
+	font-size: .8125rem;
+	border-radius: .5rem;
+	background: $gray_light_5;
+
+	.label {
+		color: $gray_dark_2;
+		margin-right: .25rem;
+	}
+
+	&.is-blocked {
+		background: rgba($red, .06);
+	}
+}
+
+// the item grid: roomy rows, labels in the header only
+.sales-lines {
+	thead th {
+		font-size: .75rem;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: .04em;
+		color: $gray_dark_2;
+		white-space: nowrap;
+		padding-top: .625rem;
+		padding-bottom: .625rem;
+	}
+
+	tbody td {
+		padding-top: .75rem;
+		padding-bottom: .75rem;
+		vertical-align: top;
+	}
+
+	tbody tr:hover {
+		background: rgba($teal, .02);
+	}
+
+	// line inputs match the item picker's height
+	.form-control-sm {
+		min-height: 2.375rem;
+	}
+
+	.sales-line-amount {
+		padding-top: 1.1rem;
+		font-weight: 600;
+		white-space: nowrap;
+	}
+
+	.sales-line-meta {
+		margin-top: .25rem;
+		font-size: .75rem;
+		color: $gray_dark_2;
+	}
+
+	.sales-line-description {
+		margin-top: .375rem;
+		font-size: .8125rem;
+		background: $gray_light_5;
+		border-color: transparent;
+	}
+}
+
+// full-width "add line" under the grid
+.sales-add-line {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: .375rem;
+	width: 100%;
+	margin-top: .75rem;
+	padding: .625rem;
+	color: $teal;
+	font-weight: 500;
+	border: 1px dashed rgba($teal, .45);
+	border-radius: .5rem;
+	background: transparent;
+
+	&:hover {
+		background: rgba($teal, .05);
+	}
+}
+
+// totals card: grand total stands out
+.sales-totals-card {
+	.sales-totals td {
+		padding: .375rem 0;
+	}
+
+	.sales-grand-total {
+		font-size: 1.375rem;
+		font-weight: 700;
+		color: $black;
+	}
+}
+
+@media (max-width: 575.98px) {
+	.form-sticky-actions {
+		.form-sticky-actions-summary {
+			width: 100%;
+		}
+	}
+
+	.sales-doc-card .sales-doc-card-body {
+		padding: 1rem;
+	}
+}
+
+/*------------------- Invoice document layout --------------------
+  Sales invoice forms laid out like the printed invoice
+  (modelled on the Invoices > Create Invoice template).
+----------------------------------------------------------------*/
+.invoice-doc {
+	background: $white;
+	border: 1px solid $gray_light_4;
+	border-radius: .5rem;
+	margin-bottom: 1rem;
+
+	.separator {
+		margin: 2rem 0;
+	}
+
+	.invoice-doc-eyebrow,
+	.invoice-doc-heading {
+		font-size: .75rem;
+		font-weight: 600;
+		letter-spacing: .06em;
+		text-transform: uppercase;
+		margin-bottom: .75rem;
+	}
+
+	.invoice-doc-eyebrow {
+		color: $primary;
+		margin-bottom: .5rem;
+	}
+
+	.invoice-doc-heading {
+		color: $gray;
+	}
+
+	// business / customer / ship-to address blocks
+	.invoice-doc-party {
+		h6 {
+			color: $black_2;
+		}
+
+		p {
+			margin-bottom: .125rem;
+			color: $gray_dark_2;
+		}
+
+		.invoice-doc-party-ids {
+			font-size: .8125rem;
+			color: $gray;
+			margin-bottom: .375rem;
+		}
+	}
+
+	.invoice-doc-billto {
+		margin-top: .25rem;
+		padding: .875rem 1rem;
+		background: $gray_light_5;
+		border-radius: .5rem;
+	}
+
+	.invoice-doc-title-wrap {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: .5rem;
+		margin-bottom: 1.25rem;
+	}
+
+	.invoice-doc-title {
+		font-size: 2.25rem;
+		font-weight: 700;
+		color: $primary;
+		margin: 0;
+	}
+
+	.invoice-doc-subtitle {
+		display: flex;
+		align-items: center;
+		gap: .5rem;
+		color: $gray;
+	}
+
+	// reference / dates / terms as "label | field" rows, like the template header
+	.invoice-doc-meta {
+		> .row > [class*="col"] {
+			flex: 0 0 100%;
+			max-width: 100%;
+		}
+
+		.mb-3 {
+			display: grid;
+			grid-template-columns: minmax(8rem, 38%) 1fr;
+			column-gap: 1rem;
+			align-items: center;
+			margin-bottom: .625rem !important;
+		}
+
+		.form-label {
+			margin-bottom: 0;
+			color: $gray_dark_2;
+		}
+
+		.invalid-feedback,
+		.form-text {
+			grid-column: 2;
+		}
+	}
+
+	// item table: bordered sheet with the template's primary header row
+	.invoice-doc-items {
+		.table-responsive {
+			border: 1px solid $gray_light_4;
+			border-radius: .5rem;
+			padding: .375rem;
+		}
+
+		.sales-lines thead th {
+			--bs-table-bg: #{$primary};
+			--bs-table-color: #{$white};
+			background-color: $primary;
+			color: $white;
+			font-weight: 500;
+			border-color: transparent;
+
+			&:first-child {
+				border-top-left-radius: .25rem;
+				border-bottom-left-radius: .25rem;
+			}
+
+			&:last-child {
+				border-top-right-radius: .25rem;
+				border-bottom-right-radius: .25rem;
+			}
+		}
+	}
+
+	// totals: bordered box, grand total on the light primary band
+	.invoice-doc-totals {
+		border: 1px solid $gray_light_4;
+		border-radius: .5rem;
+		overflow: hidden;
+
+		.sales-totals-card .sales-totals td {
+			padding: .5rem 1rem;
+		}
+
+		.sales-totals tr:last-child td {
+			background: $primary_light_5;
+			padding-top: .875rem;
+			padding-bottom: .875rem;
+		}
+	}
+}
+
+@media (max-width: 767px) {
+	.invoice-doc .invoice-doc-meta {
+		.mb-3 {
+			grid-template-columns: 1fr;
+		}
+
+		.invalid-feedback,
+		.form-text {
+			grid-column: 1;
+		}
+	}
+}
+
+/*------------------- General ledger reports --------------------*/
+.gl-report {
+	.gl-report-head {
+		margin-bottom: 1.25rem;
+	}
+}
+
+.gl-tree {
+	thead th {
+		color: $gray_dark_2;
+		font-weight: 600;
+		border-bottom: 2px solid $gray_light_4;
+	}
+
+	td {
+		vertical-align: middle;
+	}
+
+	// class heading: the statement section
+	.gl-tree-class td {
+		padding-top: 1.25rem;
+		font-size: .8125rem;
+		font-weight: 700;
+		letter-spacing: .04em;
+		text-transform: uppercase;
+		color: $primary;
+		border-bottom: 1px solid $primary_light_4;
+	}
+
+	.gl-tree-group {
+		cursor: pointer;
+
+		td:first-child {
+			font-weight: 600;
+			color: $black_2;
+		}
+	}
+
+	.gl-tree-account td:first-child a:hover {
+		color: $primary !important;
+	}
+
+	.gl-tree-subtotal td {
+		font-weight: 600;
+		color: $gray_dark_2;
+		border-top: 1px solid $gray_light_4;
+	}
+
+	.gl-tree-class-total td {
+		font-weight: 700;
+		color: $black_2;
+		background: $gray_light_5;
+		border-top: 1px solid $gray_light_4;
+	}
+
+	.gl-tree-footer td {
+		font-weight: 700;
+		font-size: 1rem;
+		color: $black;
+		background: $primary_light_5;
+		border-top: 2px solid $primary_light_4;
+	}
+}
+
+.gl-summary-strip {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 2rem;
+	padding: .875rem 1.25rem;
+	border: 1px solid $gray_light_4;
+	border-radius: .5rem;
+	background: $gray_light_5;
+}
+
+.gl-row-voided td {
+	color: $gray !important;
+	text-decoration: line-through;
+}
+
+@media print {
+	.hk-menu,
+	.hk-navbar,
+	.app-sidebar,
+	.app-header,
+	.d-print-none {
+		display: none !important;
+	}
+
+	.gl-report {
+		border: 0 !important;
+		box-shadow: none !important;
+	}
+}

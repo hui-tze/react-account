@@ -1,0 +1,197 @@
+import {useMemo} from "react";
+import {Button, Col, Row, Table} from "react-bootstrap";
+import {Plus, Trash2} from "react-feather";
+import {useFieldArray, useWatch} from "react-hook-form";
+import {useRequestForm} from "@/hooks/use-request-handler";
+import {InventoryDocument} from "@/apis/models/inventory-document";
+import {InventoryAdjustmentRequest} from "@/apis/requests/inventory-document-request";
+import {useGetInventoryLocationOptions} from "@/apis/requests/inventory-location-api";
+import {useGetStockOnHand} from "@/apis/requests/inventory-movement-api";
+import {SelectField, TextAreaField, TextField} from "@/components/FormField/FormFields";
+import SettingsFormPage, {FormSectionTitle} from "@/views/Settings/shared/SettingsFormPage";
+import {RecordFormProps} from "@/views/Settings/shared/SettingsEditPage";
+import {useSmartTranslation} from "@/hooks/use-translation";
+import {ADJUSTMENTS_PATH} from "../inventory-menu";
+import {formatDecimal} from "../shared/options";
+import {applyServerErrors, ItemPicker, LineNumberInput, SignedQuantity, today, useStockItems, VoidedAlert} from "../shared/document";
+
+const EMPTY_LINE = {item_id: null, quantity: null, unit_cost: null};
+
+export function AdjustmentForm({record, onSubmit, onSuccess, onDelete}: RecordFormProps<InventoryDocument, InventoryAdjustmentRequest>) {
+    const {t} = useSmartTranslation();
+    const {items, byId} = useStockItems();
+    const {data: locations} = useGetInventoryLocationOptions();
+    const voided = record?.status === "inactive";
+
+    const {control, setValue, setError, submitting, handleSubmitRequest} = useRequestForm<InventoryAdjustmentRequest>({
+        formOptions: {
+            defaultValues: {
+                reference_no: record?.reference_no ?? "",
+                trans_date: record?.trans_date?.slice(0, 10) ?? today(),
+                inventory_location_id: record?.inventory_location_id,
+                memo: record?.memo ?? "",
+                lines: record?.lines?.length
+                    ? record.lines.map(l => ({item_id: l.item_id, quantity: Number(l.quantity), unit_cost: Number(l.unit_cost)}))
+                    : [EMPTY_LINE],
+            },
+        },
+    });
+
+    const {fields, append, remove} = useFieldArray({control, name: "lines"});
+    const lines = useWatch({control, name: "lines"}) ?? [];
+    const locationId = useWatch({control, name: "inventory_location_id"});
+    const {data: onHand} = useGetStockOnHand(locationId);
+
+    // stock before this document: when editing, take this adjustment's own effect back out
+    const ownQuantity = useMemo(() => {
+        const own = new Map<number, number>();
+        if (record && !voided && record.inventory_location_id === locationId) {
+            record.lines?.forEach(l => own.set(l.item_id, Number(l.quantity)));
+        }
+        return own;
+    }, [record, voided, locationId]);
+    const baselineOf = (itemId: number | null) =>
+        itemId == null ? null : Number(onHand?.[itemId] ?? 0) - (ownQuantity.get(itemId) ?? 0);
+
+    const locationOptions = (locations ?? [])
+        .filter(l => l.status === "active" || l.id === record?.inventory_location_id)
+        .map(l => ({value: l.id, label: `${l.code} - ${l.name}`}));
+
+    const total = lines.reduce((sum, l) => sum + Number(l?.quantity ?? 0) * Number(l?.unit_cost ?? 0), 0);
+
+    const submit = async (data: InventoryAdjustmentRequest) => {
+        try {
+            await onSubmit({...data, reference_no: data.reference_no.trim()});
+        } catch (e) {
+            applyServerErrors(e, setError, ["reference_no", "trans_date", "inventory_location_id", "lines"]);
+            throw e;
+        }
+    };
+
+    return (
+        <SettingsFormPage
+            onSubmit={handleSubmitRequest({request: submit, onSuccess})}
+            submitting={submitting}
+            isEditing={!!record}
+            backTo={ADJUSTMENTS_PATH}
+            onDelete={onDelete}
+            deleteLabel={t('void')}
+            submitLabel={record ? undefined : t('processAdjustment')}
+            readOnly={voided}
+        >
+            {voided && <VoidedAlert />}
+
+            <FormSectionTitle title={t('details')} />
+            <Row className="gx-3">
+                <Col md={4}>
+                    <SelectField control={control} name="inventory_location_id" label={t('inventoryLocation')} options={locationOptions} numeric required placeholder="" disabled={voided} />
+                </Col>
+                <Col md={4}>
+                    <TextField control={control} name="trans_date" label={t('date')} type="date" required disabled={voided} />
+                </Col>
+                <Col md={4}>
+                    <TextField
+                        control={control}
+                        name="reference_no"
+                        label={t('referenceNo')}
+                        maxLength={255}
+                        placeholder={record ? undefined : t('autoGenerated')}
+                        hint={record ? undefined : t('referenceAutoHint')}
+                        disabled={voided}
+                    />
+                </Col>
+            </Row>
+
+            <FormSectionTitle title={t('adjustmentItems')} hint={voided ? undefined : t('adjustmentItemsHint')} />
+            <div className="table-responsive mb-2">
+                <Table className="align-middle mb-0 inventory-lines">
+                    <thead className="table-light">
+                        <tr>
+                            <th style={{width: 40}}>#</th>
+                            <th style={{minWidth: 260}}>{t('item')}</th>
+                            <th style={{width: 70}}>{t('unit')}</th>
+                            <th style={{width: 110}} className="text-end">{t('onHand')}</th>
+                            <th style={{width: 140}} className="text-end">{t('adjustBy')}</th>
+                            <th style={{width: 110}} className="text-end">{t('newOnHand')}</th>
+                            <th style={{width: 140}} className="text-end">{t('unitCost')}</th>
+                            <th style={{width: 120}} className="text-end">{t('value')}</th>
+                            <th style={{width: 44}} />
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {fields.map((field, index) => {
+                            const line = lines[index];
+                            const item = line?.item_id != null ? byId.get(line.item_id) : undefined;
+                            const baseline = locationId ? baselineOf(line?.item_id ?? null) : null;
+                            const after = baseline != null ? baseline + Number(line?.quantity ?? 0) : null;
+
+                            return (
+                                <tr key={field.id}>
+                                    <td className="text-muted">{index + 1}</td>
+                                    <td>
+                                        <ItemPicker
+                                            control={control}
+                                            name={`lines.${index}.item_id`}
+                                            items={items}
+                                            excludeIds={lines.filter((_, i) => i !== index).map(l => l?.item_id).filter((id): id is number => id != null)}
+                                            disabled={voided}
+                                            onPicked={(picked) => {
+                                                if (picked && !Number(line?.unit_cost)) {
+                                                    setValue(`lines.${index}.unit_cost`, picked.standardCost);
+                                                }
+                                            }}
+                                        />
+                                    </td>
+                                    <td className="text-muted">{item?.uom ?? "-"}</td>
+                                    <td className="text-end text-muted">{baseline != null ? formatDecimal(baseline) : "-"}</td>
+                                    <td>
+                                        <LineNumberInput
+                                            control={control}
+                                            name={`lines.${index}.quantity`}
+                                            disabled={voided}
+                                            validate={(v) => v !== 0 || t('quantityNotZero')}
+                                        />
+                                    </td>
+                                    <td className="text-end fw-semibold">{after != null ? <SignedQuantity value={after} /> : "-"}</td>
+                                    <td>
+                                        <LineNumberInput
+                                            control={control}
+                                            name={`lines.${index}.unit_cost`}
+                                            min={0}
+                                            disabled={voided}
+                                            validate={(v) => v >= 0 || t('valueMustNotBeNegative')}
+                                        />
+                                    </td>
+                                    <td className="text-end">
+                                        <SignedQuantity value={Number(line?.quantity ?? 0) * Number(line?.unit_cost ?? 0)} />
+                                    </td>
+                                    <td className="text-end">
+                                        {!voided && fields.length > 1 && (
+                                            <Button variant="flush-danger" size="sm" className="btn-icon btn-rounded" title={t('remove')} onClick={() => remove(index)}>
+                                                <Trash2 size={16} />
+                                            </Button>
+                                        )}
+                                    </td>
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colSpan={7} className="text-end fw-semibold">{t('totalValue')}</td>
+                            <td className="text-end fw-bold"><SignedQuantity value={total} /></td>
+                            <td />
+                        </tr>
+                    </tfoot>
+                </Table>
+            </div>
+            {!voided && (
+                <Button variant="outline-primary" size="sm" className="mb-4" onClick={() => append(EMPTY_LINE)}>
+                    <Plus size={14} className="me-1" /> {t('addLine')}
+                </Button>
+            )}
+
+            <TextAreaField control={control} name="memo" label={t('memo')} rows={3} disabled={voided} />
+        </SettingsFormPage>
+    );
+}

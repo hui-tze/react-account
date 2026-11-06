@@ -22,6 +22,7 @@ type ModuleName =
     | 'purchases'
     | 'einvoice'
     | 'gl'
+    | 'banking'
     | SettingsModule;
 
 const ModuleLayout = () => {

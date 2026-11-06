@@ -7,6 +7,7 @@ import { salesModule } from '@/views/Sales/sales-menu';
 import { purchasesModule } from '@/views/Purchases/purchases-menu';
 import { einvoiceModule } from '@/views/Einvoice/einvoice-menu';
 import { glModule } from '@/views/GeneralLedger/gl-menu';
+import { bankingModule } from '@/views/Banking/banking-menu';
 
 export interface ModuleSidebarItem {
     name: string;
@@ -53,4 +54,5 @@ export const ModuleSidebarMenu: Record<string, ModuleSidebarConfig> = {
     purchases: purchasesModule,
     einvoice: einvoiceModule,
     gl: glModule,
+    banking: bankingModule,
 };

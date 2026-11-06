@@ -100,13 +100,13 @@ export function ItemForm({record, onSubmit, onSuccess, onDelete}: RecordFormProp
                 <Col md={4}>
                     <TextField control={control} name="code" label={t('code')} required maxLength={50} />
                 </Col>
-                <Col md={5}>
+                <Col md={6}>
                     <TextField control={control} name="name" label={t('name')} required maxLength={255} />
                 </Col>
-                <Col md={3}>
+                <Col md={2}>
                     <StatusField control={control} name="status" />
                 </Col>
-                <Col md={4}>
+                <Col md={6}>
                     <SelectField
                         control={control}
                         name="item_category_id"
@@ -117,16 +117,16 @@ export function ItemForm({record, onSubmit, onSuccess, onDelete}: RecordFormProp
                         hint={record ? undefined : t('itemCategoryDefaultsHint')}
                     />
                 </Col>
-                <Col md={4}>
+                <Col md={6}>
                     <SelectField control={control} name="item_type" label={t('itemType')} options={itemTypeOptions} />
                 </Col>
-                <Col md={4}>
+                <Col md={6}>
                     <SelectField control={control} name="uom_id" label={t('unitOfMeasurement')} options={uomOptions} numeric placeholder="" />
                 </Col>
-                <Col md={4}>
+                <Col md={6}>
                     <SelectField control={control} name="item_tax_category_id" label={t('itemTaxType')} options={taxOptions} numeric placeholder="" />
                 </Col>
-                <Col md={4}>
+                <Col md={6}>
                     <SelectField control={control} name="einv_classification_code" label={t('einvClassification')} placeholder=""
                         options={einvCodes?.classifications ?? []} hint={t('einvClassificationHint')} />
                 </Col>

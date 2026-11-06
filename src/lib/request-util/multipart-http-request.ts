@@ -1,4 +1,5 @@
 import type {AuthorizationRequest} from "./request-interface";
+import {companyHeader} from "./request-utility";
 
 export class MultipartRequest extends FormData implements AuthorizationRequest<MultipartRequest> {
     private destUrl: string;
@@ -69,6 +70,7 @@ export class MultipartRequest extends FormData implements AuthorizationRequest<M
             if (this.token != null) {
                 request.setRequestHeader("Authorization", `Bearer ${this.token}`);
                 request.setRequestHeader("Accept", "application/json");
+                Object.entries(companyHeader()).forEach(([key, value]) => request.setRequestHeader(key, value));
             }
             request.send(this);
         });

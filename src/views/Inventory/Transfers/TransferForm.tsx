@@ -97,7 +97,16 @@ export function TransferForm({record, onSubmit, onSuccess, onDelete}: RecordForm
             <FormSectionTitle title={t('details')} />
             <Row className="gx-3 align-items-start">
                 <Col md>
-                    <SelectField control={control} name="inventory_location_id" label={t('fromLocation')} options={locationOptions} numeric required placeholder="" disabled={voided} />
+                    <SelectField 
+                        control={control}
+                        name="inventory_location_id"
+                        label={t('fromLocation')}
+                        options={locationOptions} 
+                        numeric
+                        required
+                        placeholder=""
+                        disabled={voided}
+                    />
                 </Col>
                 <Col md="auto" className="d-flex justify-content-center pt-md-4">
                     <Button variant="flush-primary" className="btn-icon btn-rounded mt-md-2 mb-3" title={t('swapLocations')} onClick={swapLocations} disabled={voided}>

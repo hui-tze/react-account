@@ -1,6 +1,6 @@
 import {Col, Row} from "react-bootstrap";
 import {useRequestForm} from "@/hooks/use-request-handler";
-import {TinLookup} from "@/views/Einvoice/shared/TinLookup";
+import {TaxIdentityFields} from "@/views/Einvoice/shared/TaxIdentityFields";
 import {Supplier} from "@/apis/models/supplier";
 import {SupplierRequest} from "@/apis/requests/supplier-api";
 import {useGetCurrencyOptions} from "@/apis/requests/currency-api";
@@ -11,7 +11,7 @@ import SettingsFormPage, {FormSectionTitle} from "@/views/Settings/shared/Settin
 import {RecordFormProps} from "@/views/Settings/shared/SettingsEditPage";
 import {AddressRows} from "@/views/Settings/Organization/Profile/AddressRows";
 import {ContactRows} from "@/views/Settings/Organization/Profile/ContactRows";
-import {addressesToForm, addressesToPayload, blankToNull, contactsToForm, contactsToPayload} from "@/views/Settings/Organization/Profile/profile-form";
+import {addressesToForm, addressesToPayload, blankToNull, contactsToForm, contactsToPayload, EMPTY_ADDRESS, EMPTY_CONTACT} from "@/views/Settings/Organization/Profile/profile-form";
 import {useAccountOptions} from "@/views/Settings/shared/options";
 import {useSmartTranslation} from "@/hooks/use-translation";
 import {SUPPLIERS_PATH} from "../purchases-menu";
@@ -52,8 +52,9 @@ export function SupplierForm({record, onSubmit, onSuccess, onDelete}: RecordForm
                 purchase_discount_account_id: record?.purchase_discount_account_id ?? null,
                 notes: record?.notes ?? "",
                 status: record?.status ?? "active",
-                addresses: addressesToForm(record?.addresses),
-                contacts: contactsToForm(record?.contacts),
+                // at least one address and one contact are required; a new record starts with an empty one of each
+                addresses: record ? addressesToForm(record.addresses) : [{...EMPTY_ADDRESS, is_primary: true}],
+                contacts: record ? contactsToForm(record.contacts) : [{...EMPTY_CONTACT}],
             },
         },
     });
@@ -81,37 +82,21 @@ export function SupplierForm({record, onSubmit, onSuccess, onDelete}: RecordForm
         >
             <FormSectionTitle title={t('general')} />
             <Row className="gx-3">
-                <Col md={3}>
+                <Col md={2}>
                     <TextField control={control} name="code" label={t('supplierCode')} maxLength={50} />
                 </Col>
-                <Col md={6}>
+                <Col md={5}>
                     <TextField control={control} name="name" label={t('supplierName')} required maxLength={255} />
-                </Col>
-                <Col md={3}>
-                    <StatusField control={control} name="status" />
                 </Col>
                 <Col md={3}>
                     <TextField control={control} name="short_name" label={t('shortName')} maxLength={60} />
                 </Col>
-                <Col md={3}>
-                    <TextField control={control} name="tin" label={t('tin')} maxLength={50} hint={t('tinHint')} />
-                </Col>
-                <Col md={3}>
-                    <TextField control={control} name="registration_no" label={t('registrationNo')} maxLength={100} />
-                </Col>
-                <Col md={3}>
-                    <SelectField control={control} name="einv_id_type" label={t('einvIdType')} placeholder="" hint={t('einvIdTypeHint')} options={[
-                        {value: "BRN", label: t('einvIdType_BRN')},
-                        {value: "NRIC", label: t('einvIdType_NRIC')},
-                        {value: "PASSPORT", label: t('einvIdType_PASSPORT')},
-                        {value: "ARMY", label: t('einvIdType_ARMY')},
-                    ]} />
-                </Col>
-                <Col md={3}>
-                    <TextField control={control} name="tax_no" label={t('sstNo')} maxLength={100} />
+                <Col md={2}>
+                    <StatusField control={control} name="status" />
                 </Col>
             </Row>
-            <TinLookup control={control} setValue={setValue} />
+
+            <TaxIdentityFields control={control} setValue={setValue} />
 
             <FormSectionTitle title={t('purchasingTerms')} />
             <Row className="gx-3">
@@ -150,10 +135,10 @@ export function SupplierForm({record, onSubmit, onSuccess, onDelete}: RecordForm
             </Row>
 
             <hr className="my-3" />
-            <AddressRows control={control} watch={watch} setValue={setValue} />
+            <AddressRows control={control} watch={watch} setValue={setValue} required />
 
             <hr className="my-3" />
-            <ContactRows control={control} usedCategoryIds={(record?.contacts ?? []).map(c => c.category_id)} entityType="supplier" />
+            <ContactRows control={control} usedCategoryIds={(record?.contacts ?? []).map(c => c.category_id)} entityType="supplier" required />
 
             <hr className="my-3" />
             <TextAreaField control={control} name="notes" label={t('notes')} rows={3} />

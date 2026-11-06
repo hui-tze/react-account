@@ -132,6 +132,12 @@ import {
 import {CreateSupplierPayment, EditSupplierPayment, SupplierPayments} from "@/views/Purchases/Payments/SupplierPaymentPages";
 import SupplierAllocationPage from "@/views/Purchases/Allocation/SupplierAllocationPage";
 
+// Banking
+import {BankAccountRegister, BankAccounts as BankingAccounts} from "@/views/Banking/Accounts/BankAccountPages";
+import {BankTransactions, CreateBankDeposit, CreateBankPayment, CreateBankTransfer, ViewBankDocument} from "@/views/Banking/Documents/BankDocumentPages";
+import {Reconciliation} from "@/views/Banking/Reconciliation/ReconciliationPage";
+import {BANK_PAYMENT_CREATE_PATH} from "@/views/Banking/banking-menu";
+
 // General Ledger
 import {LedgerEntries} from "@/views/GeneralLedger/Ledger/LedgerEntries";
 import {CreateJournal, Journals, ViewJournal} from "@/views/GeneralLedger/Journals/JournalPages";
@@ -219,6 +225,22 @@ export const mainRouter = createBrowserRouter(
                 </Route>
                 <Route path="allocation" element={<SupplierAllocationPage />} handle={{title: "Supplier Allocation", canNavigate: true}} />
                 {crudRoutes({path: "suppliers", basePath: SUPPLIERS_PATH, title: "Suppliers", newLabelKey: "newSupplier", List: Suppliers, Create: CreateSupplier, Edit: EditSupplier})}
+            </Route>
+
+            <Route path="/banking" element={<ModuleLayout />} handle={{title: "Banking", module: "banking", canNavigate: true}} >
+                <Route index element={<Navigate to="accounts" replace />} />
+                <Route path="accounts" handle={{title: "All Bank Accounts", canNavigate: true}}>
+                    <Route index element={<BankingAccounts />} handle={{hide: true}} />
+                    <Route path=":id" element={<BankAccountRegister />} handle={{title: "Register", canNavigate: false}} />
+                </Route>
+                <Route path="transactions" handle={{title: "Bank Transactions", canNavigate: true}}>
+                    <Route index element={<BankTransactions />} handle={{hide: true, headerOptions: <CreateLink to={BANK_PAYMENT_CREATE_PATH} labelKey="newBankPayment" />}} />
+                    <Route path=":id" element={<ViewBankDocument />} handle={{title: "View", canNavigate: false}} />
+                </Route>
+                <Route path="payments/create" element={<CreateBankPayment />} handle={{title: "Payment", canNavigate: false}} />
+                <Route path="deposits/create" element={<CreateBankDeposit />} handle={{title: "Deposit", canNavigate: false}} />
+                <Route path="transfers/create" element={<CreateBankTransfer />} handle={{title: "Bank Account Transfer", canNavigate: false}} />
+                <Route path="reconciliation" element={<Reconciliation />} handle={{title: "Reconciliation", canNavigate: true}} />
             </Route>
 
             <Route path="/gl" element={<ModuleLayout />} handle={{title: "General Ledger", module: "gl", canNavigate: true}} >

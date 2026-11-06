@@ -138,10 +138,10 @@ export function EinvoiceSettingsForm({setting, onSaved}: Props) {
                         hint={setting.endpoints[environment] ?? undefined}
                     />
                 </Col>
-                <Col md={5}>
+                <Col md={6}>
                     <TextField control={control} name="client_id" label={t('einvClientId')} required={enabled} maxLength={255} />
                 </Col>
-                <Col md={7}>
+                <Col md={6}>
                     <InputField
                         control={control}
                         name="client_secret"

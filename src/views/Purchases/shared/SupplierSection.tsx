@@ -1,5 +1,6 @@
+import {ReactNode} from "react";
 import {Col, Form, Row} from "react-bootstrap";
-import {Control, Controller, FieldValues, Path, UseFormSetValue} from "react-hook-form";
+import {Control, Controller, FieldValues, Path, UseFormSetValue, useWatch} from "react-hook-form";
 import Select, {StylesConfig} from "react-select";
 import {Supplier} from "@/apis/models/supplier";
 import {useGetSupplierOptions} from "@/apis/requests/supplier-api";
@@ -7,6 +8,7 @@ import {useGetPaymentTermOptions} from "@/apis/requests/payment-term-api";
 import {useGetTaxGroupOptions} from "@/apis/requests/tax-group-api";
 import {reactSelectCustomStyles} from "@/utils/ReactSelect";
 import {useSmartTranslation} from "@/hooks/use-translation";
+import type {EntryCheck} from "@/views/Sales/shared/EntryLayout";
 
 type SupplierOption = {value: number, label: string, supplier: Supplier};
 
@@ -73,12 +75,14 @@ type SupplierSectionProps<T extends SupplierForm> = {
     readOnly?: boolean,
     // called after a user picks a supplier (after its defaults are applied)
     onPicked?: (supplier: Supplier | undefined) => void,
+    // fields beside the supplier (e.g. the supplier's invoice no)
+    children?: ReactNode,
 };
 
-/** Supplier pick plus a strip of what the supplier brings: currency, terms, taxes. */
+/** Supplier pick with what the supplier brings (TIN, currency, terms, taxes); `children` are further columns beside it. */
 export function SupplierSection<T extends SupplierForm>(props: SupplierSectionProps<T>) {
     // react-hook-form can't resolve paths on an open generic, so work on the slice type
-    const {control, setValue, lockSupplier, showTaxIncluded = true, readOnly, onPicked} = props as unknown as SupplierSectionProps<SupplierForm>;
+    const {control, setValue, lockSupplier, showTaxIncluded = true, readOnly, onPicked, children} = props as unknown as SupplierSectionProps<SupplierForm>;
     const {t} = useSmartTranslation();
     const {data: suppliers} = useGetSupplierOptions();
     const {data: terms} = useGetPaymentTermOptions();
@@ -91,39 +95,49 @@ export function SupplierSection<T extends SupplierForm>(props: SupplierSectionPr
             render={({field}) => {
                 const supplier = suppliers?.find(s => s.id === field.value);
                 return (
-                    <>
-                        <SupplierPicker control={control} name="supplier_id" suppliers={suppliers ?? []} label={t('supplier')} disabled={readOnly || lockSupplier}
-                            onPicked={(picked) => {
-                                setValue("tax_included", picked ? !!picked.tax_included : null);
-                                onPicked?.(picked);
-                            }} />
-                        {supplier ? (
-                            <div className="sales-credit-strip">
-                                <span><span className="label">{t('currency')}</span>{supplier.currency?.code ?? "MYR"}</span>
-                                <span><span className="label">{t('paymentTerms')}</span>{terms?.find(p => p.id === supplier.payment_terms_id)?.name ?? "-"}</span>
-                                <span><span className="label">{t('taxGroup')}</span>{taxGroups?.find(g => g.id === supplier.tax_group_id)?.name ?? t('noTax')}</span>
-                                {supplier.tin && <span><span className="label">{t('tin')}</span>{supplier.tin}</span>}
-                            </div>
-                        ) : (
-                            <p className="small text-muted mb-3">{t('pickSupplierFirst')}</p>
-                        )}
+                    <Row className="gx-4">
+                        <Col xs={12}>
+                            <SupplierPicker control={control} name="supplier_id" suppliers={suppliers ?? []} label={t('supplier')} disabled={readOnly || lockSupplier}
+                                onPicked={(picked) => {
+                                    setValue("tax_included", picked ? !!picked.tax_included : null);
+                                    onPicked?.(picked);
+                                }} />
+                            {supplier ? (
+                                <div className="doc-field-note">
+                                    {supplier.tin && <span>{t('tin')} {supplier.tin}</span>}
+                                    <span>{supplier.currency?.code ?? "MYR"}</span>
+                                    <span>{terms?.find(p => p.id === supplier.payment_terms_id)?.name ?? "-"}</span>
+                                    <span>{taxGroups?.find(g => g.id === supplier.tax_group_id)?.name ?? t('noTax')}</span>
+                                </div>
+                            ) : (
+                                <div className="doc-field-note">{t('pickSupplierFirst')}</div>
+                            )}
+                        </Col>
+                        {children}
                         {showTaxIncluded && supplier && (
-                            <Row>
-                                <Col>
-                                    <Controller
-                                        control={control}
-                                        name="tax_included"
-                                        render={({field: f}) => (
-                                            <Form.Check type="switch" id="tax-included" className="mb-3" label={t('supplierPricesIncludeTax')}
-                                                checked={!!f.value} disabled={readOnly} onChange={(e) => f.onChange(e.target.checked)} />
-                                        )}
-                                    />
-                                </Col>
-                            </Row>
+                            <Col xs={12}>
+                                <Controller
+                                    control={control}
+                                    name="tax_included"
+                                    render={({field: f}) => (
+                                        <Form.Check type="switch" id="tax-included" className="mb-3" label={t('supplierPricesIncludeTax')}
+                                            checked={!!f.value} disabled={readOnly} onChange={(e) => f.onChange(e.target.checked)} />
+                                    )}
+                                />
+                            </Col>
                         )}
-                    </>
+                    </Row>
                 );
             }}
         />
     );
+}
+
+/** Supplier check for the strip on top of a purchase document entry. */
+export function useSupplierChecks<T extends SupplierForm>(control: Control<T>): {issues: EntryCheck[], ready: string[]} {
+    const {t} = useSmartTranslation();
+    const supplierId = useWatch({control: control as unknown as Control<SupplierForm>, name: "supplier_id"});
+    return supplierId
+        ? {issues: [], ready: [t('checkSupplierSet')]}
+        : {issues: [{text: t('checkPickSupplier'), tone: "info"}], ready: []};
 }

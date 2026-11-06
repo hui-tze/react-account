@@ -1,6 +1,6 @@
 import {useState} from "react";
-import {Badge, Button, Spinner} from "react-bootstrap";
-import {CheckCircle, Search} from "react-feather";
+import {Button, Form, Spinner} from "react-bootstrap";
+import {CheckCircle, HelpCircle, Search, XCircle} from "react-feather";
 import {Control, FieldValues, Path, PathValue, UseFormSetValue, useWatch} from "react-hook-form";
 import type {EinvoiceIdType} from "@/apis/models/einvoice";
 import {einvoiceSettingApi} from "@/apis/requests/einvoice-api";
@@ -9,10 +9,10 @@ import {useSmartTranslation} from "@/hooks/use-translation";
 import {formatDateTime} from "./einvoice-ui";
 
 // the customer / supplier form fields this works on
-type TinFields = {name: string, tin: string | null, registration_no: string | null, einv_id_type?: EinvoiceIdType | null};
+export type TinFields = {name: string, tin: string | null, registration_no: string | null, einv_id_type?: EinvoiceIdType | null};
 
 /**
- * LHDN taxpayer tools under the TIN of a customer / supplier: search the TIN registered to the
+ * LHDN check beside the TIN of a customer / supplier: search the TIN registered to the
  * registration / ID number (or name), and validate the TIN + ID pair. Hidden when e-invoice is off.
  */
 export function TinLookup<T extends FieldValues & TinFields>({control, setValue}: {control: Control<T>, setValue: UseFormSetValue<T>}) {
@@ -68,26 +68,37 @@ export function TinLookup<T extends FieldValues & TinFields>({control, setValue}
         }
     };
 
-    const badge = !cleanTin || !cleanId ? null
-        : status?.status === "valid" ? <Badge bg="light" className="badge-soft-success"><CheckCircle size={12} className="me-1" />{t('einvTinVerified', {at: formatDateTime(status.validated_at)})}</Badge>
-        : status?.status === "invalid" ? <Badge bg="light" className="badge-soft-danger">{t('einvTinMismatch', {at: formatDateTime(status.validated_at)})}</Badge>
-        : <Badge bg="light" className="badge-soft-secondary">{t('einvTinUnchecked')}</Badge>;
+    // status in words, coloured by outcome
+    const state = !cleanTin || !cleanId
+        ? {tone: "muted", icon: <HelpCircle size={15} />, text: cleanId ? t('einvTinEnterTin') : t('einvTinNeedsId')}
+        : status?.status === "valid"
+            ? {tone: "success", icon: <CheckCircle size={15} />, text: t('einvTinVerified', {at: formatDateTime(status.validated_at)})}
+            : status?.status === "invalid"
+                ? {tone: "danger", icon: <XCircle size={15} />, text: t('einvTinMismatch', {at: formatDateTime(status.validated_at)})}
+                : {tone: "muted", icon: <HelpCircle size={15} />, text: t('einvTinUnchecked')};
 
     return (
-        <div className="d-flex flex-wrap align-items-center gap-2 mb-3">
-            <span className="small text-muted">{t('myInvois')}:</span>
-            {badge}
-            <Button variant="outline-secondary" size="sm" type="button" disabled={!!busy || (!cleanId && !name)} onClick={search}
-                title={t('einvTinSearchHint')}>
-                {busy === "search" ? <Spinner animation="border" size="sm" className="me-1" /> : <Search size={14} className="me-1" />}
-                {t('einvTinSearch')}
-            </Button>
-            <Button variant="outline-primary" size="sm" type="button" disabled={!!busy || !cleanTin || !cleanId} onClick={validate}
-                title={t('einvTinValidateHint')}>
-                {busy === "validate" ? <Spinner animation="border" size="sm" className="me-1" /> : <CheckCircle size={14} className="me-1" />}
-                {t('einvTinValidate')}
-            </Button>
-            {!cleanId && <span className="small text-muted">{t('einvTinNeedsId')}</span>}
-        </div>
+        <Form.Group className="mb-3">
+            <Form.Label>{t('einvLhdnCheck')}</Form.Label>
+            <div className={`tin-lookup tin-lookup-${state.tone}`}>
+                <span className="tin-lookup-status">
+                    {state.icon}
+                    <span>{state.text}</span>
+                </span>
+                <span className="tin-lookup-actions">
+                    <Button variant="outline-secondary" size="sm" type="button" disabled={!!busy || (!cleanId && !name)} onClick={search}
+                        title={t('einvTinSearchHint')}>
+                        {busy === "search" ? <Spinner animation="border" size="sm" className="me-1" /> : <Search size={14} className="me-1" />}
+                        {t('einvTinSearch')}
+                    </Button>
+                    <Button variant="primary" size="sm" type="button" disabled={!!busy || !cleanTin || !cleanId} onClick={validate}
+                        title={t('einvTinValidateHint')}>
+                        {busy === "validate" ? <Spinner animation="border" size="sm" className="me-1" /> : <CheckCircle size={14} className="me-1" />}
+                        {t('einvTinValidate')}
+                    </Button>
+                </span>
+            </div>
+            <Form.Text className="text-muted">{t('einvTinLookupHint')}</Form.Text>
+        </Form.Group>
     );
 }

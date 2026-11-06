@@ -441,17 +441,12 @@
 	border-top: 1px solid $gray_light_4;
 	box-shadow: 0 -4px 12px rgba($black, .06);
 
+	// delete (if any) and the summary sit on the left; cancel / save take the right (ms-auto)
 	.form-sticky-actions-summary {
-		margin-right: auto;
 		display: flex;
 		align-items: baseline;
 		gap: .5rem;
 		color: $gray_dark_2;
-	}
-
-	// the summary takes the free space; keep a destructive button next to the others
-	.ms-auto {
-		margin-left: 1rem !important;
 	}
 }
 
@@ -606,39 +601,6 @@
 	}
 }
 
-// full-width "add line" under the grid
-.sales-add-line {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	gap: .375rem;
-	width: 100%;
-	margin-top: .75rem;
-	padding: .625rem;
-	color: $teal;
-	font-weight: 500;
-	border: 1px dashed rgba($teal, .45);
-	border-radius: .5rem;
-	background: transparent;
-
-	&:hover {
-		background: rgba($teal, .05);
-	}
-}
-
-// totals card: grand total stands out
-.sales-totals-card {
-	.sales-totals td {
-		padding: .375rem 0;
-	}
-
-	.sales-grand-total {
-		font-size: 1.375rem;
-		font-weight: 700;
-		color: $black;
-	}
-}
-
 @media (max-width: 575.98px) {
 	.form-sticky-actions {
 		.form-sticky-actions-summary {
@@ -648,171 +610,6 @@
 
 	.sales-doc-card .sales-doc-card-body {
 		padding: 1rem;
-	}
-}
-
-/*------------------- Invoice document layout --------------------
-  Sales invoice forms laid out like the printed invoice
-  (modelled on the Invoices > Create Invoice template).
-----------------------------------------------------------------*/
-.invoice-doc {
-	background: $white;
-	border: 1px solid $gray_light_4;
-	border-radius: .5rem;
-	margin-bottom: 1rem;
-
-	.separator {
-		margin: 2rem 0;
-	}
-
-	.invoice-doc-eyebrow,
-	.invoice-doc-heading {
-		font-size: .75rem;
-		font-weight: 600;
-		letter-spacing: .06em;
-		text-transform: uppercase;
-		margin-bottom: .75rem;
-	}
-
-	.invoice-doc-eyebrow {
-		color: $primary;
-		margin-bottom: .5rem;
-	}
-
-	.invoice-doc-heading {
-		color: $gray;
-	}
-
-	// business / customer / ship-to address blocks
-	.invoice-doc-party {
-		h6 {
-			color: $black_2;
-		}
-
-		p {
-			margin-bottom: .125rem;
-			color: $gray_dark_2;
-		}
-
-		.invoice-doc-party-ids {
-			font-size: .8125rem;
-			color: $gray;
-			margin-bottom: .375rem;
-		}
-	}
-
-	.invoice-doc-billto {
-		margin-top: .25rem;
-		padding: .875rem 1rem;
-		background: $gray_light_5;
-		border-radius: .5rem;
-	}
-
-	.invoice-doc-title-wrap {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: baseline;
-		justify-content: space-between;
-		gap: .5rem;
-		margin-bottom: 1.25rem;
-	}
-
-	.invoice-doc-title {
-		font-size: 2.25rem;
-		font-weight: 700;
-		color: $primary;
-		margin: 0;
-	}
-
-	.invoice-doc-subtitle {
-		display: flex;
-		align-items: center;
-		gap: .5rem;
-		color: $gray;
-	}
-
-	// reference / dates / terms as "label | field" rows, like the template header
-	.invoice-doc-meta {
-		> .row > [class*="col"] {
-			flex: 0 0 100%;
-			max-width: 100%;
-		}
-
-		.mb-3 {
-			display: grid;
-			grid-template-columns: minmax(8rem, 38%) 1fr;
-			column-gap: 1rem;
-			align-items: center;
-			margin-bottom: .625rem !important;
-		}
-
-		.form-label {
-			margin-bottom: 0;
-			color: $gray_dark_2;
-		}
-
-		.invalid-feedback,
-		.form-text {
-			grid-column: 2;
-		}
-	}
-
-	// item table: bordered sheet with the template's primary header row
-	.invoice-doc-items {
-		.table-responsive {
-			border: 1px solid $gray_light_4;
-			border-radius: .5rem;
-			padding: .375rem;
-		}
-
-		.sales-lines thead th {
-			--bs-table-bg: #{$primary};
-			--bs-table-color: #{$white};
-			background-color: $primary;
-			color: $white;
-			font-weight: 500;
-			border-color: transparent;
-
-			&:first-child {
-				border-top-left-radius: .25rem;
-				border-bottom-left-radius: .25rem;
-			}
-
-			&:last-child {
-				border-top-right-radius: .25rem;
-				border-bottom-right-radius: .25rem;
-			}
-		}
-	}
-
-	// totals: bordered box, grand total on the light primary band
-	.invoice-doc-totals {
-		border: 1px solid $gray_light_4;
-		border-radius: .5rem;
-		overflow: hidden;
-
-		.sales-totals-card .sales-totals td {
-			padding: .5rem 1rem;
-		}
-
-		.sales-totals tr:last-child td {
-			background: $primary_light_5;
-			padding-top: .875rem;
-			padding-bottom: .875rem;
-		}
-	}
-}
-
-@media (max-width: 767px) {
-	.invoice-doc .invoice-doc-meta {
-		.mb-3 {
-			grid-template-columns: 1fr;
-		}
-
-		.invalid-feedback,
-		.form-text {
-			grid-column: 1;
-		}
 	}
 }
 
@@ -907,5 +704,504 @@
 	.gl-report {
 		border: 0 !important;
 		box-shadow: none !important;
+	}
+}
+
+/*------------- Customer / supplier tax & e-invoice identity -------------*/
+.tax-identity-panel {
+	padding: 1rem 1.25rem .25rem;
+	margin-bottom: 1.25rem;
+	background: $gray_light_5;
+	border: 1px solid $gray_light_4;
+	border-radius: .5rem;
+}
+
+// LHDN check: a box the height of an input — status on the left, actions on the right
+.tin-lookup {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: .5rem 1rem;
+	min-height: calc(1.5em + .75rem + 2px);
+	padding: .25rem .375rem .25rem .875rem;
+	background: $white;
+	border: 1px solid $gray_light_4;
+	border-radius: .375rem;
+
+	.tin-lookup-status {
+		display: inline-flex;
+		align-items: center;
+		gap: .5rem;
+		font-size: .875rem;
+	}
+
+	.tin-lookup-actions {
+		display: inline-flex;
+		flex-wrap: wrap;
+		gap: .5rem;
+		margin-left: auto;
+	}
+
+	&.tin-lookup-success {
+		border-color: rgba($success, .45);
+
+		.tin-lookup-status {
+			color: $success;
+			font-weight: 600;
+		}
+	}
+
+	&.tin-lookup-danger {
+		border-color: rgba($danger, .45);
+
+		.tin-lookup-status {
+			color: $danger;
+			font-weight: 600;
+		}
+	}
+
+	&.tin-lookup-muted .tin-lookup-status {
+		color: $gray_dark_2;
+	}
+}
+
+/*------------------------------- Banking -------------------------------*/
+.bank-account-card {
+	.bank-account-balance {
+		font-size: 1.5rem;
+		font-weight: 700;
+		color: $black_2;
+	}
+}
+
+/*------------------- Document entry --------------------
+  Sales / purchase document forms: one centred column of
+  numbered sections, a "things to check" strip on top and
+  the total + buttons pinned at the bottom.
+--------------------------------------------------------*/
+.doc-entry,
+.doc-entry-bar {
+	max-width: 1140px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.doc-entry-bar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: .5rem;
+	width: 100%;
+}
+
+.doc-entry {
+	counter-reset: doc-section;
+
+	.sales-doc-card {
+		counter-increment: doc-section;
+		// on the white page the sections lift off with a firmer border and a soft shadow
+		border: 1px solid $gray_light_3;
+		border-radius: .625rem;
+		box-shadow: 0 1px 2px rgba($black, .05), 0 4px 14px rgba($black, .06);
+		margin-bottom: 1.25rem;
+	}
+
+	// tinted header band with a primary accent on the left
+	// (rounded itself: overflow: hidden on the card would clip the pickers' dropdowns)
+	.sales-doc-card-header {
+		border-radius: calc(.625rem - 1px) calc(.625rem - 1px) 0 0;
+		border-bottom-color: $gray_light_4;
+		box-shadow: inset 2px 0 0 $primary;
+	}
+
+	// sections are numbered instead of carrying an icon
+	.sales-doc-card-icon {
+		display: none;
+	}
+
+	.sales-doc-card-title {
+		font-size: .9375rem;
+
+		&::before {
+			content: counter(doc-section) " · ";
+			color: $primary;
+		}
+	}
+
+	// a follow-on section (e.g. delivery address under the header pair) is "2b", not a new number
+	.sales-doc-card.is-sub {
+		counter-increment: none;
+
+		.sales-doc-card-title::before {
+			content: counter(doc-section) "b · ";
+		}
+	}
+
+	// party | details side by side on wide screens, stacked below
+	.doc-pair {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		gap: 1.25rem;
+		margin-bottom: 1.25rem;
+
+		> .sales-doc-card {
+			margin-bottom: 0;
+		}
+
+		@media (min-width: 992px) {
+			// split set by DocPair's `left` (6 | 6 by default)
+			grid-template-columns: var(--doc-pair-cols, repeat(2, minmax(0, 1fr)));
+		}
+	}
+
+	// the "things to check" strip matches the cards
+	.doc-checks {
+		border-radius: .625rem;
+		box-shadow: 0 1px 2px rgba($black, .04);
+	}
+
+	.form-label {
+		font-size: .8125rem;
+		font-weight: 600;
+		color: $gray_dark_2;
+		margin-bottom: .3rem;
+	}
+
+	.sales-lines thead th {
+		font-size: .6875rem;
+	}
+}
+
+// header hint (right) and buttons
+.sales-doc-card-aside {
+	display: flex;
+	align-items: center;
+	gap: .75rem;
+	min-width: 0;
+	margin-left: auto;
+
+	.sales-doc-card-hint {
+		max-width: 34rem;
+		text-align: right;
+	}
+}
+
+// a line grid running edge to edge of its section
+.sales-doc-card .sales-doc-card-body.is-flush {
+	padding: 0;
+
+	.sales-lines {
+		th:first-child,
+		td:first-child {
+			padding-left: 1.25rem;
+		}
+
+		th:last-child,
+		td:last-child {
+			padding-right: 1.25rem;
+		}
+	}
+}
+
+.sales-lines {
+	.doc-line-no {
+		width: 2.5rem;
+		color: $gray;
+		font-size: .8125rem;
+	}
+
+	td.doc-line-no {
+		padding-top: 1.05rem;
+	}
+
+	.doc-line-remove {
+		color: $gray;
+
+		&:hover {
+			color: $red;
+		}
+	}
+}
+
+// under the grid: buttons left, totals right
+.doc-lines-footer {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 1rem 2rem;
+	padding: 1rem 1.25rem 1.25rem;
+	border-top: 1px solid $gray_light_4;
+
+	.doc-lines-actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: .5rem;
+	}
+
+	.doc-lines-totals {
+		flex: 0 1 22rem;
+		margin-left: auto;
+	}
+}
+
+.doc-lines-note {
+	padding: .75rem 1.25rem;
+	font-size: .8125rem;
+}
+
+// inside a padded section body the footer / notes need no padding of their own
+.sales-doc-card-body:not(.is-flush) {
+	.doc-lines-footer {
+		padding: 1rem 0 0;
+		margin-top: .25rem;
+	}
+
+	.doc-lines-note {
+		padding: 0 0 .5rem;
+	}
+}
+
+.doc-totals {
+	margin: 0;
+
+	> div {
+		display: flex;
+		justify-content: space-between;
+		gap: 1rem;
+		padding: .25rem 0;
+		color: $gray_dark_2;
+	}
+
+	dt {
+		font-weight: 400;
+	}
+
+	dd {
+		margin: 0;
+		color: $black_2;
+		font-variant-numeric: tabular-nums;
+		white-space: nowrap;
+	}
+
+	.is-discount dd {
+		color: $red;
+	}
+
+	.doc-totals-grand {
+		align-items: baseline;
+		margin-top: .5rem;
+		padding-top: .75rem;
+		border-top: 1px solid $gray_light_4;
+
+		dt {
+			font-weight: 600;
+			color: $black;
+		}
+
+		dd {
+			font-size: 1.25rem;
+			font-weight: 700;
+			color: $black;
+		}
+	}
+}
+
+// "2 things to check" / "Ready to save"
+.doc-checks {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: .375rem 1rem;
+	margin-bottom: 1rem;
+	padding: .625rem 1rem;
+	font-size: .8125rem;
+	background: $white;
+	border: 1px solid $gray_light_4;
+	border-radius: .5rem;
+
+	.doc-checks-title {
+		display: inline-flex;
+		align-items: center;
+		gap: .375rem;
+		padding-right: 1rem;
+		font-weight: 600;
+		border-right: 1px solid $gray_light_4;
+	}
+
+	.doc-checks-list {
+		display: flex;
+		flex-wrap: wrap;
+		gap: .25rem .75rem;
+		color: $gray_dark_2;
+
+		> span + span::before {
+			content: "·";
+			margin-right: .75rem;
+			color: $gray;
+		}
+	}
+
+	&.is-ready .doc-checks-title {
+		color: $green;
+	}
+
+	&.is-info .doc-checks-title {
+		color: $primary;
+	}
+
+	&.is-warning {
+		background: $yellow_light_5;
+		border-color: $yellow_light_3;
+
+		.doc-checks-title {
+			color: $yellow_dark_3;
+			border-right-color: $yellow_light_3;
+		}
+	}
+}
+
+// one line of facts under a field (customer TIN · credit available …)
+.doc-field-note {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: .125rem .5rem;
+	margin: -.625rem 0 1rem;
+	font-size: .75rem;
+	color: $gray_dark_2;
+
+	> span + span:not(.badge)::before {
+		content: "·";
+		margin-right: .5rem;
+		color: $gray;
+	}
+}
+
+// last block of a section under a divider (e.g. "Deliver to the billing address")
+.doc-card-foot {
+	margin-top: .25rem;
+	padding-top: 1rem;
+	border-top: 1px solid $gray_light_4;
+}
+
+// caption over read-only content in a field column (e.g. e-invoice status)
+.doc-field-caption {
+	margin-bottom: .3rem;
+	font-size: .8125rem;
+	font-weight: 600;
+	color: $gray_dark_2;
+}
+
+@media (max-width: 767.98px) {
+	.sales-doc-card-header {
+		flex-wrap: wrap;
+	}
+
+	.sales-doc-card-aside {
+		margin-left: 0;
+
+		.sales-doc-card-hint {
+			text-align: left;
+		}
+	}
+
+	.doc-lines-footer .doc-lines-totals {
+		flex-basis: 100%;
+	}
+
+	.doc-checks .doc-checks-title {
+		border-right: 0;
+	}
+}
+
+/*------------------- Bank reconciliation guide --------------------*/
+.reconcile-guide {
+	border: 1px solid $gray_light_4;
+	border-radius: .625rem;
+	background: $white;
+
+	.reconcile-guide-head {
+		display: flex;
+		align-items: center;
+		gap: .5rem;
+		width: 100%;
+		padding: .75rem 1rem;
+		color: $primary;
+		text-align: left;
+		background: none;
+		border: 0;
+	}
+
+	.reconcile-guide-chevron {
+		color: $gray_dark_2;
+		transition: transform .15s ease;
+
+		&.open {
+			transform: rotate(180deg);
+		}
+	}
+
+	.reconcile-guide-body {
+		padding: 0 1rem 1rem;
+	}
+
+	// four steps side by side; the current one is highlighted, finished ones get a tick
+	.reconcile-guide-steps {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+		gap: .75rem;
+		margin: 0 0 1rem;
+		padding: 0;
+		list-style: none;
+
+		li {
+			display: flex;
+			gap: .625rem;
+			padding: .75rem;
+			border: 1px solid $gray_light_4;
+			border-radius: .5rem;
+
+			&.is-current {
+				border-color: $primary;
+				background: $primary_light_5;
+			}
+
+			&.is-done {
+				opacity: .75;
+			}
+		}
+	}
+
+	.reconcile-guide-num {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		flex-shrink: 0;
+		width: 1.5rem;
+		height: 1.5rem;
+		font-size: .75rem;
+		font-weight: 600;
+		color: $gray_dark_2;
+		border: 1px solid $gray_light_3;
+		border-radius: 50%;
+	}
+
+	.is-current .reconcile-guide-num {
+		color: $white;
+		background: $primary;
+		border-color: $primary;
+	}
+
+	.is-done .reconcile-guide-num {
+		color: $white;
+		background: $green;
+		border-color: $green;
+	}
+
+	.reconcile-guide-tips {
+		padding-top: .75rem;
+		border-top: 1px dashed $gray_light_4;
 	}
 }

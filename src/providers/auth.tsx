@@ -1,6 +1,6 @@
 import {useNotification} from "@/hooks/notification";
 import {createContext, type ReactNode, useContext, useEffect, useRef, useState} from "react";
-import {loadToken, loadUser, loadPermissions, removeToken, saveToken, saveUser, savePermissions, saveLanguage, saveHourFormat} from "@/utils/token-utility";
+import {loadToken, loadUser, loadPermissions, removeCompanyId, removeToken, saveToken, saveUser, savePermissions, saveLanguage, saveHourFormat} from "@/utils/token-utility";
 import {handleErrorResponse} from "@/apis/response-handler";
 import {attemptLogin, logout} from "@/apis/requests/auth-api";
 import equal from "fast-deep-equal/es6/react";
@@ -50,6 +50,8 @@ export function Auth({children}: { children: ReactNode }) {
 
             setToken(res.access_token);
             saveToken(res.access_token);
+            // a new session starts on the user's default company
+            removeCompanyId();
             //saveHourFormat(res.user.branch.hour_format);
 
             //const lang = res.user.preferred_lang;
@@ -72,6 +74,7 @@ export function Auth({children}: { children: ReactNode }) {
         logout()
             .then(() => {
                 removeToken();
+                removeCompanyId();
                 setToken(null);
                 callback();
             })

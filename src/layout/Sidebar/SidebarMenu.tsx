@@ -48,6 +48,16 @@ export const SidebarMenu = [
                 },
             },
             {
+                id: 'banking',
+                name: 'Banking',
+                icon: <Icons.BuildingBank />,
+                path: '/banking',
+                element: <ModuleLayout />,
+                handle: {
+                    module: 'banking',
+                },
+            },
+            {
                 id: 'gl',
                 name: 'General Ledger',
                 icon: <Icons.Notebook />,

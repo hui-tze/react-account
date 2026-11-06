@@ -10757,7 +10757,7 @@ mark {
 	}
 
 	/*Buttons with Icon*/
-	>span:not(.badge):not(.sr-only):not(span[class^="spinner"]) {
+	>span:not(.badge):not(.sr-only):not(.spinner-border):not(.spinner-grow) {
 		display: -webkit-box;
 		display: -ms-flexbox;
 		display: flex;
@@ -10787,7 +10787,7 @@ mark {
 	}
 
 	&.btn-lg {
-		>span:not(.badge):not(.sr-only):not(span[class^="spinner"]) {
+		>span:not(.badge):not(.sr-only):not(.spinner-border):not(.spinner-grow) {
 			.icon {
 				&:not(:last-child) {
 					margin-right: 1.25rem;
@@ -10801,7 +10801,7 @@ mark {
 	}
 
 	&.btn-sm {
-		>span:not(.badge):not(.sr-only):not(span[class^="spinner"]) {
+		>span:not(.badge):not(.sr-only):not(.spinner-border):not(.spinner-grow) {
 			.icon {
 				&:not(:last-child) {
 					margin-right: 0.75rem;
@@ -10815,7 +10815,7 @@ mark {
 	}
 
 	&.btn-xs {
-		>span:not(.badge):not(.sr-only):not(span[class^="spinner"]) {
+		>span:not(.badge):not(.sr-only):not(.spinner-border):not(.spinner-grow) {
 			.icon {
 				&:not(:last-child) {
 					margin-right: 0.5rem;
@@ -10832,7 +10832,7 @@ mark {
 	&.btn-custom {
 		position: relative;
 
-		>span:not(.badge):not(.sr-only):not(span[class^="spinner"]) {
+		>span:not(.badge):not(.sr-only):not(.spinner-border):not(.spinner-grow) {
 			position: static;
 
 			.icon {
@@ -10873,7 +10873,7 @@ mark {
 		}
 
 		&.btn-lg {
-			>span:not(.badge):not(.sr-only):not(span[class^="spinner"]) {
+			>span:not(.badge):not(.sr-only):not(.spinner-border):not(.spinner-grow) {
 				.icon {
 					width: 46px;
 					border-radius: 0.5rem;
@@ -10890,7 +10890,7 @@ mark {
 		}
 
 		&.btn-sm {
-			>span:not(.badge):not(.sr-only):not(span[class^="spinner"]) {
+			>span:not(.badge):not(.sr-only):not(.spinner-border):not(.spinner-grow) {
 				.icon {
 					width: 33px;
 					border-radius: 0.2rem;
@@ -10907,7 +10907,7 @@ mark {
 		}
 
 		&.btn-xs {
-			>span:not(.badge):not(.sr-only):not(span[class^="spinner"]) {
+			>span:not(.badge):not(.sr-only):not(.spinner-border):not(.spinner-grow) {
 				.icon {
 					width: 26px;
 					border-radius: 0.2rem;
@@ -10924,7 +10924,7 @@ mark {
 		}
 
 		&.btn-square {
-			>span:not(.badge):not(.sr-only):not(span[class^="spinner"]) {
+			>span:not(.badge):not(.sr-only):not(.spinner-border):not(.spinner-grow) {
 				.icon {
 					border-radius: 0;
 				}

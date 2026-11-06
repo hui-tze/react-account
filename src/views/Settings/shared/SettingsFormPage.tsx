@@ -20,36 +20,51 @@ export type SettingsFormPageProps = {
     stickyActions?: boolean,
     // shown left of the buttons, e.g. the document total
     actionsSummary?: ReactNode,
+    // document entry: one centred column of numbered sections (sales / purchase documents)
+    documentLayout?: boolean,
     children: ReactNode,
 };
 
 /** Page chrome shared by every settings create/edit form: scroll body + action buttons. */
-export default function SettingsFormPage({onSubmit, submitting, isEditing, backTo, onDelete, submitLabel, deleteLabel, readOnly, stickyActions, actionsSummary, children}: SettingsFormPageProps) {
+export default function SettingsFormPage({onSubmit, submitting, isEditing, backTo, onDelete, submitLabel, deleteLabel, readOnly, stickyActions, actionsSummary, documentLayout, children}: SettingsFormPageProps) {
     const {t} = useSmartTranslation();
     const navigate = useNavigate();
+
+    // delete on the left, away from cancel / save on the right
+    const actions = (
+        <>
+            {onDelete && (
+                <Button variant="outline-danger" type="button" onClick={onDelete}>{deleteLabel ?? t('delete')}</Button>
+            )}
+            {actionsSummary && <div className="form-sticky-actions-summary">{actionsSummary}</div>}
+            <div className="d-flex gap-2 ms-auto">
+                {backTo && (
+                    <Button variant="outline-secondary" type="button" onClick={() => navigate(backTo)}>{t('cancel')}</Button>
+                )}
+                {!readOnly && (
+                    <Button type="submit" variant="primary" disabled={submitting}>
+                        <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className={submitting ? "me-2" : "d-none"} />
+                        {submitLabel ?? (isEditing ? t('saveChanges') : t('create'))}
+                    </Button>
+                )}
+            </div>
+        </>
+    );
 
     return (
         <div className="app-body">
             <SimpleBar className="nicescroll-bar">
-                <Container fluid className="py-3">
+                <Container fluid className={documentLayout ? "py-3 doc-entry-page" : "py-3"}>
                     <Form noValidate onSubmit={onSubmit}>
-                        {children}
+                        {documentLayout ? <div className="doc-entry">{children}</div> : children}
 
-                        <div className={stickyActions ? "form-sticky-actions" : "d-flex gap-2 mt-3"}>
-                            {actionsSummary && <div className="form-sticky-actions-summary">{actionsSummary}</div>}
-                            {backTo && (
-                                <Button variant="outline-secondary" type="button" onClick={() => navigate(backTo)}>{t('cancel')}</Button>
-                            )}
-                            {!readOnly && (
-                                <Button type="submit" variant="primary" disabled={submitting}>
-                                    <Spinner as="span" animation="border" size="sm" className={submitting ? "me-2" : "d-none"} />
-                                    {submitLabel ?? (isEditing ? t('saveChanges') : t('create'))}
-                                </Button>
-                            )}
-                            {onDelete && (
-                                <Button variant="outline-danger" type="button" className="ms-auto" onClick={onDelete}>{deleteLabel ?? t('delete')}</Button>
-                            )}
-                        </div>
+                        {stickyActions ? (
+                            <div className="form-sticky-actions">
+                                {documentLayout ? <div className="doc-entry-bar">{actions}</div> : actions}
+                            </div>
+                        ) : (
+                            <div className="d-flex flex-wrap align-items-center gap-2 mt-3">{actions}</div>
+                        )}
                     </Form>
                 </Container>
             </SimpleBar>

@@ -1,6 +1,6 @@
-import {ReactNode, useMemo} from "react";
-import {Col, Row, Table} from "react-bootstrap";
-import {AlertTriangle, DollarSign, FileText, List, MapPin, MessageSquare, ShoppingBag} from "react-feather";
+import {ReactNode, useMemo, useState} from "react";
+import {Button, Col, Form, Row, Table} from "react-bootstrap";
+import {AlertTriangle} from "react-feather";
 import {useFormState, useWatch} from "react-hook-form";
 import {useRequestForm} from "@/hooks/use-request-handler";
 import {CustomerTransDocument, SalesOrderDocument} from "@/apis/models/sales-document";
@@ -17,8 +17,10 @@ import {useSmartTranslation} from "@/hooks/use-translation";
 import {useSellableItems} from "../shared/items";
 import {calculateSalesTotals} from "../shared/tax";
 import {TotalsPanel} from "../shared/TotalsPanel";
-import {DocCard, DocTotal, FactsGrid} from "../shared/DocCard";
+import {DocCard, DocPair, DocTotal, FactsGrid} from "../shared/DocCard";
+import {EntryChecks, LinesFooter, LinesNote, totalDetails, useErrorCheck} from "../shared/EntryLayout";
 import {EMPTY_DELIVERY_ADDRESS} from "../shared/sales-form";
+import {addressLine, sameAddress} from "../shared/DeliverySection";
 
 type DeliveryFormProps = {
     // the order being delivered
@@ -78,7 +80,7 @@ export function DeliveryForm({order, record, backTo, onSubmit, onSuccess, banner
         })
         .filter(row => row.available > 0 || mine.has(row.orderLineId)), [order, mine, byId]);
 
-    const {control, setError, submitting, handleSubmitRequest} = useRequestForm<DeliveryNoteRequest>({
+    const {control, setValue, setError, submitting, handleSubmitRequest} = useRequestForm<DeliveryNoteRequest>({
         formOptions: {
             defaultValues: {
                 reference_no: record?.reference_no ?? "",
@@ -101,11 +103,23 @@ export function DeliveryForm({order, record, backTo, onSubmit, onSuccess, banner
         },
     });
 
-    const [lines, locationId, deliverTo, address] = useWatch({control, name: ["lines", "inventory_location_id", "deliver_to", "delivery_address"]});
+    const [lines, locationId, address] = useWatch({control, name: ["lines", "inventory_location_id", "delivery_address"]});
     const {errors} = useFormState({control});
     // a whole-array error (no quantity anywhere) rather than a per-line one
     const linesError = (errors.lines as {message?: string} | undefined)?.message;
     const {data: onHand} = useGetStockOnHand(locationId);
+
+    // goods go to the order's delivery address unless the user unticks it (then the address card opens)
+    const orderAddress = {...EMPTY_DELIVERY_ADDRESS, ...(order.delivery_address ?? {})};
+    const [differs, setDiffers] = useState(false);
+    const sameAsOrder = !differs && sameAddress(address, orderAddress);
+    const showAddress = !sameAsOrder || ["deliver_to", "delivery_address", "contact_no"].some(field => (errors as Record<string, unknown>)[field]);
+    const setSameAsOrder = (value: boolean) => {
+        setDiffers(!value);
+        setValue("deliver_to", value ? order.deliver_to ?? "" : "");
+        setValue("contact_no", value ? order.contact_no ?? "" : "");
+        setValue("delivery_address", value ? orderAddress : {...EMPTY_DELIVERY_ADDRESS});
+    };
 
     const totals = useMemo(() => calculateSalesTotals(
         taxContext?.tax_types ?? [],
@@ -151,6 +165,20 @@ export function DeliveryForm({order, record, backTo, onSubmit, onSuccess, banner
         .map(l => ({value: l.id, label: `${l.code} - ${l.name}`}));
     const shipperOptions = (shippers ?? []).map(s => ({value: s.id, label: s.name}));
 
+    // what the location holds for a row (this note's own earlier quantities count as available); null: not a stock item
+    const stockFor = (row: (typeof rows)[number]) => row.holdsStock && locationId
+        ? Number(onHand?.[row.itemId] ?? 0) + (record && record.inventory_location_id === locationId ? (mine.get(row.orderLineId) ?? 0) : 0)
+        : null;
+    const qtyOf = (index: number) => Number(lines?.[index]?.quantity) || 0;
+    const shipping = rows.filter((_, index) => qtyOf(index) > 0).length;
+    const errorCheck = useErrorCheck(control);
+    const shortages = rows.map((row, index) => {
+        const stock = stockFor(row);
+        return stock !== null && qtyOf(index) > stock + 0.00005
+            ? {text: t('stockShortage', {code: row.code, available: formatDecimal(stock), qty: formatDecimal(qtyOf(index))}), tone: "warning" as const}
+            : null;
+    }).filter((check): check is {text: string, tone: "warning"} => check !== null);
+
     return (
         <SettingsFormPage
             onSubmit={handleSubmitRequest({request: submit, onSuccess})}
@@ -160,48 +188,97 @@ export function DeliveryForm({order, record, backTo, onSubmit, onSuccess, banner
             readOnly={readOnly}
             submitLabel={record ? undefined : t('processDelivery')}
             stickyActions
-            actionsSummary={<DocTotal label={t('total')} amount={totals.grand_total} currencyCode={order.currency?.code} />}
+            documentLayout
+            actionsSummary={<DocTotal label={t('total')} amount={totals.grand_total} currencyCode={order.currency?.code} details={totalDetails(totals, shipping, t)} />}
         >
             {banner}
+            {!readOnly && (
+                <EntryChecks
+                    issues={[errorCheck, shipping === 0 && {text: t('checkEnterQuantityToDeliver'), tone: "info" as const}, ...shortages]}
+                    ready={[t('deliveringOrder', {ref: order.reference_no}), t('lineCount', {count: shipping})]}
+                />
+            )}
 
-            <Row className="g-3">
-                <Col xl={6}>
-                    <DocCard icon={ShoppingBag} title={t('salesOrder')} className="h-100 mb-0">
-                        <FactsGrid facts={[
-                            {label: t('referenceNo'), value: order.reference_no},
-                            {label: t('customer'), value: order.branch && order.branch.name !== order.customer?.name ? `${order.customer?.name} · ${order.branch.name}` : order.customer?.name},
-                            {label: t('currency'), value: order.currency?.code},
-                            {label: t('customerPoNo'), value: order.customer_po_no},
-                            {label: t('requiredBy'), value: order.requested_delivery_date},
-                        ]} />
-                    </DocCard>
-                </Col>
-                <Col xl={6}>
-                    <DocCard icon={FileText} title={t('documentDetails')} className="h-100 mb-0">
-                        <Row className="gx-3">
-                            <Col sm={6}>
-                                <TextField control={control} name="reference_no" label={t('referenceNo')} maxLength={255} disabled={readOnly} placeholder={record ? undefined : t('autoGenerated')} />
-                            </Col>
-                            <Col sm={6}>
-                                <TextField control={control} name="trans_date" label={t('deliveryDate')} type="date" required disabled={readOnly} />
-                            </Col>
-                            <Col sm={6}>
-                                <SelectField control={control} name="inventory_location_id" label={t('deliverFrom')} options={locationOptions} numeric required placeholder="" disabled={readOnly} />
-                            </Col>
-                            <Col sm={6}>
-                                <SelectField control={control} name="shipping_company_id" label={t('shippingCompany')} options={shipperOptions} numeric placeholder="" disabled={readOnly} />
-                            </Col>
-                        </Row>
-                    </DocCard>
-                </Col>
-            </Row>
+            <DocPair>
+                <DocCard title={t('salesOrder')}>
+                    <FactsGrid facts={[
+                        {label: t('referenceNo'), value: order.reference_no},
+                        {label: t('customer'), value: order.branch && order.branch.name !== order.customer?.name ? `${order.customer?.name} · ${order.branch.name}` : order.customer?.name},
+                        {label: t('currency'), value: order.currency?.code},
+                        {label: t('customerPoNo'), value: order.customer_po_no},
+                        {label: t('requiredBy'), value: order.requested_delivery_date},
+                    ]} />
+                    <div className="doc-card-foot">
+                        <Form.Check type="checkbox" id="deliver-to-order" className="mb-1" label={t('deliverToOrderAddress')}
+                            checked={sameAsOrder} disabled={readOnly} onChange={(e) => setSameAsOrder(e.target.checked)} />
+                        <div className="small text-muted">{t('orderDeliveryAddress')}: {[order.deliver_to, addressLine(orderAddress)].filter(Boolean).join(" — ") || t('noDeliveryDetails')}</div>
+                        {showAddress && <div className="small fw-semibold text-primary mt-1">{t('deliveryAddressBelow')} ↓</div>}
+                    </div>
+                </DocCard>
 
-            <DocCard icon={List} title={t('itemsToDeliver')} hint={readOnly ? undefined : t('itemsToDeliverHint')} className="mt-3">
-                {linesError && <div className="text-danger small mb-2">{linesError}</div>}
+                <DocCard title={t('deliveryDetails')}>
+                    <Row className="gx-4">
+                        <Col sm={6}>
+                            <TextField control={control} name="trans_date" label={t('deliveryDate')} type="date" required disabled={readOnly} />
+                        </Col>
+                        <Col sm={6}>
+                            <TextField control={control} name="reference_no" label={t('referenceNo')} maxLength={255} disabled={readOnly} placeholder={record ? undefined : t('autoGenerated')} />
+                        </Col>
+                        <Col sm={6}>
+                            <SelectField control={control} name="inventory_location_id" label={t('deliverFrom')} options={locationOptions} numeric required placeholder="" disabled={readOnly} />
+                        </Col>
+                        <Col sm={6}>
+                            <SelectField control={control} name="shipping_company_id" label={t('shippingCompany')} options={shipperOptions} numeric placeholder="" disabled={readOnly} />
+                        </Col>
+                        <Col sm={6}>
+                            <TextField control={control} name="customer_ref" label={t('customerRef')} maxLength={255} disabled={readOnly} placeholder={t('optional')} />
+                        </Col>
+                    </Row>
+                </DocCard>
+            </DocPair>
+
+            {showAddress && (
+                <DocCard sub title={t('deliveryAddress')} hint={t('deliveryAddressHint')}
+                    actions={!readOnly && <Button variant="link" size="sm" className="p-0" onClick={() => setSameAsOrder(true)}>{t('useOrderAddress')}</Button>}>
+                    <Row className="gx-4">
+                        <Col md={6}>
+                            <TextField control={control} name="deliver_to" label={t('deliverTo')} maxLength={255} disabled={readOnly} placeholder={t('siteOrCompanyName')} />
+                        </Col>
+                        <Col md={6}>
+                            <TextField control={control} name="delivery_address.recipient_name" label={t('contactPerson')} maxLength={255} disabled={readOnly} placeholder={t('nameOnSite')} />
+                        </Col>
+                        <Col md={6}>
+                            <TextField control={control} name="delivery_address.address1" label={t('addressLine1')} disabled={readOnly} />
+                        </Col>
+                        <Col md={6}>
+                            <TextField control={control} name="delivery_address.address2" label={t('addressLine2')} disabled={readOnly} placeholder={t('optional')} />
+                        </Col>
+                        <Col sm={6} lg={3}>
+                            <TextField control={control} name="delivery_address.postcode" label={t('postcode')} disabled={readOnly} />
+                        </Col>
+                        <Col sm={6} lg={3}>
+                            <TextField control={control} name="delivery_address.city" label={t('city')} disabled={readOnly} />
+                        </Col>
+                        <Col sm={6} lg={3}>
+                            <TextField control={control} name="delivery_address.state" label={t('state')} disabled={readOnly} />
+                        </Col>
+                        <Col sm={6} lg={3}>
+                            <TextField control={control} name="delivery_address.country" label={t('country')} disabled={readOnly} />
+                        </Col>
+                        <Col md={6}>
+                            <TextField control={control} name="contact_no" label={t('contactNo')} maxLength={50} disabled={readOnly} />
+                        </Col>
+                    </Row>
+                </DocCard>
+            )}
+
+            <DocCard title={t('itemsToDeliver')} hint={readOnly ? undefined : t('itemsToDeliverHint')} flush>
+                {linesError && <LinesNote tone="danger">{linesError}</LinesNote>}
                 <div className="table-responsive">
                     <Table className="mb-0 sales-lines">
                         <thead className="table-light">
                             <tr>
+                                <th className="doc-line-no">#</th>
                                 <th style={{minWidth: 240}}>{t('item')}</th>
                                 <th className="text-end" style={{width: 100}}>{t('ordered')}</th>
                                 <th className="text-end" style={{width: 120}}>{t('deliveredBefore')}</th>
@@ -213,11 +290,12 @@ export function DeliveryForm({order, record, backTo, onSubmit, onSuccess, banner
                         </thead>
                         <tbody>
                             {rows.map((row, index) => {
-                                const qty = Number(lines?.[index]?.quantity) || 0;
-                                const stock = row.holdsStock && locationId ? Number(onHand?.[row.itemId] ?? 0) + (record && record.inventory_location_id === locationId ? (mine.get(row.orderLineId) ?? 0) : 0) : null;
+                                const qty = qtyOf(index);
+                                const stock = stockFor(row);
                                 const short = stock !== null && qty > stock;
                                 return (
                                     <tr key={row.orderLineId}>
+                                        <td className="doc-line-no">{index + 1}</td>
                                         <td>
                                             <div className="fw-semibold text-dark">{row.code}</div>
                                             <div className="sales-line-meta">{row.description}</div>
@@ -249,57 +327,17 @@ export function DeliveryForm({order, record, backTo, onSubmit, onSuccess, banner
                         </tbody>
                     </Table>
                 </div>
-                {!record && partial && (
-                    <div className="mt-3">
+                <LinesFooter
+                    actions={!record && partial && (
                         <SwitchField control={control} name="close_order_balance" label={t('closeOrderBalance')} hint={t('closeOrderBalanceHint')} />
-                    </div>
-                )}
+                    )}
+                    totals={<TotalsPanel totals={totals} taxIncluded={order.tax_included} currencyCode={order.currency?.code} />}
+                />
             </DocCard>
 
-            <Row className="g-3">
-                <Col lg={7}>
-                    <DocCard icon={MapPin} title={t('deliverTo')} collapsible defaultOpen={false}
-                        summary={[deliverTo, address?.address1, address?.city].filter(Boolean).join(", ") || t('noDeliveryDetails')}>
-                        <Row className="gx-3">
-                            <Col sm={6}>
-                                <TextField control={control} name="deliver_to" label={t('deliverTo')} maxLength={255} disabled={readOnly} />
-                            </Col>
-                            <Col sm={6}>
-                                <TextField control={control} name="contact_no" label={t('contactNo')} maxLength={50} disabled={readOnly} />
-                            </Col>
-                            <Col sm={12}>
-                                <TextField control={control} name="customer_ref" label={t('customerRef')} maxLength={255} disabled={readOnly} />
-                            </Col>
-                            <Col sm={12}>
-                                <TextField control={control} name="delivery_address.address1" label={t('addressLine1')} disabled={readOnly} />
-                            </Col>
-                            <Col sm={12}>
-                                <TextField control={control} name="delivery_address.address2" label={t('addressLine2')} disabled={readOnly} />
-                            </Col>
-                            <Col sm={6} lg={3}>
-                                <TextField control={control} name="delivery_address.postcode" label={t('postcode')} disabled={readOnly} />
-                            </Col>
-                            <Col sm={6} lg={3}>
-                                <TextField control={control} name="delivery_address.city" label={t('city')} disabled={readOnly} />
-                            </Col>
-                            <Col sm={6} lg={3}>
-                                <TextField control={control} name="delivery_address.state" label={t('state')} disabled={readOnly} />
-                            </Col>
-                            <Col sm={6} lg={3}>
-                                <TextField control={control} name="delivery_address.country" label={t('country')} disabled={readOnly} />
-                            </Col>
-                        </Row>
-                    </DocCard>
-                    <DocCard icon={MessageSquare} title={t('notes')} className="mb-0">
-                        <TextAreaField control={control} name="remarks" label={t('remarksPrinted')} rows={2} disabled={readOnly} />
-                    </DocCard>
-                </Col>
-                <Col lg={5}>
-                    <DocCard icon={DollarSign} title={t('summary')} className="mb-0">
-                        <TotalsPanel totals={totals} taxIncluded={order.tax_included} currencyCode={order.currency?.code} />
-                    </DocCard>
-                </Col>
-            </Row>
+            <DocCard title={t('notes')}>
+                <TextAreaField control={control} name="remarks" label={t('printedOnDeliveryNote')} rows={3} disabled={readOnly} placeholder={t('printedNotePlaceholder')} />
+            </DocCard>
         </SettingsFormPage>
     );
 }

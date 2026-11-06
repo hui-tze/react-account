@@ -1,5 +1,6 @@
+import {ReactNode} from "react";
 import {Badge, Button, Form, Table} from "react-bootstrap";
-import {Lock, Plus, Trash2} from "react-feather";
+import {Lock, Plus, X} from "react-feather";
 import {Control, Controller, useFieldArray, UseFormSetValue, useWatch} from "react-hook-form";
 import type {SalesLineRequest} from "@/apis/requests/sales-order-api";
 import {ItemPicker, LineNumberInput} from "@/views/Inventory/shared/document";
@@ -8,6 +9,7 @@ import {useSmartTranslation} from "@/hooks/use-translation";
 import type {SellableItem} from "./items";
 import type {LineTotals} from "./tax";
 import {EMPTY_LINE} from "./sales-form";
+import {LinesFooter} from "./EntryLayout";
 
 /** History that pins a saved line: what was already delivered / converted from it. */
 export type LineLock = {
@@ -41,12 +43,17 @@ type SalesLinesTableProps<T extends LinesForm> = {
     showDiscount?: boolean,
     // translation key when no item matches the search
     noOptionsKey?: string,
+    // under the grid: totals on the right, extra buttons beside "Add line"
+    totals?: ReactNode,
+    footerActions?: ReactNode,
+    // quantity on hand per item id at the shipping location: shown under stock lines
+    stockOnHand?: Record<string, number>,
 };
 
 /** The item lines of a quotation / order: item, description, qty, price, discount, tax and amount. */
 export function SalesLinesTable<T extends LinesForm>(props: SalesLinesTableProps<T>) {
     // react-hook-form can't resolve `lines.${n}` paths on an open generic, so work on the slice type
-    const {control, setValue, items, byId, priceList, defaultDiscount, taxIncluded, lineTotals, locks, readOnly, showDiscount = true, noOptionsKey = "noSellableItems"} = props as unknown as SalesLinesTableProps<LinesForm>;
+    const {control, setValue, items, byId, priceList, defaultDiscount, taxIncluded, lineTotals, locks, readOnly, showDiscount = true, noOptionsKey = "noSellableItems", totals: totalsPanel, footerActions, stockOnHand} = props as unknown as SalesLinesTableProps<LinesForm>;
     const {t} = useSmartTranslation();
     const {fields, append, remove} = useFieldArray({control, name: "lines", keyName: "fieldKey"});
     const lines = useWatch({control, name: "lines"}) ?? [];
@@ -72,6 +79,7 @@ export function SalesLinesTable<T extends LinesForm>(props: SalesLinesTableProps
                 <Table className="mb-0 sales-lines">
                     <thead className="table-light">
                         <tr>
+                            <th className="doc-line-no">#</th>
                             <th style={{minWidth: 300}}>{t('item')}</th>
                             <th style={{width: 130}} className="text-end">{t('quantity')}</th>
                             <th style={{width: 140}} className="text-end">{taxIncluded ? t('priceInclTax') : t('price')}</th>
@@ -91,6 +99,7 @@ export function SalesLinesTable<T extends LinesForm>(props: SalesLinesTableProps
 
                             return (
                                 <tr key={field.fieldKey}>
+                                    <td className="doc-line-no">{index + 1}</td>
                                     <td>
                                         <ItemPicker
                                             control={control}
@@ -102,23 +111,33 @@ export function SalesLinesTable<T extends LinesForm>(props: SalesLinesTableProps
                                             onPicked={(picked) => onPicked(index, picked ? byId.get(picked.id) : undefined)}
                                         />
                                         {item && (
+                                            <>
                                             <Controller
-                                                control={control}
-                                                name={`lines.${index}.description`}
-                                                render={({field: f}) => (
-                                                    <Form.Control
-                                                        size="sm"
-                                                        className="sales-line-description"
-                                                        placeholder={t('description')}
-                                                        value={f.value ?? ""}
-                                                        onChange={f.onChange}
-                                                        onBlur={f.onBlur}
-                                                        // only items that allow it take a custom description
-                                                        disabled={readOnly || !item.allow_description_override}
-                                                        title={!item.allow_description_override ? t('descriptionFixedHint') : undefined}
-                                                    />
-                                                )}
-                                            />
+                                                    control={control}
+                                                    name={`lines.${index}.description`}
+                                                    render={({field: f}) => (
+                                                        <Form.Control
+                                                            size="sm"
+                                                            className="sales-line-description"
+                                                            placeholder={t('description')}
+                                                            value={f.value ?? ""}
+                                                            onChange={f.onChange}
+                                                            onBlur={f.onBlur}
+                                                            // only items that allow it take a custom description
+                                                            disabled={readOnly || !item.allow_description_override}
+                                                            title={!item.allow_description_override ? t('descriptionFixedHint') : undefined}
+                                                        />
+                                                    )}
+                                                />
+                                                <div className="sales-line-meta">
+                                                    {[item.code, item.uom].filter(Boolean).join(" · ")}
+                                                    {stockOnHand && ["stock", "manufactured"].includes(item.item_type) && (() => {
+                                                        const onHand = Number(stockOnHand[item.id] ?? 0);
+                                                        const short = (Number(line?.quantity) || 0) > onHand + 0.00005;
+                                                        return <span className={short ? "text-danger fw-semibold" : "text-success fw-semibold"}> · {t('qtyOnHand', {qty: formatDecimal(onHand)})}</span>;
+                                                    })()}
+                                                </div>
+                                                </>
                                         )}
                                     </td>
                                     <td>
@@ -162,8 +181,8 @@ export function SalesLinesTable<T extends LinesForm>(props: SalesLinesTableProps
                                     </td>
                                     <td className="text-end">
                                         {!readOnly && !lock?.locked && fields.length > 1 && (
-                                            <Button variant="flush-danger" size="sm" className="btn-icon btn-rounded" title={t('remove')} onClick={() => remove(index)}>
-                                                <Trash2 size={16} />
+                                            <Button variant="flush-secondary" size="sm" className="btn-icon btn-rounded doc-line-remove" title={t('remove')} onClick={() => remove(index)}>
+                                                <X size={16} />
                                             </Button>
                                         )}
                                     </td>
@@ -173,11 +192,19 @@ export function SalesLinesTable<T extends LinesForm>(props: SalesLinesTableProps
                     </tbody>
                 </Table>
             </div>
-            {!readOnly && (
-                <button type="button" className="sales-add-line" onClick={() => append({...EMPTY_LINE, discount_percent: showDiscount ? defaultDiscount : 0})}>
-                    <Plus size={16} /> {t('addLine')}
-                </button>
-            )}
+            <LinesFooter
+                actions={(!readOnly || footerActions) && (
+                    <>
+                        {!readOnly && (
+                            <Button variant="outline-primary" onClick={() => append({...EMPTY_LINE, discount_percent: showDiscount ? defaultDiscount : 0})}>
+                                <Plus size={15} className="me-1" />{t('addLine')}
+                            </Button>
+                        )}
+                        {footerActions}
+                    </>
+                )}
+                totals={totalsPanel}
+            />
         </>
     );
 }

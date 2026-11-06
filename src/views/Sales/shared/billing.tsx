@@ -1,4 +1,5 @@
-import {Form, Table} from "react-bootstrap";
+import {ReactNode} from "react";
+import {Col, Form, Row, Table} from "react-bootstrap";
 import {Package, Send} from "react-feather";
 import {Control, Controller, FieldValues, Path, useWatch} from "react-hook-form";
 import Swal from "sweetalert2";
@@ -12,6 +13,7 @@ import {RequestError} from "@/lib/request-util/exception";
 import {useSmartTranslation} from "@/hooks/use-translation";
 import type {LineTotals} from "./tax";
 import {DocCard} from "./DocCard";
+import {LinesFooter} from "./EntryLayout";
 
 type EinvoiceSectionProps<T extends FieldValues> = {
     control: Control<T>,
@@ -37,21 +39,28 @@ export function EinvoiceSection<T extends FieldValues>({control, readOnly, trans
     const modeHint = readiness?.enabled ? describe(mode as "S" | "I" | "H" | null, readiness.scheduled_time, readiness.auto_submit) : null;
 
     return (
-        <DocCard icon={Send} title={t('myInvois')} hint={t('myInvoisHint')} className="mb-0">
-            <SelectField
-                control={control}
-                name={"einvoice_submission_mode" as Path<T>}
-                label={t('submissionMode')}
-                placeholder=""
-                disabled={readOnly}
-                hint={modeHint ?? undefined}
-                options={[
-                    {value: "S", label: t('submissionMode_S')},
-                    {value: "I", label: t('submissionMode_I')},
-                    {value: "H", label: t('submissionMode_H')},
-                ]}
-            />
-            <EinvoiceReadiness transType={transType} partyId={partyId} transId={transId} />
+        <DocCard icon={Send} title={t('myInvois')} hint={t('myInvoisHint')}>
+            <Row className="gx-4">
+                <Col md={6}>
+                    <SelectField
+                        control={control}
+                        name={"einvoice_submission_mode" as Path<T>}
+                        label={t('submissionMode')}
+                        placeholder=""
+                        disabled={readOnly}
+                        hint={modeHint ?? undefined}
+                        options={[
+                            {value: "S", label: t('submissionMode_S')},
+                            {value: "I", label: t('submissionMode_I')},
+                            {value: "H", label: t('submissionMode_H')},
+                        ]}
+                    />
+                </Col>
+                <Col md={6}>
+                    <div className="doc-field-caption">{t('status')}</div>
+                    <EinvoiceReadiness transType={transType} partyId={partyId} transId={transId} />
+                </Col>
+            </Row>
         </DocCard>
     );
 }
@@ -63,15 +72,20 @@ export function SelfBilledEinvoiceSection({transType, supplierId, transId}: {tra
     const describe = useModeDescription();
 
     return (
-        <DocCard icon={Send} title={t('myInvois')} hint={t('einvSelfBilledCardHint')} className="mb-0 mt-3">
-            {readiness?.enabled && (
-                <div className="small mb-2">
-                    <span className="text-muted">{t('submissionMode')}: </span>
-                    <span className="fw-semibold">{t(`einvMode_${readiness.default_mode}`)}</span>
-                    <div className="text-muted">{describe(readiness.default_mode, readiness.scheduled_time, readiness.auto_submit)}</div>
-                </div>
-            )}
-            <EinvoiceReadiness transType={transType} partyId={supplierId} transId={transId} />
+        <DocCard icon={Send} title={t('myInvois')} hint={t('einvSelfBilledCardHint')}>
+            <Row className="gx-4">
+                {readiness?.enabled && (
+                    <Col md={6}>
+                        <div className="doc-field-caption">{t('submissionMode')}</div>
+                        <div className="fw-semibold text-dark">{t(`einvMode_${readiness.default_mode}`)}</div>
+                        <div className="small text-muted mb-3">{describe(readiness.default_mode, readiness.scheduled_time, readiness.auto_submit)}</div>
+                    </Col>
+                )}
+                <Col md={readiness?.enabled ? 6 : 12}>
+                    <div className="doc-field-caption">{t('status')}</div>
+                    <EinvoiceReadiness transType={transType} partyId={supplierId} transId={transId} />
+                </Col>
+            </Row>
         </DocCard>
     );
 }
@@ -103,52 +117,59 @@ type SourceLinesTableProps<T extends FieldValues> = {
     thisLabel: string,
     taxIncluded: boolean,
     readOnly?: boolean,
+    // totals panel under the grid
+    totals?: ReactNode,
 };
 
 /** Rows of the source document with "this document" quantities, capped at what is left. */
-export function SourceLinesTable<T extends FieldValues>({control, rows, lineTotals, sourceLabel, beforeLabel, thisLabel, taxIncluded, readOnly}: SourceLinesTableProps<T>) {
+export function SourceLinesTable<T extends FieldValues>({control, rows, lineTotals, sourceLabel, beforeLabel, thisLabel, taxIncluded, readOnly, totals}: SourceLinesTableProps<T>) {
     const {t} = useSmartTranslation();
 
     return (
-        <div className="table-responsive">
-            <Table className="mb-0 sales-lines">
-                <thead className="table-light">
-                    <tr>
-                        <th style={{minWidth: 240}}>{t('item')}</th>
-                        <th className="text-end" style={{width: 100}}>{sourceLabel}</th>
-                        <th className="text-end" style={{width: 110}}>{beforeLabel}</th>
-                        <th className="text-end" style={{width: 140}}>{thisLabel}</th>
-                        <th style={{width: 60}}>{t('unit')}</th>
-                        <th className="text-end" style={{width: 120}}>{taxIncluded ? t('priceInclTax') : t('price')}</th>
-                        <th className="text-end" style={{width: 120}}>{t('amount')}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {rows.map((row, index) => (
-                        <tr key={row.id}>
-                            <td>
-                                <div className="fw-semibold text-dark">{row.code}</div>
-                                <div className="small text-muted">{row.description}</div>
-                            </td>
-                            <td className="text-end">{formatDecimal(row.sourceQty)}</td>
-                            <td className="text-end text-muted">{formatDecimal(row.before)}</td>
-                            <td>
-                                <LineNumberInput
-                                    control={control}
-                                    name={`lines.${index}.quantity` as Path<T>}
-                                    min={0}
-                                    disabled={readOnly}
-                                    validate={(v) => v < 0 ? t('valueMustNotBeNegative') : v > row.available + 0.00005 ? t('maxAvailable', {qty: formatDecimal(row.available)}) : true}
-                                />
-                            </td>
-                            <td className="text-muted">{row.uom ?? "-"}</td>
-                            <td className="text-end">{formatDecimal(row.unitPrice)}{row.discountPercent > 0 && <div className="small text-muted">−{formatDecimal(row.discountPercent)}%</div>}</td>
-                            <td className="text-end sales-line-amount">{formatDecimal(lineTotals[index]?.line_total ?? 0)}</td>
+        <>
+            <div className="table-responsive">
+                <Table className="mb-0 sales-lines">
+                    <thead className="table-light">
+                        <tr>
+                            <th className="doc-line-no">#</th>
+                            <th style={{minWidth: 240}}>{t('item')}</th>
+                            <th className="text-end" style={{width: 100}}>{sourceLabel}</th>
+                            <th className="text-end" style={{width: 110}}>{beforeLabel}</th>
+                            <th className="text-end" style={{width: 140}}>{thisLabel}</th>
+                            <th style={{width: 60}}>{t('unit')}</th>
+                            <th className="text-end" style={{width: 120}}>{taxIncluded ? t('priceInclTax') : t('price')}</th>
+                            <th className="text-end" style={{width: 120}}>{t('amount')}</th>
                         </tr>
-                    ))}
-                </tbody>
-            </Table>
-        </div>
+                    </thead>
+                    <tbody>
+                        {rows.map((row, index) => (
+                            <tr key={row.id}>
+                                <td className="doc-line-no">{index + 1}</td>
+                                <td>
+                                    <div className="fw-semibold text-dark">{row.code}</div>
+                                    <div className="small text-muted">{row.description}</div>
+                                </td>
+                                <td className="text-end">{formatDecimal(row.sourceQty)}</td>
+                                <td className="text-end text-muted">{formatDecimal(row.before)}</td>
+                                <td>
+                                    <LineNumberInput
+                                        control={control}
+                                        name={`lines.${index}.quantity` as Path<T>}
+                                        min={0}
+                                        disabled={readOnly}
+                                        validate={(v) => v < 0 ? t('valueMustNotBeNegative') : v > row.available + 0.00005 ? t('maxAvailable', {qty: formatDecimal(row.available)}) : true}
+                                    />
+                                </td>
+                                <td className="text-muted">{row.uom ?? "-"}</td>
+                                <td className="text-end">{formatDecimal(row.unitPrice)}{row.discountPercent > 0 && <div className="small text-muted">−{formatDecimal(row.discountPercent)}%</div>}</td>
+                                <td className="text-end sales-line-amount">{formatDecimal(lineTotals[index]?.line_total ?? 0)}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </Table>
+            </div>
+            <LinesFooter totals={totals} />
+        </>
     );
 }
 
@@ -204,21 +225,27 @@ export function ReturnedGoodsCard<T extends FieldValues>(props: ReturnedGoodsCar
 
     return (
         <DocCard icon={Package} title={t('returnedGoods')} className={className}>
-            <Controller
-                control={control}
-                name="credit_type"
-                render={({field}) => (
-                    <div className="mb-3">
-                        <Form.Check type="radio" id="credit-type-return" checked={field.value === "return"} onChange={() => field.onChange("return")}
-                            label={<><span className="fw-semibold">{t('creditTypeReturn')}</span><div className="small text-muted">{t('creditTypeReturnHint')}</div></>} />
-                        <Form.Check type="radio" id="credit-type-write-off" className="mt-2" checked={field.value === "write_off"} onChange={() => field.onChange("write_off")}
-                            label={<><span className="fw-semibold">{t('creditTypeWriteOff')}</span><div className="small text-muted">{t('creditTypeWriteOffHint')}</div></>} />
-                    </div>
-                )}
-            />
-            {creditType === "return" && (
-                <SelectField control={control} name="inventory_location_id" label={t('returnTo')} options={locationOptions} numeric required placeholder="" />
-            )}
+            <Row className="gx-4">
+                <Col md={6}>
+                    <Controller
+                        control={control}
+                        name="credit_type"
+                        render={({field}) => (
+                            <div className="mb-3">
+                                <Form.Check type="radio" id="credit-type-return" checked={field.value === "return"} onChange={() => field.onChange("return")}
+                                    label={<><span className="fw-semibold">{t('creditTypeReturn')}</span><div className="small text-muted">{t('creditTypeReturnHint')}</div></>} />
+                                <Form.Check type="radio" id="credit-type-write-off" className="mt-2" checked={field.value === "write_off"} onChange={() => field.onChange("write_off")}
+                                    label={<><span className="fw-semibold">{t('creditTypeWriteOff')}</span><div className="small text-muted">{t('creditTypeWriteOffHint')}</div></>} />
+                            </div>
+                        )}
+                    />
+                </Col>
+                <Col md={6}>
+                    {creditType === "return" && (
+                        <SelectField control={control} name="inventory_location_id" label={t('returnTo')} options={locationOptions} numeric required placeholder="" />
+                    )}
+                </Col>
+            </Row>
         </DocCard>
     );
 }

@@ -1,6 +1,12 @@
 import type {AuthorizationRequest, RequestBuilderInterface} from "./request-interface";
-import {loadToken, removeToken} from "@/utils/token-utility";
+import {loadCompanyId, loadToken, removeCompanyId, removeToken} from "@/utils/token-utility";
 import {NotFoundError, RequestError, RequestException} from "@/lib/request-util/exception";
+
+/** The company of this browser tab, for authenticated requests (checked by the API against the user's companies). */
+export function companyHeader(): Record<string, string> {
+    const companyId = loadCompanyId();
+    return companyId ? {'X-Company-Id': companyId} : {};
+}
 
 
 export type ErrResponse = {
@@ -115,6 +121,7 @@ export abstract class AbstractRequest extends BaseRequestBuilder {
         };
         if (this.token != null) {
             this.options.headers = {...this.options.headers, 'Authorization': `Bearer ${this.token}`};
+            this.options.headers = {...this.options.headers, ...companyHeader()};
         }
 
         const query = this.isEmptyBody() ? "" : `?${this.body}`;
@@ -137,6 +144,7 @@ export abstract class AbstractRequest extends BaseRequestBuilder {
         };
         if (this.token != null) {
             this.options.headers = {...this.options.headers, 'Authorization': `Bearer ${this.token}`};
+            this.options.headers = {...this.options.headers, ...companyHeader()};
         }
         this.options.body = this.body;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -222,6 +230,11 @@ export abstract class AbstractRequest extends BaseRequestBuilder {
                 default: {
                     return response.json()
                         .then((e: RequestException) => {
+                            // this tab's company is no longer available to the user: fall back to their default company
+                            if (response.status === 403 && (e as unknown as {status_code?: string}).status_code === "COMPANY_FORBIDDEN") {
+                                removeCompanyId();
+                                location.reload();
+                            }
                             const error = new RequestError(response.status, e);
                             reject(error);
                         });

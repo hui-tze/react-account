@@ -1,6 +1,5 @@
 import {ReactNode, useEffect} from "react";
 import {Col, Row} from "react-bootstrap";
-import {CreditCard, MessageSquare, Truck} from "react-feather";
 import {useWatch} from "react-hook-form";
 import {useRequestForm} from "@/hooks/use-request-handler";
 import {SupplierTransDocument} from "@/apis/models/purchase-document";
@@ -16,7 +15,8 @@ import {blankToNull} from "@/views/Settings/Organization/Profile/profile-form";
 import {useSmartTranslation} from "@/hooks/use-translation";
 import {roundMoney} from "@/views/Sales/shared/tax";
 import {AllocationTable, appliedTotal, toAllocations} from "@/views/Sales/shared/AllocationTable";
-import {DocCard, DocTotal} from "@/views/Sales/shared/DocCard";
+import {DocCard, DocPair, DocTotal} from "@/views/Sales/shared/DocCard";
+import {EntryChecks, useErrorCheck} from "@/views/Sales/shared/EntryLayout";
 import {SupplierPicker} from "../shared/SupplierSection";
 import {useBillRows} from "../shared/ApplySupplierCredit";
 
@@ -104,65 +104,83 @@ export function SupplierPaymentForm({record, forBill, backTo, onSubmit, onSucces
         }
     };
 
+    const errorCheck = useErrorCheck(control);
+    const unapplied = roundMoney(available - applied);
+
     return (
         <SettingsFormPage onSubmit={handleSubmitRequest({request: submit, onSuccess})} submitting={submitting} isEditing={!!record}
-            backTo={backTo} readOnly={readOnly} submitLabel={record ? undefined : t('savePayment')}
-            stickyActions actionsSummary={<DocTotal label={t('amountPaid')} amount={Number(amount) || 0} currencyCode={currency?.code} />}>
+            backTo={backTo} readOnly={readOnly} submitLabel={record ? undefined : t('savePayment')} stickyActions documentLayout
+            actionsSummary={<DocTotal label={t('amountPaid')} amount={Number(amount) || 0} currencyCode={currency?.code}
+                details={[t('appliedAmount', {amount: formatDecimal(applied)})]} />}>
             {banner}
+            {!readOnly && (
+                <EntryChecks
+                    issues={[
+                        errorCheck,
+                        !supplierId && {text: t('checkPickSupplier'), tone: "info" as const},
+                        !(Number(amount) > 0) && {text: t('checkEnterAmount'), tone: "info" as const},
+                        applied > available + 0.005 && {text: t('overAppliedPaid'), tone: "warning" as const},
+                    ]}
+                    ready={[
+                        t('appliedAmount', {amount: formatDecimal(applied)}),
+                        unapplied > 0.005 && t('staysAsSupplierCredit', {amount: formatDecimal(unapplied)}),
+                    ]}
+                />
+            )}
 
-            <Row className="g-3">
-                <Col xl={6}>
-                    <DocCard icon={Truck} title={t('paidTo')} className="h-100 mb-0">
-                        <SupplierPicker control={control} name="supplier_id" suppliers={suppliers ?? []} label={t('supplier')} disabled={readOnly || !!record} />
-                        {openItems && (
-                            <div className="sales-credit-strip mb-0">
-                                <span><span className="label">{t('outstandingBills')}</span><span className="fw-semibold">{formatDecimal(openItems.invoices.reduce((sum, i) => sum + i.open, 0))}</span></span>
-                                <span><span className="label">{t('overdue')}</span><span className={openItems.overdue > 0 ? "text-danger fw-semibold" : ""}>{formatDecimal(openItems.overdue)}</span></span>
-                                <span><span className="label">{t('unappliedCredit')}</span>{formatDecimal(openItems.unallocated)}</span>
-                            </div>
-                        )}
-                    </DocCard>
-                </Col>
-                <Col xl={6}>
-                    <DocCard icon={CreditCard} title={t('paymentDetails')} className="h-100 mb-0">
-                        <Row className="gx-3">
-                            <Col sm={6}>
-                                <SelectField control={control} name="bank_account_id" label={t('payFrom')} options={bankOptions} numeric required placeholder="" disabled={readOnly} />
-                            </Col>
-                            <Col sm={6}>
-                                <TextField control={control} name="trans_date" label={t('paymentDate')} type="date" required disabled={readOnly} />
-                            </Col>
-                            <Col sm={6}>
-                                <TextField control={control} name="amount" label={currency?.code ? t('amountPaidIn', {code: currency.code}) : t('amountPaid')} type="number" numeric required step="0.01" min={0} disabled={readOnly}
-                                    rules={{validate: (v) => Number(v) > 0 || t('valueMustBePositive')}} />
-                            </Col>
-                            <Col sm={6}>
-                                <TextField control={control} name="reference_no" label={t('paymentVoucherNo')} maxLength={255} disabled={readOnly} placeholder={record ? undefined : t('autoGenerated')} />
-                            </Col>
-                            <Col sm={6}>
-                                <TextField control={control} name="bank_charge" label={t('bankCharge')} type="number" numeric step="0.01" min={0} disabled={readOnly} hint={t('supplierBankChargeHint')} />
-                            </Col>
-                            <Col sm={6}>
-                                <TextField control={control} name="discount" label={t('discountReceived')} type="number" numeric step="0.01" min={0} disabled={readOnly} hint={t('discountReceivedHint')} />
-                            </Col>
-                            <Col sm={12}>
-                                <TextField control={control} name="payment_ref" label={t('chequeOrTransferRef')} maxLength={255} disabled={readOnly} />
-                            </Col>
-                        </Row>
-                    </DocCard>
-                </Col>
-            </Row>
+            <DocPair>
+                <DocCard title={t('paidTo')}>
+                    <Row className="gx-4">
+                        <Col xs={12}>
+                            <SupplierPicker control={control} name="supplier_id" suppliers={suppliers ?? []} label={t('supplier')} disabled={readOnly || !!record} />
+                            {openItems && (
+                                <div className="doc-field-note">
+                                    <span>{t('outstandingBills')} <span className="fw-semibold text-dark">{formatDecimal(openItems.invoices.reduce((sum, i) => sum + i.open, 0))}</span></span>
+                                    <span className={openItems.overdue > 0 ? "text-danger fw-semibold" : undefined}>{t('overdue')} {formatDecimal(openItems.overdue)}</span>
+                                    <span>{t('unappliedCredit')} {formatDecimal(openItems.unallocated)}</span>
+                                </div>
+                            )}
+                        </Col>
+                        <Col md={6}>
+                            <SelectField control={control} name="bank_account_id" label={t('payFrom')} options={bankOptions} numeric required placeholder="" disabled={readOnly} />
+                        </Col>
+                    </Row>
+                </DocCard>
+
+                <DocCard title={t('paymentDetails')}>
+                    <Row className="gx-4">
+                        <Col sm={6}>
+                            <TextField control={control} name="trans_date" label={t('paymentDate')} type="date" required disabled={readOnly} />
+                        </Col>
+                        <Col sm={6}>
+                            <TextField control={control} name="amount" label={currency?.code ? t('amountPaidIn', {code: currency.code}) : t('amountPaid')} type="number" numeric required step="0.01" min={0} disabled={readOnly}
+                                rules={{validate: (v) => Number(v) > 0 || t('valueMustBePositive')}} />
+                        </Col>
+                        <Col sm={6}>
+                            <TextField control={control} name="bank_charge" label={t('bankCharge')} type="number" numeric step="0.01" min={0} disabled={readOnly} hint={t('supplierBankChargeHint')} />
+                        </Col>
+                        <Col sm={6}>
+                            <TextField control={control} name="discount" label={t('discountReceived')} type="number" numeric step="0.01" min={0} disabled={readOnly} hint={t('discountReceivedHint')} />
+                        </Col>
+                        <Col sm={6}>
+                            <TextField control={control} name="payment_ref" label={t('chequeOrTransferRef')} maxLength={255} disabled={readOnly} placeholder={t('optional')} />
+                        </Col>
+                        <Col sm={6}>
+                            <TextField control={control} name="reference_no" label={t('paymentVoucherNo')} maxLength={255} disabled={readOnly} placeholder={record ? undefined : t('autoGenerated')} />
+                        </Col>
+                    </Row>
+                </DocCard>
+            </DocPair>
 
             <AllocationTable control={control} setValue={setValue} rows={rows} available={available} party="supplier" readOnly={readOnly} pay={pay}
                 sources={[
                     {label: t('amountPaid'), amount: Number(amount) || 0},
                     ...((Number(discount) || 0) > 0 ? [{label: t('discountReceived'), amount: Number(discount)}] : []),
                 ]}
-                className="mt-3"
                 hint={t('applyToBillsHint')} emptyText={supplierId ? t('noOpenBills') : t('pickSupplierFirst')} />
 
-            <DocCard icon={MessageSquare} title={t('notes')} className="mb-0">
-                <TextAreaField control={control} name="remarks" label={t('notes')} rows={2} disabled={readOnly} />
+            <DocCard title={t('notes')}>
+                <TextAreaField control={control} name="remarks" label={t('notes')} rows={3} disabled={readOnly} />
             </DocCard>
         </SettingsFormPage>
     );

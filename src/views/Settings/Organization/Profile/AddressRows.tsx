@@ -1,6 +1,6 @@
 import {Button, Col, Form, Row} from "react-bootstrap";
 import {Plus, Trash2} from "react-feather";
-import {Control, Controller, useFieldArray, UseFormSetValue, UseFormWatch} from "react-hook-form";
+import {Control, Controller, useFieldArray, useFormState, UseFormSetValue, UseFormWatch} from "react-hook-form";
 import {SelectField, TextField} from "@/components/FormField/FormFields";
 import {FormSectionTitle} from "@/views/Settings/shared/SettingsFormPage";
 import {useSmartTranslation} from "@/hooks/use-translation";
@@ -16,14 +16,19 @@ type AddressRowsProps<T extends AddressForm> = {
     control: Control<T>,
     watch: UseFormWatch<T>,
     setValue: UseFormSetValue<T>,
+    // at least one address (customers, suppliers)
+    required?: boolean,
 };
 
 export function AddressRows<T extends AddressForm>(props: AddressRowsProps<T>) {
     // react-hook-form can't resolve `addresses.${n}` paths on an open generic, so work on the slice type
-    const {control, watch, setValue} = props as unknown as AddressRowsProps<AddressForm>;
+    const {control, watch, setValue, required} = props as unknown as AddressRowsProps<AddressForm>;
     const {t} = useSmartTranslation();
     // keyName avoids clobbering the record's own `id`, which must be sent back on save
-    const {fields, append, remove} = useFieldArray({control, name: "addresses", keyName: "fieldKey"});
+    const {fields, append, remove} = useFieldArray({control, name: "addresses", keyName: "fieldKey",
+        rules: required ? {minLength: {value: 1, message: t('addressRequired')}} : undefined});
+    const {errors} = useFormState({control, name: "addresses"});
+    const listError = (errors.addresses as {root?: {message?: string}} | undefined)?.root?.message;
     const addresses = watch("addresses");
 
     const typeOptions = (current: string | null) => {
@@ -38,7 +43,7 @@ export function AddressRows<T extends AddressForm>(props: AddressRowsProps<T>) {
     return (
         <>
             <div className="d-flex align-items-start justify-content-between">
-                <FormSectionTitle title={t('addresses')} />
+                <FormSectionTitle title={required ? `${t('addresses')} *` : t('addresses')} />
                 <Button
                     variant="outline-primary"
                     size="sm"
@@ -49,7 +54,8 @@ export function AddressRows<T extends AddressForm>(props: AddressRowsProps<T>) {
                 </Button>
             </div>
 
-            {fields.length === 0 && <p className="text-muted small">{t('noAddresses')}</p>}
+            {listError && <p className="text-danger small mb-2">{listError}</p>}
+            {fields.length === 0 && !listError && <p className="text-muted small">{required ? t('addressRequired') : t('noAddresses')}</p>}
 
             {fields.map((field, index) => (
                 <div key={field.fieldKey} className="border rounded p-3 mb-3">
@@ -97,6 +103,7 @@ export function AddressRows<T extends AddressForm>(props: AddressRowsProps<T>) {
                                 size="sm"
                                 type="button"
                                 className="mb-3"
+                                disabled={required && fields.length <= 1}
                                 onClick={() => remove(index)}
                             >
                                 <Trash2 size={14} className="me-1" />{t('remove')}

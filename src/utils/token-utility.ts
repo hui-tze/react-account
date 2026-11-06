@@ -52,3 +52,17 @@ export function saveHourFormat(format: string) {
 export function loadHourFormat(): string|null {
     return localStorage.getItem(`${AuthTokenName}-hour-format`);
 }
+
+// The company this browser tab works in, sent as X-Company-Id. Kept in sessionStorage so each
+// tab can work in its own company; a new tab starts on the user's default company.
+export function saveCompanyId(companyId: number) {
+    sessionStorage.setItem(`${AuthTokenName}-company`, String(companyId));
+}
+
+export function loadCompanyId(): string | null {
+    return sessionStorage.getItem(`${AuthTokenName}-company`);
+}
+
+export function removeCompanyId() {
+    sessionStorage.removeItem(`${AuthTokenName}-company`);
+}

@@ -38,7 +38,7 @@ export function SalesTypeForm({record, onSubmit, onSuccess, onDelete}: RecordFor
                 <Col md={4}>
                     <StatusField control={control} name="status" />
                 </Col>
-                <Col md={4}>
+                <Col md={6}>
                     {/* calculation_factor is optional server-side but not nullable; the column defaults to 1 */}
                     <TextField
                         control={control}
@@ -51,7 +51,7 @@ export function SalesTypeForm({record, onSubmit, onSuccess, onDelete}: RecordFor
                         hint={t('calculationFactorHint')}
                     />
                 </Col>
-                <Col md={8} className="d-flex align-items-center">
+                <Col md={12} className="d-flex align-items-center">
                     <SwitchField control={control} name="tax_included" label={t('taxIncluded')} />
                 </Col>
                 <Col md={12}>

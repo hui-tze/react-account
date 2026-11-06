@@ -2,6 +2,7 @@ import {BarChart2, BookOpen, Columns, FileText, Layers, List, Percent} from "rea
 import type {ModuleSidebarConfig} from "@/layout/Module/ModuleSidebarMenu";
 import {salesDocumentPath} from "@/views/Sales/sales-menu";
 import {purchaseDocumentPath} from "@/views/Purchases/purchases-menu";
+import {bankDocumentPath} from "@/views/Banking/banking-menu";
 
 export const GL_PATH = "/gl";
 export const GL_ENTRIES_PATH = `${GL_PATH}/entries`;
@@ -19,7 +20,7 @@ export function ledgerDocumentPath(type: string, id: number): string | null {
     if (type === "journal_entry") {
         return `${GL_JOURNALS_PATH}/${id}`;
     }
-    return salesDocumentPath(type, id) ?? purchaseDocumentPath(type, id);
+    return salesDocumentPath(type, id) ?? purchaseDocumentPath(type, id) ?? bankDocumentPath(type, id);
 }
 
 /** An account's ledger: all its postings with a running balance. */

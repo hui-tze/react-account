@@ -1,7 +1,7 @@
 import {useMemo} from "react";
 import {Button, Col, Row} from "react-bootstrap";
 import {Plus, Trash2} from "react-feather";
-import {Control, useFieldArray} from "react-hook-form";
+import {Control, useFieldArray, useFormState} from "react-hook-form";
 import {useGetContactCategoryOptions} from "@/apis/requests/contact-category-api";
 import {SelectField, TextAreaField, TextField} from "@/components/FormField/FormFields";
 import {FormSectionTitle} from "@/views/Settings/shared/SettingsFormPage";
@@ -26,14 +26,19 @@ type ContactRowsProps<T extends ContactForm> = {
     usedCategoryIds: (number | null)[],
     // whose contacts these are — offers that entity's contact categories
     entityType?: string,
+    // at least one contact person (customers, suppliers)
+    required?: boolean,
 };
 
 export function ContactRows<T extends ContactForm>(props: ContactRowsProps<T>) {
     // react-hook-form can't resolve `contacts.${n}` paths on an open generic, so work on the slice type
-    const {control, usedCategoryIds, entityType = "company"} = props as unknown as ContactRowsProps<ContactForm>;
+    const {control, usedCategoryIds, entityType = "company", required} = props as unknown as ContactRowsProps<ContactForm>;
     const {t} = useSmartTranslation();
     // keyName avoids clobbering the contact link's own `id`, which must be sent back on save
-    const {fields, append, remove} = useFieldArray({control, name: "contacts", keyName: "fieldKey"});
+    const {fields, append, remove} = useFieldArray({control, name: "contacts", keyName: "fieldKey",
+        rules: required ? {minLength: {value: 1, message: t('contactRequired')}} : undefined});
+    const {errors} = useFormState({control, name: "contacts"});
+    const listError = (errors.contacts as {root?: {message?: string}} | undefined)?.root?.message;
     const {data: categories} = useGetContactCategoryOptions();
 
     const categoryOptions = useMemo(() => (categories ?? [])
@@ -43,13 +48,14 @@ export function ContactRows<T extends ContactForm>(props: ContactRowsProps<T>) {
     return (
         <>
             <div className="d-flex align-items-start justify-content-between">
-                <FormSectionTitle title={t('contacts')} />
+                <FormSectionTitle title={required ? `${t('contacts')} *` : t('contacts')} />
                 <Button variant="outline-primary" size="sm" type="button" onClick={() => append({...EMPTY_CONTACT})}>
                     <Plus size={14} className="me-1" />{t('addContact')}
                 </Button>
             </div>
 
-            {fields.length === 0 && <p className="text-muted small">{t('noContacts')}</p>}
+            {listError && <p className="text-danger small mb-2">{listError}</p>}
+            {fields.length === 0 && !listError && <p className="text-muted small">{required ? t('contactRequired') : t('noContacts')}</p>}
 
             {fields.map((field, index) => (
                 <div key={field.fieldKey} className="border rounded p-3 mb-3">
@@ -96,7 +102,7 @@ export function ContactRows<T extends ContactForm>(props: ContactRowsProps<T>) {
                             <TextAreaField control={control} name={`contacts.${index}.remark`} label={t('remark')} rows={2} />
                         </Col>
                         <Col md={12} className="text-end">
-                            <Button variant="flush-danger" size="sm" type="button" onClick={() => remove(index)}>
+                            <Button variant="flush-danger" size="sm" type="button" disabled={required && fields.length <= 1} onClick={() => remove(index)}>
                                 <Trash2 size={14} className="me-1" />{t('remove')}
                             </Button>
                         </Col>

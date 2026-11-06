@@ -37,6 +37,7 @@ import avatar12 from '../../assets/img/avatar12.jpg';
 
 import {toggleCollapsedNav} from '@/redux/action/Theme';
 import {HkBadge} from '@/components/@hk-badge/@hk-badge';
+import {CompanySwitcher} from './CompanySwitcher';
 
 interface RootState {
     theme: {
@@ -418,6 +419,7 @@ const TopNav: React.FC<Props> = ({
 
                 {/* End Nav */}
                 <div className="nav-end-wrap">
+                    <CompanySwitcher />
                     <Nav className="navbar-nav flex-row">
                         {/* Email */}
                         <Nav.Item>

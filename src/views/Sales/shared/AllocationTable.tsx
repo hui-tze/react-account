@@ -7,6 +7,7 @@ import {formatDecimal} from "@/views/Inventory/shared/options";
 import {useSmartTranslation} from "@/hooks/use-translation";
 import {roundMoney} from "./tax";
 import {DocCard} from "./DocCard";
+import {LinesFooter, LinesNote} from "./EntryLayout";
 
 // any form with a `pay` column: amount applied per row, in row order
 type PayForm = {pay: (number | null)[]};
@@ -57,12 +58,13 @@ export function AllocationTable<T extends PayForm>(props: AllocationTableProps<T
             title={supplier ? t('applyToBills') : t('applyToInvoices')}
             hint={hint}
             className={className}
+            flush
             actions={!readOnly && rows.length > 0 && (
                 <Button variant="outline-primary" size="sm" onClick={autoApply}><Zap size={14} className="me-1" />{t('autoApply')}</Button>
             )}
         >
-            {rows.length === 0 ? <p className="text-muted small mb-3">{emptyText}</p> : (
-                <div className="table-responsive mb-3">
+            {rows.length === 0 ? <LinesNote>{emptyText}</LinesNote> : (
+                <div className="table-responsive">
                     <Table className="mb-0 sales-lines">
                         <thead className="table-light">
                             <tr>
@@ -113,20 +115,18 @@ export function AllocationTable<T extends PayForm>(props: AllocationTableProps<T
                 </div>
             )}
 
-            <div className="ms-auto" style={{maxWidth: 380}}>
-                <Table size="sm" borderless className="mb-0">
-                    <tbody>
-                        {sources.map(source => (
-                            <tr key={source.label}><td className="text-muted">{source.label}</td><td className="text-end">{formatDecimal(source.amount)}</td></tr>
-                        ))}
-                        <tr><td className="text-muted">{supplier ? t('appliedToBills') : t('appliedToInvoices')}</td><td className="text-end">{formatDecimal(applied)}</td></tr>
-                        <tr className="border-top">
-                            <td className="fw-semibold pt-2">{remainder >= 0 ? (supplier ? t('leftAsSupplierCredit') : t('leftAsCredit')) : (supplier ? t('overAppliedPaid') : t('overApplied'))}</td>
-                            <td className={`text-end fw-bold pt-2 ${remainder < 0 ? "text-danger" : ""}`}>{formatDecimal(remainder)}</td>
-                        </tr>
-                    </tbody>
-                </Table>
-            </div>
+            <LinesFooter totals={(
+                <dl className="doc-totals">
+                    {sources.map(source => (
+                        <div key={source.label}><dt>{source.label}</dt><dd>{formatDecimal(source.amount)}</dd></div>
+                    ))}
+                    <div><dt>{supplier ? t('appliedToBills') : t('appliedToInvoices')}</dt><dd>{formatDecimal(applied)}</dd></div>
+                    <div className="doc-totals-grand">
+                        <dt>{remainder >= 0 ? (supplier ? t('leftAsSupplierCredit') : t('leftAsCredit')) : (supplier ? t('overAppliedPaid') : t('overApplied'))}</dt>
+                        <dd className={remainder < 0 ? "text-danger" : undefined}>{formatDecimal(remainder)}</dd>
+                    </div>
+                </dl>
+            )} />
         </DocCard>
     );
 }

@@ -83,13 +83,13 @@ export function AdjustmentForm({record, onSubmit, onSuccess, onDelete}: RecordFo
 
             <FormSectionTitle title={t('details')} />
             <Row className="gx-3">
-                <Col md={4}>
+                <Col md={12}>
                     <SelectField control={control} name="inventory_location_id" label={t('inventoryLocation')} options={locationOptions} numeric required placeholder="" disabled={voided} />
                 </Col>
-                <Col md={4}>
+                <Col md={6}>
                     <TextField control={control} name="trans_date" label={t('date')} type="date" required disabled={voided} />
                 </Col>
-                <Col md={4}>
+                <Col md={6}>
                     <TextField
                         control={control}
                         name="reference_no"

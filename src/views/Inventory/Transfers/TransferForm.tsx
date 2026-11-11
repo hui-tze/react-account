@@ -1,4 +1,5 @@
 import {useMemo} from "react";
+import {formatQuantity} from "@/utils/display-format";
 import {Button, Col, Row, Table} from "react-bootstrap";
 import {Plus, Repeat, Trash2} from "react-feather";
 import {useFieldArray, useWatch} from "react-hook-form";
@@ -192,7 +193,7 @@ export function TransferForm({record, onSubmit, onSuccess, onDelete}: RecordForm
                                         />
                                     </td>
                                     <td className="text-end fw-semibold">{available != null ? <SignedQuantity value={available - qty} /> : "-"}</td>
-                                    <td className="text-end">{destination != null ? formatDecimal(destination + qty) : "-"}</td>
+                                    <td className="text-end">{destination != null ? formatQuantity(destination + qty) : "-"}</td>
                                     <td className="text-end">
                                         {!voided && fields.length > 1 && (
                                             <Button variant="flush-danger" size="sm" className="btn-icon btn-rounded" title={t('remove')} onClick={() => remove(index)}>
@@ -207,7 +208,7 @@ export function TransferForm({record, onSubmit, onSuccess, onDelete}: RecordForm
                     <tfoot>
                         <tr>
                             <td colSpan={4} className="text-end fw-semibold">{t('totalQuantity')}</td>
-                            <td className="text-end fw-bold">{formatDecimal(totalQuantity)}</td>
+                            <td className="text-end fw-bold">{formatQuantity(totalQuantity)}</td>
                             <td colSpan={3} />
                         </tr>
                     </tfoot>

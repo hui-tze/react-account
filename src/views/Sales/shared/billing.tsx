@@ -1,4 +1,5 @@
 import {ReactNode} from "react";
+import {formatQuantity} from "@/utils/display-format";
 import {Col, Form, Row, Table} from "react-bootstrap";
 import {Package, Send} from "react-feather";
 import {Control, Controller, FieldValues, Path, useWatch} from "react-hook-form";
@@ -149,7 +150,7 @@ export function SourceLinesTable<T extends FieldValues>({control, rows, lineTota
                                     <div className="fw-semibold text-dark">{row.code}</div>
                                     <div className="small text-muted">{row.description}</div>
                                 </td>
-                                <td className="text-end">{formatDecimal(row.sourceQty)}</td>
+                                <td className="text-end">{formatQuantity(row.sourceQty)}</td>
                                 <td className="text-end text-muted">{formatDecimal(row.before)}</td>
                                 <td>
                                     <LineNumberInput
@@ -157,7 +158,7 @@ export function SourceLinesTable<T extends FieldValues>({control, rows, lineTota
                                         name={`lines.${index}.quantity` as Path<T>}
                                         min={0}
                                         disabled={readOnly}
-                                        validate={(v) => v < 0 ? t('valueMustNotBeNegative') : v > row.available + 0.00005 ? t('maxAvailable', {qty: formatDecimal(row.available)}) : true}
+                                        validate={(v) => v < 0 ? t('valueMustNotBeNegative') : v > row.available + 0.00005 ? t('maxAvailable', {qty: formatQuantity(row.available)}) : true}
                                     />
                                 </td>
                                 <td className="text-muted">{row.uom ?? "-"}</td>

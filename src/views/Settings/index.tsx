@@ -1,11 +1,12 @@
 import {CSSProperties, useMemo, useState} from "react";
 import {Badge, Col, Container, Form, Row} from "react-bootstrap";
 import {ChevronRight, Search, X} from "react-feather";
-import {Link} from "react-router-dom";
+import {Link} from "@/components/Access/Guarded";
 import SimpleBar from "simplebar-react";
 import {SettingsMenuItem, SettingsSection, settingsSections} from "./settings-menu";
 import {useSmartTranslation} from "@/hooks/use-translation";
 import {translateMenu} from "@/i18n/menu";
+import {useAccess} from "@/providers/access";
 
 type AccentStyle = CSSProperties & {"--hub-accent": string};
 
@@ -15,22 +16,28 @@ export default function SettingsHome() {
     const [query, setQuery] = useState("");
 
     const q = query.trim().toLowerCase();
+    const {canPath} = useAccess();
+
+    // screens the user's role can open
+    const allowed = useMemo(() => settingsSections
+        .map((section) => ({...section, items: section.items.filter((item) => canPath(item.path))}))
+        .filter((section) => section.items.length > 0), [canPath]);
 
     // a section matching by title keeps all its items; otherwise keep only matching items
     const sections = useMemo(() => {
         if (!q) {
-            return settingsSections;
+            return allowed;
         }
         // match the English label and the shown (translated) one
         const matches = (text: string) => text.toLowerCase().includes(q) || translateMenu(t, text).toLowerCase().includes(q);
 
-        return settingsSections
+        return allowed
             .map((section) => matches(section.title) ? section : {
                 ...section,
                 items: section.items.filter((item) => matches(item.name) || matches(t(item.descriptionKey))),
             })
             .filter((section) => section.items.length > 0);
-    }, [q, t]);
+    }, [q, t, allowed]);
 
     return (
         <div className="hk-pg-body settings-hub">

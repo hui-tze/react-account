@@ -1,4 +1,6 @@
 import {SalesOrderDocument} from "@/apis/models/sales-document";
+import {formatQuantity} from "@/utils/display-format";
+import {DocRef} from "@/views/Documents/DocumentPreview";
 import {orderApi, quotationApi} from "@/apis/requests/sales-order-api";
 import {ColumnProps} from "@/components/@hk-data-table";
 import {formatDecimal} from "@/views/Inventory/shared/options";
@@ -15,7 +17,7 @@ function useColumns(kind: "quotation" | "order"): ColumnProps<SalesOrderDocument
         {
             accessor: "reference_no",
             title: t('referenceNo'),
-            render: (row) => <span className="fw-semibold text-dark">{row.reference_no}</span>,
+            render: (row) => <DocRef type={row.trans_type} id={row.id} reference={row.reference_no} />,
         },
         {
             accessor: "customer_id",
@@ -43,7 +45,7 @@ function useColumns(kind: "quotation" | "order"): ColumnProps<SalesOrderDocument
                 <div>
                     <SalesStateBadge state={row.state} />
                     {(row.state === "partially_delivered" || row.state === "partially_converted") && (
-                        <div className="small text-muted">{formatDecimal(row.progress_qty)} / {formatDecimal(row.ordered_qty)}</div>
+                        <div className="small text-muted">{formatQuantity(row.progress_qty)} / {formatQuantity(row.ordered_qty)}</div>
                     )}
                 </div>
             ),

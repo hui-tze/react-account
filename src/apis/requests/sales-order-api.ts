@@ -1,6 +1,7 @@
 import {authApiRequest, authFetcher, useConsoleSwr} from "@/lib/request-client/client";
 import type {SWRConfiguration, SWRResponse} from "swr";
 import {DocumentDeliveryAddress, SalesOrderDocument} from "@/apis/models/sales-document";
+import type {DimensionTag} from "@/apis/models/dimension";
 import {PaginationResponse} from "@/apis/pagination";
 
 export type SalesLineRequest = {
@@ -38,6 +39,7 @@ export type SalesOrderRequest = {
     remarks: string | null,
     internal_notes: string | null,
     delivery_address: DocumentDeliveryAddress,
+    dimensions: DimensionTag[],
     source_quotation_id?: number | null,
     lines: SalesLineRequest[],
 };

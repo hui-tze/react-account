@@ -1,4 +1,5 @@
 import {ReactNode, useMemo} from "react";
+import {formatQuantity} from "@/utils/display-format";
 import {Col, Row} from "react-bootstrap";
 import {useWatch} from "react-hook-form";
 import {useRequestForm} from "@/hooks/use-request-handler";
@@ -7,7 +8,6 @@ import {SalesOrderRequest} from "@/apis/requests/sales-order-api";
 import {TextAreaField, TextField} from "@/components/FormField/FormFields";
 import SettingsFormPage from "@/views/Settings/shared/SettingsFormPage";
 import {applyServerErrors} from "@/views/Inventory/shared/document";
-import {formatDecimal} from "@/views/Inventory/shared/options";
 import {useSmartTranslation} from "@/hooks/use-translation";
 import {LineLock, SalesLinesTable} from "../shared/SalesLinesTable";
 import {TotalsPanel} from "../shared/TotalsPanel";
@@ -18,6 +18,7 @@ import {DocCard, DocPair, DocTotal} from "../shared/DocCard";
 import {ExchangeRateField} from "../shared/ExchangeRateField";
 import {useDocumentPricing} from "../shared/useDocumentPricing";
 import {blankOrderValues, orderToValues, toOrderPayload} from "../shared/sales-form";
+import {DimensionFields} from "@/views/Dimensions/shared/DimensionFields";
 
 export type SalesOrderKind = "quotation" | "order";
 
@@ -56,10 +57,10 @@ export function SalesOrderForm({kind, record, initialValues, backTo, onSubmit, o
             if (kind === "order") {
                 const done = Math.max(Number(line.quantity_delivered), Number(line.quantity_invoiced));
                 if (done > 0) {
-                    map.set(line.id, {minQuantity: done, label: t('deliveredQty', {qty: formatDecimal(line.quantity_delivered)}), locked: true});
+                    map.set(line.id, {minQuantity: done, label: t('deliveredQty', {qty: formatQuantity(line.quantity_delivered)}), locked: true});
                 }
             } else if (line.quantity_converted > 0) {
-                map.set(line.id, {minQuantity: 0, label: t('orderedQty', {qty: formatDecimal(line.quantity_converted)}), locked: true});
+                map.set(line.id, {minQuantity: 0, label: t('orderedQty', {qty: formatQuantity(line.quantity_converted)}), locked: true});
             }
         });
         return map;
@@ -69,7 +70,7 @@ export function SalesOrderForm({kind, record, initialValues, backTo, onSubmit, o
         try {
             await onSubmit(toOrderPayload(values));
         } catch (e) {
-            applyServerErrors(e, setError, ["reference_no", "customer_id", "branch_id", "order_date", "valid_until", "requested_delivery_date", "exchange_rate", "lines"]);
+            applyServerErrors(e, setError, ["reference_no", "customer_id", "branch_id", "order_date", "valid_until", "requested_delivery_date", "exchange_rate", "dimensions", "lines"]);
             throw e;
         }
     };
@@ -125,6 +126,8 @@ export function SalesOrderForm({kind, record, initialValues, backTo, onSubmit, o
                         </Col>
                         <DeliveryFromFields control={control} locationRequired={kind === "order"} readOnly={readOnly} />
                         <ExchangeRateField control={control} pricing={pricing} savedRate={record?.exchange_rate} readOnly={readOnly} />
+                        {/* orders don't post, so required dimensions can wait for the delivery / invoice */}
+                        <DimensionFields control={control} readOnly={readOnly} enforceRequired={false} />
                     </Row>
                 </DocCard>
             </DocPair>

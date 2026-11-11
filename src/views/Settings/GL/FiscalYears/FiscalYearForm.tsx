@@ -1,4 +1,5 @@
 import {Button, Col, Container, Form, Row, Spinner} from "react-bootstrap";
+import {ActionButton} from "@/components/Access/Guarded";
 import {useNavigate} from "react-router-dom";
 import SimpleBar from "simplebar-react";
 import {useRequestForm} from "@/hooks/use-request-handler";
@@ -73,12 +74,12 @@ export function FiscalYearForm({fiscalYear, onSubmit, onSuccess, onDelete}: Fisc
 
                         <div className="d-flex gap-2 mt-3">
                             <Button variant="outline-secondary" type="button" onClick={() => navigate("/settings/gl/fiscal-years")}>{t('cancel')}</Button>
-                            <Button type="submit" variant="primary" disabled={submitting}>
+                            <ActionButton action={onDelete ? "edit" : "create"} type="submit" variant="primary" disabled={submitting}>
                                 <Spinner as="span" animation="border" size="sm" className={submitting ? "me-2" : "d-none"} />
                                 {fiscalYear ? t('saveChanges') : t('create')}
-                            </Button>
+                            </ActionButton>
                             {onDelete && (
-                                <Button variant="outline-danger" type="button" className="ms-auto" onClick={onDelete}>{t('delete')}</Button>
+                                <ActionButton action="delete" variant="outline-danger" type="button" className="ms-auto" onClick={onDelete}>{t('delete')}</ActionButton>
                             )}
                         </div>
                     </Form>

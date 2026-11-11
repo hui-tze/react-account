@@ -1,3 +1,5 @@
+import type {DimensionTag} from "@/apis/models/dimension";
+
 // shared by quotations, orders, delivery notes, invoices and credit notes
 
 export type SalesTaxSummary = {
@@ -112,6 +114,7 @@ export type SalesOrderDocument = {
     taxes?: SalesTaxSummary[],
     delivery_address?: DocumentDeliveryAddress | null,
     related?: RelatedDocument[],
+    dimensions?: DimensionTag[],
 };
 
 export type CustomerTransLine = {
@@ -183,6 +186,7 @@ export type CustomerTransDocument = {
     taxes?: SalesTaxSummary[],
     delivery_address?: DocumentDeliveryAddress | null,
     related?: RelatedDocument[],
+    dimensions?: DimensionTag[],
     // invoices: still owed
     balance?: number,
     source_transaction?: {id: number, reference_no: string, trans_type?: string} | null,

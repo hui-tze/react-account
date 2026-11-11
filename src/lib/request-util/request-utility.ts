@@ -219,8 +219,9 @@ export abstract class AbstractRequest extends BaseRequestBuilder {
                         location.reload();
                     }
                     return response.json()
-                        .then((r: ErrResponse) => {
-                            reject(r.status);
+                        .then((r: ErrResponse & {message?: string}) => {
+                            // sign-in failures carry `message` ("Invalid credentials")
+                            reject(r.status ?? r.message);
                         });
                     // return response.json()
                     //     .then((r: ErrResponse) => {

@@ -2,7 +2,7 @@ import {useState} from "react";
 import {Button, Col, Row} from "react-bootstrap";
 import classNames from "classnames";
 import {Check, ChevronDown, HelpCircle} from "react-feather";
-import {Link} from "react-router-dom";
+import {Link} from "@/components/Access/Guarded";
 import {useSmartTranslation} from "@/hooks/use-translation";
 import {BANK_DEPOSIT_CREATE_PATH, BANK_PAYMENT_CREATE_PATH} from "../banking-menu";
 

@@ -1,7 +1,7 @@
 import {ReactNode} from "react";
 import {Card} from "react-bootstrap";
 import {ArrowRight, Link2} from "react-feather";
-import {Link} from "react-router-dom";
+import {Link} from "@/components/Access/Guarded";
 import type {RelatedDocument} from "@/apis/models/sales-document";
 import {formatDecimal} from "@/views/Inventory/shared/options";
 import {useSmartTranslation} from "@/hooks/use-translation";

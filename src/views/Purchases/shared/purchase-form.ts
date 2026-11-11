@@ -17,6 +17,7 @@ export function blankOrderValues(): PurchaseOrderRequest {
         tax_included: null,
         remarks: "",
         delivery_address: {...EMPTY_DELIVERY_ADDRESS},
+        dimensions: [],
         lines: [{...EMPTY_PURCHASE_LINE}],
     };
 }
@@ -33,6 +34,7 @@ export function orderToValues(record: PurchaseOrderDocument): PurchaseOrderReque
         tax_included: record.tax_included,
         remarks: record.remarks ?? "",
         delivery_address: record.delivery_address ? {...EMPTY_DELIVERY_ADDRESS, ...record.delivery_address} : {...EMPTY_DELIVERY_ADDRESS},
+        dimensions: record.dimensions ?? [],
         lines: (record.details ?? []).map(line => ({
             id: line.id,
             item_id: line.product_id,

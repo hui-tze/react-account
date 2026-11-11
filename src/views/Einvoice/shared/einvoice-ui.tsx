@@ -1,6 +1,6 @@
 import {Badge, Button, Card, Spinner} from "react-bootstrap";
 import {ExternalLink, RefreshCw, Send, XCircle} from "react-feather";
-import {Link} from "react-router-dom";
+import {Link} from "@/components/Access/Guarded";
 import moment from "moment";
 import Swal from "sweetalert2";
 import {useState} from "react";
@@ -10,6 +10,8 @@ import {useNotification} from "@/hooks/notification";
 import {useConfirmAction} from "@/hooks/use-confirmation-action";
 import {useSmartTranslation} from "@/hooks/use-translation";
 import {EINVOICE_DOCUMENTS_PATH} from "../einvoice-menu";
+import {useAccess} from "@/providers/access";
+import {formatDateTime as formatCompanyDateTime} from "@/utils/display-format";
 
 const TINTS: Record<EinvoiceProcessStatus, string> = {
     PENDING: "badge-soft-secondary",
@@ -42,7 +44,7 @@ export function EnvironmentBadge({environment}: {environment: string | null | un
 
 // stored in UTC; shown in the browser's time zone
 export function formatDateTime(value: string | null | undefined): string {
-    return value ? moment.utc(value).local().format("YYYY-MM-DD HH:mm") : "";
+    return value ? formatCompanyDateTime(moment.utc(value).toDate(), "") : "";
 }
 
 /** Submit / refresh / cancel with toasts; `after` reloads whatever shows the document. */
@@ -157,6 +159,11 @@ export function EinvoiceStrip({transType, transId, live}: {transType: EinvoiceTr
     const {t} = useSmartTranslation();
     const {data, mutate} = einvoiceDocumentApi.useForSource(transType, transId, {revalidateOnFocus: false});
     const actions = useEinvoiceActions(() => mutate());
+    // submitting / refreshing and cancelling at LHDN are e-invoice permissions, whatever page shows the strip
+    const {canModule} = useAccess();
+    const mayAct = canModule("einvoice", "create");
+    const mayRefresh = canModule("einvoice", "edit");
+    const mayCancel = canModule("einvoice", "delete");
 
     // companies not on e-invoice see nothing; an existing e-invoice is still shown if it was later disabled
     if (!data || !data.supported || (!data.enabled && !data.document)) {
@@ -195,17 +202,17 @@ export function EinvoiceStrip({transType, transId, live}: {transType: EinvoiceTr
                             <ExternalLink size={14} className="me-1" />{t('einvValidationLink')}
                         </a>
                     )}
-                    {doc && (doc.process_status === "SUBMITTED" || doc.process_status === "VALID") && (
+                    {mayRefresh && doc && (doc.process_status === "SUBMITTED" || doc.process_status === "VALID") && (
                         <Button variant="outline-secondary" size="sm" disabled={actions.busy} onClick={() => actions.refresh(doc.id)}>
                             <RefreshCw size={14} className="me-1" />{t('einvRefreshStatus')}
                         </Button>
                     )}
-                    {doc?.can_cancel && (
+                    {mayCancel && doc?.can_cancel && (
                         <Button variant="outline-danger" size="sm" disabled={actions.busy} onClick={() => actions.cancel(doc)}>
                             <XCircle size={14} className="me-1" />{t('einvCancel')}
                         </Button>
                     )}
-                    {canSubmit && (
+                    {mayAct && canSubmit && (
                         <Button variant="primary" size="sm" disabled={actions.busy}
                             onClick={() => actions.submit([{trans_type: transType, trans_id: transId}])}>
                             <Send size={14} className="me-1" />{doc ? t('einvResubmit') : t('einvSubmit')}

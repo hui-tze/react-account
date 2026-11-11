@@ -1,4 +1,5 @@
 import {ComponentType, CSSProperties, ReactNode, useState} from "react";
+import {formatDate, isIsoDate} from "@/utils/display-format";
 import classNames from "classnames";
 import {ChevronDown} from "react-feather";
 import {formatDecimal} from "@/views/Inventory/shared/options";
@@ -92,7 +93,7 @@ export function FactsGrid({facts}: {facts: {label: string, value: ReactNode}[]})
             {facts.filter(f => f.value).map(fact => (
                 <div key={fact.label} className="col-sm-6">
                     <div className="small text-muted">{fact.label}</div>
-                    <div className="fw-semibold text-dark">{fact.value}</div>
+                    <div className="fw-semibold text-dark">{isIsoDate(fact.value) ? formatDate(fact.value) : fact.value}</div>
                 </div>
             ))}
         </div>

@@ -1,6 +1,8 @@
 import {useCallback, useState} from "react";
+import {formatDate} from "@/utils/display-format";
+import {DocRef} from "@/views/Documents/DocumentPreview";
 import {Badge, Card, Form, Table} from "react-bootstrap";
-import {Link} from "react-router-dom";
+import {Link} from "@/components/Access/Guarded";
 import type {TaxDetailRow} from "@/apis/models/ledger";
 import {ledgerApi} from "@/apis/requests/ledger-api";
 import {ConditionalError} from "@/components/Display/ErrorBoundary";
@@ -33,7 +35,7 @@ export function TaxReport() {
     return (
         <ReportPage
             title={t('menu_AllTaxes')}
-            subtitle={t('glPeriod', {from: range.from, to: range.to})}
+            subtitle={t('glPeriod', {from: formatDate(range.from), to: formatDate(range.to)})}
             toolbar={<DateRangeBar range={range} onChange={setRange} />}
         >
             {error ? <ConditionalError error={error} /> : isLoading || !data ? <div className="loader-pendulums my-5" /> : (
@@ -132,7 +134,7 @@ export function TaxReport() {
                                 const path = ledgerDocumentPath(row.trans_type, row.trans_id);
                                 return (
                                     <>
-                                        {path ? <Link to={path} className="fw-semibold">{row.reference_no}</Link> : <span className="fw-semibold">{row.reference_no}</span>}
+                                        {path ? <DocRef type={row.trans_type} id={row.trans_id} reference={row.reference_no} className="fw-semibold" /> : <span className="fw-semibold">{row.reference_no}</span>}
                                         <div className="small text-muted">{row.trans_type_label}</div>
                                     </>
                                 );

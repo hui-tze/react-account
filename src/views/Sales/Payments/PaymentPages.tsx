@@ -1,4 +1,6 @@
 import {useRef} from "react";
+import {ActionButton} from "@/components/Access/Guarded";
+import {DocRef} from "@/views/Documents/DocumentPreview";
 import {Button} from "react-bootstrap";
 import {XCircle} from "react-feather";
 import {useNavigate, useParams, useSearchParams} from "react-router-dom";
@@ -28,7 +30,7 @@ export function Payments() {
             searchPlaceholder={t('searchSalesDocuments')}
             columns={[
                 {accessor: "trans_date", title: t('date')},
-                {accessor: "reference_no", title: t('receiptNo'), render: (row) => <span className="fw-semibold text-dark">{row.reference_no}</span>},
+                {accessor: "reference_no", title: t('receiptNo'), render: (row) => <DocRef type={row.trans_type} id={row.id} reference={row.reference_no} />},
                 {accessor: "customer_id", title: t('customer'), render: (row) => row.customer?.name ?? "-"},
                 {accessor: "bank_account_id", title: t('depositTo'), render: (row) => row.bank_account?.account_name ?? "-"},
                 {accessor: "grand_total", title: t('amount'), tdClasses: "text-end", render: (row) => <span>{formatDecimal(row.grand_total)} <span className="text-muted small">{row.currency?.code}</span></span>},
@@ -95,7 +97,7 @@ export function EditPayment() {
                     progress={payment.status === "active" && (payment.unallocated ?? 0) > 0 ? t('unappliedAmount', {amount: formatDecimal(payment.unallocated ?? 0)}) : undefined}
                     related={(payment.allocations ?? []).map(a => ({type: a.type, id: a.id, reference_no: a.reference_no, date: a.date, status: a.status, amount: a.amount}))}
                     actions={payment.status === "active" ? (
-                        <Button variant="outline-danger" size="sm" onClick={() => confirmAndExecute(async () => {
+                        <ActionButton variant="outline-danger" size="sm" onClick={() => confirmAndExecute(async () => {
                             try {
                                 await paymentApi.void(payment.id, null);
                                 notify.success(t('paymentVoided'));
@@ -105,7 +107,7 @@ export function EditPayment() {
                             }
                         }, {text: t('voidPaymentText', {ref: payment.reference_no})})}>
                             <XCircle size={14} className="me-1" />{t('void')}
-                        </Button>
+                        </ActionButton>
                     ) : undefined}
                 />
             )}

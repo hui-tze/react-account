@@ -1,7 +1,9 @@
 import {useRef} from "react";
+import {DocRef} from "@/views/Documents/DocumentPreview";
 import {Button} from "react-bootstrap";
 import {FileText, XCircle} from "react-feather";
-import {Link, useNavigate, useParams, useSearchParams} from "react-router-dom";
+import {useNavigate, useParams, useSearchParams} from "react-router-dom";
+import {ActionButton, Link} from "@/components/Access/Guarded";
 import {GoodsReceiptDocument} from "@/apis/models/purchase-document";
 import {goodsReceiptApi, GoodsReceiptRequest, purchaseOrderApi} from "@/apis/requests/purchase-api";
 import {ConditionalError} from "@/components/Display/ErrorBoundary";
@@ -26,7 +28,7 @@ export function GoodsReceipts() {
             partyFilter={useSupplierFilter()}
             columns={[
                 {accessor: "receipt_date", title: t('date')},
-                {accessor: "reference_no", title: t('grnNo'), render: (row) => <span className="fw-semibold text-dark">{row.reference_no}</span>},
+                {accessor: "reference_no", title: t('grnNo'), render: (row) => <DocRef type="purchase_order_delivery" id={row.id} reference={row.reference_no} />},
                 {accessor: "purchase_order_id", title: t('purchaseOrder'), render: (row) => row.purchase_order?.trans_type === "purchase_order" ? row.purchase_order.reference_no : <span className="text-muted">{t('directReceipt')}</span>},
                 {accessor: "supplier_id", title: t('supplier'), render: (row) => row.supplier?.name ?? "-"},
                 {accessor: "warehouse_id", title: t('receiveInto'), render: (row) => row.warehouse?.name ?? "-"},
@@ -106,9 +108,9 @@ export function EditGoodsReceipt() {
                                 </Link>
                             )}
                             {unbilled && (
-                                <Button variant="outline-danger" size="sm" onClick={() => run(() => goodsReceiptApi.void(record.id, null), t('voidReceiptText', {ref: record.reference_no}), t('receiptVoided'))}>
+                                <ActionButton variant="outline-danger" size="sm" onClick={() => run(() => goodsReceiptApi.void(record.id, null), t('voidReceiptText', {ref: record.reference_no}), t('receiptVoided'))}>
                                     <XCircle size={14} className="me-1" />{t('void')}
-                                </Button>
+                                </ActionButton>
                             )}
                         </>
                     ) : undefined}

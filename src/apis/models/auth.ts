@@ -8,6 +8,13 @@ export type SuccessfulLoginResponse = {
     permissions: string[],
 }
 
+/** The user record of the accounting backend (GET /user). */
+export type AccountUser = {
+    id: number,
+    name: string,
+    email: string,
+}
+
 export type LoggedInUser = {
     id: number,
     is_owner: boolean,

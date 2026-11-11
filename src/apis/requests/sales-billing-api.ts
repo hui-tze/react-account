@@ -1,6 +1,7 @@
 import {authApiRequest, authFetcher, useConsoleSwr} from "@/lib/request-client/client";
 import type {SWRConfiguration, SWRResponse} from "swr";
 import {CustomerOpenItems, CustomerTransDocument, DocumentDeliveryAddress} from "@/apis/models/sales-document";
+import type {DimensionTag} from "@/apis/models/dimension";
 import {PaginationResponse} from "@/apis/pagination";
 
 // invoices, credit notes, payments and allocations
@@ -40,6 +41,7 @@ export type InvoiceRequest = {
     inventory_location_id?: number | null,
     exchange_rate?: number | null,
     delivery_address?: DocumentDeliveryAddress,
+    dimensions: DimensionTag[],
     lines: BilledLineRequest[],
 };
 
@@ -59,6 +61,7 @@ export type CreditNoteRequest = {
     branch_id?: number | null,
     sales_type_id?: number | null,
     allocations?: AllocationRequest[],
+    dimensions: DimensionTag[],
     lines: BilledLineRequest[],
 };
 
@@ -77,6 +80,7 @@ export type PaymentRequest = {
     customer_ref: string | null,
     remarks: string | null,
     allocations: AllocationRequest[],
+    dimensions: DimensionTag[],
 };
 
 /** CRUD + void endpoints of one customer_trans document type. */

@@ -1,4 +1,6 @@
 import {useRef} from "react";
+import {ActionButton, Can} from "@/components/Access/Guarded";
+import {DocRef} from "@/views/Documents/DocumentPreview";
 import {Button} from "react-bootstrap";
 import {XCircle} from "react-feather";
 import {useNavigate, useParams, useSearchParams} from "react-router-dom";
@@ -32,7 +34,7 @@ export function CreditNotes() {
             searchPlaceholder={t('searchSalesDocuments')}
             columns={[
                 {accessor: "trans_date", title: t('date')},
-                {accessor: "reference_no", title: t('referenceNo'), render: (row) => <span className="fw-semibold text-dark">{row.reference_no}</span>},
+                {accessor: "reference_no", title: t('referenceNo'), render: (row) => <DocRef type={row.trans_type} id={row.id} reference={row.reference_no} />},
                 {accessor: "source_trans_id", title: t('invoice'), render: (row) => row.source_transaction?.reference_no ?? "-"},
                 {accessor: "customer_id", title: t('customer'), render: (row) => row.customer?.name ?? "-"},
                 {accessor: "grand_total", title: t('total'), tdClasses: "text-end", render: (row) => <span>{formatDecimal(row.grand_total)} <span className="text-muted small">{row.currency?.code}</span></span>},
@@ -113,7 +115,7 @@ export function ViewCreditNote() {
                     einvoice={{transType: "customer_credit_note", transId: note.id, live: note.status === "active"}}
                     source={note.source_transaction ? {type: "sales_invoice", id: note.source_transaction.id, reference_no: note.source_transaction.reference_no} : null}
                     actions={note.status === "active" ? (
-                        <Button variant="outline-danger" size="sm" onClick={() => einvoice.guard(() => confirmAndExecute(async () => {
+                        <ActionButton variant="outline-danger" size="sm" onClick={() => einvoice.guard(() => confirmAndExecute(async () => {
                             try {
                                 await creditNoteApi.void(note.id, null);
                                 notify.success(t('creditNoteVoided'));
@@ -124,12 +126,12 @@ export function ViewCreditNote() {
                             }
                         }, {text: einvoice.confirmText(t('voidCreditNoteText', {ref: note.reference_no}))}))}>
                             <XCircle size={14} className="me-1" />{t('void')}
-                        </Button>
+                        </ActionButton>
                     ) : undefined}
                 />
             )}
         >
-            {canApply && <ApplyCreditPanel credit={note} onApplied={async () => { await mutate(); }} />}
+            {canApply && <Can module="customer_payments" action="create"><ApplyCreditPanel credit={note} onApplied={async () => { await mutate(); }} /></Can>}
         </DocumentSummary>
     );
 }

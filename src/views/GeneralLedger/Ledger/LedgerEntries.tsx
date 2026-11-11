@@ -1,4 +1,5 @@
 import {useCallback, useEffect, useState} from "react";
+import {DocRef} from "@/views/Documents/DocumentPreview";
 import {Badge, Col, Form, Row} from "react-bootstrap";
 import type {SWRResponse} from "swr";
 import type {PaginationResponse} from "@/apis/pagination";
@@ -146,7 +147,7 @@ export function LedgerEntries() {
                 {accessor: "trans_date", title: t('date'), width: 110},
                 {accessor: "reference_no", title: t('referenceNo'), render: (row) => (
                     <>
-                        <span className="fw-semibold text-dark">{row.reference_no}</span>
+                        <DocRef type={row.trans_type} id={row.trans_id ?? row.id} reference={row.reference_no} />
                         <div className="small text-muted">{row.trans_type_label}</div>
                     </>
                 )},

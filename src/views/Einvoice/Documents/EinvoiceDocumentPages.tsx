@@ -1,7 +1,9 @@
 import {createContext, useCallback, useContext, useState} from "react";
+import {DocRef} from "@/views/Documents/DocumentPreview";
 import {Alert, Badge, Button, Card, Col, Form, Row, Spinner, Table} from "react-bootstrap";
 import {Code, ExternalLink, RefreshCw, Send, XCircle} from "react-feather";
-import {Link, useNavigate, useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
+import {ActionButton, Link} from "@/components/Access/Guarded";
 import SimpleBar from "simplebar-react";
 import {useSWRConfig} from "swr";
 import type {EinvoiceDocument, EinvoiceOutstanding, EinvoiceProcessStatus, EinvoiceTransType} from "@/apis/models/einvoice";
@@ -18,7 +20,8 @@ import {EinvoiceStatusBadge, formatDateTime, useEinvoiceActions} from "../shared
 
 const Loading = () => <div className="loader-pendulums mt-10" />;
 
-const TRANS_TYPES: EinvoiceTransType[] = ["sales_invoice", "customer_credit_note", "self_billed_invoice", "self_billed_credit_note"];
+const TRANS_TYPES: EinvoiceTransType[] = ["sales_invoice", "customer_credit_note", "self_billed_invoice", "self_billed_credit_note",
+    "pos_receipt", "pos_credit_note", "consolidated_invoice", "consolidated_credit_note"];
 const STATUSES: EinvoiceProcessStatus[] = ["SUBMITTED", "VALID", "INVALID", "FAILED", "CANCELLED", "PENDING"];
 
 // refresh every e-invoice listing / panel after an action
@@ -168,10 +171,10 @@ export function OutstandingEinvoices() {
                     <>
                         <FilterBar filters={filters} onChange={setFilters} searchPlaceholder={t('searchSalesDocuments')} />
                         <div className="d-flex align-items-center gap-2 pb-3">
-                            <Button variant="primary" size="sm" disabled={!selected.size || actions.busy} onClick={submitSelected}>
+                            <ActionButton action="create" variant="primary" size="sm" disabled={!selected.size || actions.busy} onClick={submitSelected}>
                                 {actions.busy ? <Spinner animation="border" size="sm" className="me-1" /> : <Send size={14} className="me-1" />}
                                 {t('einvSubmitSelected', {count: selected.size})}
-                            </Button>
+                            </ActionButton>
                             {selected.size > 0 && <Button variant="link" size="sm" onClick={() => setSelected(new Map())}>{t('einvClearSelection')}</Button>}
                             <span className="small text-muted ms-2">{t('einvOutstandingHint')}</span>
                         </div>
@@ -180,7 +183,7 @@ export function OutstandingEinvoices() {
                 columns={[
                     {accessor: undefined, title: "", width: 36, render: (row) => <RowCheckbox row={row} />},
 
-                    {accessor: "reference_no", title: t('referenceNo'), render: (row) => <span className="fw-semibold text-dark">{row.reference_no}</span>},
+                    {accessor: "reference_no", title: t('referenceNo'), render: (row) => <DocRef type={row.trans_type} id={row.trans_id} reference={row.reference_no} />},
                     {accessor: "trans_type", title: t('documentType'), render: (row) => t(`docType_${row.trans_type}`)},
                     {accessor: "trans_date", title: t('date')},
                     {accessor: "party_name", title: t('einvCounterparty')},
@@ -198,12 +201,12 @@ export function OutstandingEinvoices() {
                         </div>
                     ) : <span className="text-muted small">{t('einvNeverSubmitted')}</span>},
                     {accessor: undefined, title: "", tdClasses: "text-end", render: (row) => (
-                        <Button variant="outline-primary" size="sm" disabled={actions.busy} onClick={(e) => {
+                        <ActionButton action="create" variant="outline-primary" size="sm" disabled={actions.busy} onClick={(e) => {
                             e.stopPropagation();
                             actions.submit([{trans_type: row.trans_type, trans_id: row.trans_id}]);
                         }}>
                             <Send size={14} className="me-1" />{t('einvSubmit')}
-                        </Button>
+                        </ActionButton>
                     )},
                 ]}
             />
@@ -268,19 +271,19 @@ export function ViewEinvoiceDocument() {
                                     </a>
                                 )}
                                 {doc.uuid && (
-                                    <Button variant="outline-secondary" size="sm" disabled={actions.busy} onClick={() => actions.refresh(doc.id)}>
+                                    <ActionButton action="edit" variant="outline-secondary" size="sm" disabled={actions.busy} onClick={() => actions.refresh(doc.id)}>
                                         <RefreshCw size={14} className="me-1" />{t('einvRefreshStatus')}
-                                    </Button>
+                                    </ActionButton>
                                 )}
                                 {doc.can_cancel && (
-                                    <Button variant="outline-danger" size="sm" disabled={actions.busy} onClick={() => actions.cancel(doc)}>
+                                    <ActionButton action="delete" variant="outline-danger" size="sm" disabled={actions.busy} onClick={() => actions.cancel(doc)}>
                                         <XCircle size={14} className="me-1" />{t('einvCancel')}
-                                    </Button>
+                                    </ActionButton>
                                 )}
                                 {doc.can_submit && (
-                                    <Button variant="primary" size="sm" disabled={actions.busy} onClick={() => actions.resubmit(doc.id)}>
+                                    <ActionButton action="edit" variant="primary" size="sm" disabled={actions.busy} onClick={() => actions.resubmit(doc.id)}>
                                         <Send size={14} className="me-1" />{t('einvResubmit')}
-                                    </Button>
+                                    </ActionButton>
                                 )}
                             </div>
                         </Card.Body>

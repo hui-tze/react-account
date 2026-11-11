@@ -1,7 +1,10 @@
 import {useRef} from "react";
+import {formatDate} from "@/utils/display-format";
+import {DocRef} from "@/views/Documents/DocumentPreview";
 import {Button} from "react-bootstrap";
 import {CornerUpLeft, CreditCard, XCircle} from "react-feather";
-import {Link, useNavigate, useParams, useSearchParams} from "react-router-dom";
+import {useNavigate, useParams, useSearchParams} from "react-router-dom";
+import {ActionButton, Link} from "@/components/Access/Guarded";
 import {SupplierTransDocument} from "@/apis/models/purchase-document";
 import {BillKind, billApis, BillRequest} from "@/apis/requests/purchase-api";
 import {ConditionalError} from "@/components/Display/ErrorBoundary";
@@ -32,10 +35,10 @@ function BillList({kind}: {kind: BillKind}) {
             partyFilter={useSupplierFilter()}
             columns={[
                 {accessor: "trans_date", title: t('date')},
-                {accessor: "reference_no", title: t('referenceNo'), render: (row) => <span className="fw-semibold text-dark">{row.reference_no}</span>},
+                {accessor: "reference_no", title: t('referenceNo'), render: (row) => <DocRef type={row.trans_type} id={row.id} reference={row.reference_no} />},
                 ...(kind === "bill" ? [{accessor: "supplier_invoice_no", title: t('supplierInvoiceNo')}] : []),
                 {accessor: "supplier_id", title: t('supplier'), render: (row) => row.supplier?.name ?? "-"},
-                {accessor: "due_date", title: t('dueDate'), render: (row) => <span className={row.state === "overdue" ? "text-danger" : ""}>{row.due_date}</span>},
+                {accessor: "due_date", title: t('dueDate'), render: (row) => <span className={row.state === "overdue" ? "text-danger" : ""}>{formatDate(row.due_date)}</span>},
                 {accessor: "grand_total", title: t('total'), tdClasses: "text-end", render: (row) => <span>{formatDecimal(row.grand_total)} <span className="text-muted small">{row.currency}</span></span>},
                 {accessor: "balance", title: t('owed'), tdClasses: "text-end", render: (row) => row.status === "active" ? formatDecimal(row.balance ?? 0) : "-"},
                 {accessor: "state", title: t('status'), render: (row) => <SalesStateBadge state={row.state} />},
@@ -118,12 +121,12 @@ function EditBill({kind}: {kind: BillKind}) {
                                 <CornerUpLeft size={14} className="me-1" />{t('creditNote')}
                             </Link>
                             {!locked && (
-                                <Button variant="outline-danger" size="sm" onClick={() => einvoice.guard(() => run(async () => {
+                                <ActionButton variant="outline-danger" size="sm" onClick={() => einvoice.guard(() => run(async () => {
                                     await api.void(record.id, null);
                                     await einvoice.refresh();
                                 }, einvoice.confirmText(t('voidBillText', {ref: record.reference_no})), t('billVoided')))}>
                                     <XCircle size={14} className="me-1" />{t('void')}
-                                </Button>
+                                </ActionButton>
                             )}
                         </>
                     ) : undefined}

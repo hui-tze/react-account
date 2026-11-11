@@ -1,4 +1,5 @@
 import {ReactNode, useEffect, useMemo} from "react";
+import {formatQuantity} from "@/utils/display-format";
 import {Button, ButtonGroup, Col, Row, Table} from "react-bootstrap";
 import {useFieldArray, useWatch} from "react-hook-form";
 import {Plus} from "react-feather";
@@ -23,6 +24,8 @@ import {EntryChecks, LinesFooter, LinesNote, lineChecks, totalDetails, useErrorC
 import {SupplierSection, useSupplierChecks} from "../shared/SupplierSection";
 import {usePurchasePricing} from "../shared/usePurchasePricing";
 import {EMPTY_PURCHASE_LINE, linesToPayload} from "../shared/purchase-form";
+import {DimensionFields} from "@/views/Dimensions/shared/DimensionFields";
+import type {DimensionTag} from "@/apis/models/dimension";
 
 type BillFormProps = {
     kind: BillKind,
@@ -48,6 +51,7 @@ type BillValues = {
     exchange_rate: number | null,
     warehouse_id: number | null,
     remarks: string,
+    dimensions: DimensionTag[],
     // received goods: quantity / price per open GRN line, in row order
     grn: {quantity: number | null, unit_price: number | null}[],
     // item lines the bill receives itself
@@ -70,7 +74,7 @@ export function BillForm({kind, record, direct, supplierId: givenSupplierId, rec
     const recordGrnLines = (record?.lines ?? []).filter(line => !line.direct);
     const recordDirectLines = (record?.lines ?? []).filter(line => line.direct);
 
-    const {control, setValue, setError, submitting, handleSubmitRequest} = useRequestForm<BillValues>({
+    const {control, setValue, getValues, setError, submitting, handleSubmitRequest} = useRequestForm<BillValues>({
         formOptions: {
             defaultValues: {
                 reference_no: record?.reference_no ?? "",
@@ -82,6 +86,7 @@ export function BillForm({kind, record, direct, supplierId: givenSupplierId, rec
                 exchange_rate: record && Number(record.exchange_rate) !== 1 ? Number(record.exchange_rate) : null,
                 warehouse_id: record?.warehouse_id ?? null,
                 remarks: record?.remarks ?? "",
+                dimensions: record?.dimensions ?? [],
                 grn: [],
                 lines: record
                     ? recordDirectLines.map(line => ({item_id: line.item_id, description: line.description, quantity: line.quantity, unit_price: line.unit_price, discount_percent: 0}))
@@ -93,6 +98,13 @@ export function BillForm({kind, record, direct, supplierId: givenSupplierId, rec
 
     const [supplierId, transDate, grn, lines, taxIncludedField, dueDate] = useWatch({control, name: ["supplier_id", "trans_date", "grn", "lines", "tax_included", "due_date"]});
     const {data: openItems} = goodsReceiptApi.useOpenItems(readOnly ? null : supplierId, {revalidateOnFocus: false});
+    // billing a receipt: start from its dimension values
+    const {data: sourceReceipt} = goodsReceiptApi.useGetOne(!record && receiptId ? receiptId : null, {revalidateOnFocus: false});
+    useEffect(() => {
+        if (sourceReceipt?.dimensions?.length) {
+            setValue("dimensions", sourceReceipt.dimensions);
+        }
+    }, [sourceReceipt, setValue]);
 
     // open received goods, plus (edit) the ones this bill bills — its own quantity counts as open
     const rows: GrnRow[] = useMemo(() => {
@@ -166,10 +178,11 @@ export function BillForm({kind, record, direct, supplierId: givenSupplierId, rec
                 tax_included: values.tax_included ?? pricing.taxIncluded,
                 warehouse_id: itemLines.length ? values.warehouse_id : null,
                 remarks: blankToNull(values.remarks),
+                dimensions: values.dimensions,
                 lines: [...billed, ...itemLines],
             });
         } catch (e) {
-            applyServerErrors(e, setError, ["reference_no", "supplier_id", "supplier_invoice_no", "trans_date", "due_date", "exchange_rate", "warehouse_id", "lines", "accounts", "stock"]);
+            applyServerErrors(e, setError, ["reference_no", "supplier_id", "supplier_invoice_no", "trans_date", "due_date", "exchange_rate", "warehouse_id", "dimensions", "lines", "accounts", "stock"]);
             throw e;
         }
     };
@@ -203,7 +216,7 @@ export function BillForm({kind, record, direct, supplierId: givenSupplierId, rec
 
             <DocPair>
                 <DocCard title={selfBilled ? t('whoYouAreBillingFor') : t('whoBilledYou')}>
-                    <SupplierSection control={control} setValue={setValue} readOnly={readOnly} lockSupplier={!!record}>
+                    <SupplierSection control={control} setValue={setValue} getValues={getValues} readOnly={readOnly} lockSupplier={!!record}>
                         {!selfBilled && (
                             <Col md={6}>
                                 <TextField control={control} name="supplier_invoice_no" label={t('supplierInvoiceNo')} required maxLength={255} disabled={readOnly} />
@@ -232,6 +245,7 @@ export function BillForm({kind, record, direct, supplierId: givenSupplierId, rec
                                     hint={t('billLocationHint')} />
                             </Col>
                         )}
+                        <DimensionFields control={control} readOnly={readOnly} />
                     </Row>
                 </DocCard>
             </DocPair>
@@ -275,7 +289,7 @@ export function BillForm({kind, record, direct, supplierId: givenSupplierId, rec
                                                 <td className="text-end">{formatDecimal(row.open)} <span className="small text-muted">{row.item?.uom}</span></td>
                                                 <td>
                                                     <LineNumberInput control={control} name={`grn.${index}.quantity`} min={0} disabled={readOnly}
-                                                        validate={(v) => v < 0 ? t('valueMustNotBeNegative') : v > row.open + 0.00005 ? t('maxAvailable', {qty: formatDecimal(row.open)}) : true} />
+                                                        validate={(v) => v < 0 ? t('valueMustNotBeNegative') : v > row.open + 0.00005 ? t('maxAvailable', {qty: formatQuantity(row.open)}) : true} />
                                                 </td>
                                                 <td>
                                                     <LineNumberInput control={control} name={`grn.${index}.unit_price`} min={0} disabled={readOnly}

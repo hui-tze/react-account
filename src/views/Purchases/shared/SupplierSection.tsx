@@ -1,6 +1,6 @@
 import {ReactNode} from "react";
 import {Col, Form, Row} from "react-bootstrap";
-import {Control, Controller, FieldValues, Path, UseFormSetValue, useWatch} from "react-hook-form";
+import {Control, Controller, FieldValues, Path, UseFormGetValues, UseFormSetValue, useWatch} from "react-hook-form";
 import Select, {StylesConfig} from "react-select";
 import {Supplier} from "@/apis/models/supplier";
 import {useGetSupplierOptions} from "@/apis/requests/supplier-api";
@@ -9,6 +9,8 @@ import {useGetTaxGroupOptions} from "@/apis/requests/tax-group-api";
 import {reactSelectCustomStyles} from "@/utils/ReactSelect";
 import {useSmartTranslation} from "@/hooks/use-translation";
 import type {EntryCheck} from "@/views/Sales/shared/EntryLayout";
+import type {DimensionTag} from "@/apis/models/dimension";
+import {applyDimensionDefaults} from "@/views/Dimensions/shared/DimensionFields";
 
 type SupplierOption = {value: number, label: string, supplier: Supplier};
 
@@ -63,11 +65,14 @@ export function SupplierPicker<T extends FieldValues>({control, name, suppliers,
 }
 
 // any supplier document form: supplier + whether prices include tax
-type SupplierForm = {supplier_id: number | null, tax_included: boolean | null};
+// forms with `dimensions` get the supplier's default values on a pick
+type SupplierForm = {supplier_id: number | null, tax_included: boolean | null, dimensions?: DimensionTag[] | null};
 
 type SupplierSectionProps<T extends SupplierForm> = {
     control: Control<T>,
     setValue: UseFormSetValue<T>,
+    // reads the form's dimensions when applying the supplier's defaults (forms without them can leave it out)
+    getValues?: UseFormGetValues<T>,
     // the supplier can't change once the document is saved
     lockSupplier?: boolean,
     // show the "prices include tax" switch
@@ -82,7 +87,7 @@ type SupplierSectionProps<T extends SupplierForm> = {
 /** Supplier pick with what the supplier brings (TIN, currency, terms, taxes); `children` are further columns beside it. */
 export function SupplierSection<T extends SupplierForm>(props: SupplierSectionProps<T>) {
     // react-hook-form can't resolve paths on an open generic, so work on the slice type
-    const {control, setValue, lockSupplier, showTaxIncluded = true, readOnly, onPicked, children} = props as unknown as SupplierSectionProps<SupplierForm>;
+    const {control, setValue, getValues, lockSupplier, showTaxIncluded = true, readOnly, onPicked, children} = props as unknown as SupplierSectionProps<SupplierForm>;
     const {t} = useSmartTranslation();
     const {data: suppliers} = useGetSupplierOptions();
     const {data: terms} = useGetPaymentTermOptions();
@@ -100,6 +105,9 @@ export function SupplierSection<T extends SupplierForm>(props: SupplierSectionPr
                             <SupplierPicker control={control} name="supplier_id" suppliers={suppliers ?? []} label={t('supplier')} disabled={readOnly || lockSupplier}
                                 onPicked={(picked) => {
                                     setValue("tax_included", picked ? !!picked.tax_included : null);
+                                    if (getValues) {
+                                        void applyDimensionDefaults(getValues, setValue, [["supplier", picked?.id]]);
+                                    }
                                     onPicked?.(picked);
                                 }} />
                             {supplier ? (

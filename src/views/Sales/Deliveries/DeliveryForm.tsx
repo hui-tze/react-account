@@ -1,4 +1,5 @@
 import {ReactNode, useMemo, useState} from "react";
+import {formatQuantity} from "@/utils/display-format";
 import {Button, Col, Form, Row, Table} from "react-bootstrap";
 import {AlertTriangle} from "react-feather";
 import {useFormState, useWatch} from "react-hook-form";
@@ -21,6 +22,7 @@ import {DocCard, DocPair, DocTotal, FactsGrid} from "../shared/DocCard";
 import {EntryChecks, LinesFooter, LinesNote, totalDetails, useErrorCheck} from "../shared/EntryLayout";
 import {EMPTY_DELIVERY_ADDRESS} from "../shared/sales-form";
 import {addressLine, sameAddress} from "../shared/DeliverySection";
+import {DimensionFields} from "@/views/Dimensions/shared/DimensionFields";
 
 type DeliveryFormProps = {
     // the order being delivered
@@ -94,6 +96,8 @@ export function DeliveryForm({order, record, backTo, onSubmit, onSuccess, banner
                 remarks: record?.remarks ?? "",
                 close_order_balance: false,
                 delivery_address: {...EMPTY_DELIVERY_ADDRESS, ...(record?.delivery_address ?? order.delivery_address ?? {})},
+                // a new note carries the order's dimensions
+                dimensions: (record ? record.dimensions : order.dimensions) ?? [],
                 lines: rows.map(row => ({
                     sales_order_detail_id: row.orderLineId,
                     // a new note offers everything outstanding; an edit shows what it ships
@@ -156,7 +160,7 @@ export function DeliveryForm({order, record, backTo, onSubmit, onSuccess, banner
             });
         } catch (e) {
             // server errors name lines by their position among the shipped ones; show them on the form
-            applyServerErrors(e, setError, ["reference_no", "trans_date", "inventory_location_id", "sales_order_id"]);
+            applyServerErrors(e, setError, ["reference_no", "trans_date", "inventory_location_id", "sales_order_id", "dimensions"]);
             throw e;
         }
     };
@@ -175,7 +179,7 @@ export function DeliveryForm({order, record, backTo, onSubmit, onSuccess, banner
     const shortages = rows.map((row, index) => {
         const stock = stockFor(row);
         return stock !== null && qtyOf(index) > stock + 0.00005
-            ? {text: t('stockShortage', {code: row.code, available: formatDecimal(stock), qty: formatDecimal(qtyOf(index))}), tone: "warning" as const}
+            ? {text: t('stockShortage', {code: row.code, available: formatQuantity(stock), qty: formatQuantity(qtyOf(index))}), tone: "warning" as const}
             : null;
     }).filter((check): check is {text: string, tone: "warning"} => check !== null);
 
@@ -233,6 +237,7 @@ export function DeliveryForm({order, record, backTo, onSubmit, onSuccess, banner
                         <Col sm={6}>
                             <TextField control={control} name="customer_ref" label={t('customerRef')} maxLength={255} disabled={readOnly} placeholder={t('optional')} />
                         </Col>
+                        <DimensionFields control={control} readOnly={readOnly} />
                     </Row>
                 </DocCard>
             </DocPair>
@@ -303,7 +308,7 @@ export function DeliveryForm({order, record, backTo, onSubmit, onSuccess, banner
                                         <td className="text-end sales-line-amount fw-normal">{formatDecimal(row.ordered)}</td>
                                         <td className="text-end sales-line-amount fw-normal text-muted">{formatDecimal(row.deliveredBefore)}</td>
                                         <td className={`text-end sales-line-amount ${short ? "text-danger" : "fw-normal text-muted"}`}>
-                                            {stock === null ? "—" : formatDecimal(stock)}
+                                            {stock === null ? "—" : formatQuantity(stock)}
                                             {short && <AlertTriangle size={12} className="ms-1" />}
                                         </td>
                                         <td>
@@ -312,7 +317,7 @@ export function DeliveryForm({order, record, backTo, onSubmit, onSuccess, banner
                                                 name={`lines.${index}.quantity`}
                                                 min={0}
                                                 disabled={readOnly}
-                                                validate={(v) => v < 0 ? t('valueMustNotBeNegative') : v > row.available + 0.00005 ? t('maxToDeliver', {qty: formatDecimal(row.available)}) : true}
+                                                validate={(v) => v < 0 ? t('valueMustNotBeNegative') : v > row.available + 0.00005 ? t('maxToDeliver', {qty: formatQuantity(row.available)}) : true}
                                             />
                                             <div className="sales-line-meta text-end">{row.uom}</div>
                                         </td>

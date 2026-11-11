@@ -1,4 +1,5 @@
 import {Badge, Button, Card, Form, ListGroup} from "react-bootstrap";
+import {ActionButton} from "@/components/Access/Guarded";
 import {Plus, Search, X} from "react-feather";
 import {Account} from "@/apis/models/account";
 import {AccountGroup} from "@/apis/models/account-group";
@@ -63,7 +64,7 @@ export default function AccountList({accounts, groups, classes, selectedId, quer
                             <>
                                 <p className="mb-2">{selectedGroup ? t('noAccountsInGroupYet', {name: selectedGroup.name}) : t('pickGroupFirst')}</p>
                                 {selectedGroup && (
-                                    <Button size="sm" variant="primary" onClick={onCreate}>{t('addFirstAccount')}</Button>
+                                    <ActionButton action="create" size="sm" variant="primary" onClick={onCreate}>{t('addFirstAccount')}</ActionButton>
                                 )}
                             </>
                         )}

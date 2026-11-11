@@ -1,4 +1,5 @@
 import {ReactNode} from "react";
+import {ActionButton} from "@/components/Access/Guarded";
 import {Badge, Button} from "react-bootstrap";
 import {AccountClass} from "@/apis/models/account-class";
 import {AccountGroup} from "@/apis/models/account-group";
@@ -71,8 +72,8 @@ export default function Inspector({
                     <Field label={t('reportsOn')}>{selectedClass.financial_statement === "balance_sheet" ? t('balanceSheet') : t('profitOrLoss')}</Field>
                 </div>
                 <div className="p-3 border-top d-flex gap-2">
-                    <Button size="sm" variant="outline-secondary" onClick={() => onEditClass(selectedClass)}>{t('editClass')}</Button>
-                    <Button
+                    <ActionButton action="edit" size="sm" variant="outline-secondary" onClick={() => onEditClass(selectedClass)}>{t('editClass')}</ActionButton>
+                    <ActionButton action="delete"
                         size="sm"
                         variant="outline-danger"
                         onClick={() => confirmAndExecute(async () => {
@@ -86,7 +87,7 @@ export default function Inspector({
                         }, {title: t('confirmDeleteClassTitle', {code: selectedClass.code, name: selectedClass.name}), text: t('deactivateClassText')})}
                     >
                         {t('delete')}
-                    </Button>
+                    </ActionButton>
                 </div>
             </div>
         );
@@ -116,8 +117,8 @@ export default function Inspector({
                     <Field label={t('sequence')}>{selectedGroup.sequence}</Field>
                 </div>
                 <div className="p-3 border-top d-flex gap-2">
-                    <Button size="sm" variant="outline-secondary" onClick={() => onEditGroup(selectedGroup)}>{t('editGroup')}</Button>
-                    <Button
+                    <ActionButton action="edit" size="sm" variant="outline-secondary" onClick={() => onEditGroup(selectedGroup)}>{t('editGroup')}</ActionButton>
+                    <ActionButton action="delete"
                         size="sm"
                         variant="outline-danger"
                         onClick={() => confirmAndExecute(async () => {
@@ -131,7 +132,7 @@ export default function Inspector({
                         }, {title: t('confirmDeleteGroupTitle', {code: selectedGroup.code, name: selectedGroup.name}), text: t('deactivateGroupText')})}
                     >
                         {t('delete')}
-                    </Button>
+                    </ActionButton>
                 </div>
             </div>
         );
@@ -168,8 +169,8 @@ export default function Inspector({
                 )}
             </div>
             <div className="p-3 border-top d-flex gap-2">
-                <Button size="sm" variant="outline-secondary" onClick={() => onEditAccount(selectedAccount)}>{t('editAccount')}</Button>
-                <Button
+                <ActionButton action="edit" size="sm" variant="outline-secondary" onClick={() => onEditAccount(selectedAccount)}>{t('editAccount')}</ActionButton>
+                <ActionButton action="delete"
                     size="sm"
                     variant="outline-danger"
                     onClick={() => confirmAndExecute(async () => {
@@ -183,7 +184,7 @@ export default function Inspector({
                     }, {title: t('confirmDeleteAccountTitle', {code: selectedAccount.account_code}), text: t('deactivateAccountText')})}
                 >
                     {t('delete')}
-                </Button>
+                </ActionButton>
             </div>
         </div>
     );

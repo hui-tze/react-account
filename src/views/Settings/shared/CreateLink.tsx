@@ -1,4 +1,5 @@
 import {Link} from "react-router-dom";
+import {useAccess} from "@/providers/access";
 import {Plus} from "react-feather";
 import {useSmartTranslation} from "@/hooks/use-translation";
 
@@ -11,6 +12,12 @@ export type CreateLinkProps = {
 /** "New …" button rendered in the module header (route handle `headerOptions`). */
 export default function CreateLink({to, labelKey}: CreateLinkProps) {
     const {t} = useSmartTranslation();
+    const {canPath} = useAccess();
+
+    // hidden when the user's role can't create here
+    if (!canPath(to, "create")) {
+        return null;
+    }
 
     return (
         <Link to={to} className="btn btn-primary btn-sm">

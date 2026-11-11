@@ -8,7 +8,8 @@ export type EinvoiceSubmissionMode = "IMMEDIATE" | "SCHEDULED" | "MANUAL";
 export type EinvoiceProcessStatus = "PENDING" | "SUBMITTING" | "SUBMITTED" | "VALID" | "INVALID" | "CANCELLED" | "FAILED" | "EXCLUDED";
 
 // trans types that go to MyInvois
-export type EinvoiceTransType = "sales_invoice" | "customer_credit_note" | "self_billed_invoice" | "self_billed_credit_note";
+export type EinvoiceTransType = "sales_invoice" | "customer_credit_note" | "self_billed_invoice" | "self_billed_credit_note"
+    | "pos_receipt" | "pos_credit_note" | "consolidated_invoice" | "consolidated_credit_note";
 
 export type EinvoiceSetting = {
     is_einvoice_enabled: boolean,

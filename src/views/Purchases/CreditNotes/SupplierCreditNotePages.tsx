@@ -1,4 +1,6 @@
 import {useRef} from "react";
+import {ActionButton, Can} from "@/components/Access/Guarded";
+import {DocRef} from "@/views/Documents/DocumentPreview";
 import {Button} from "react-bootstrap";
 import {XCircle} from "react-feather";
 import {useNavigate, useParams, useSearchParams} from "react-router-dom";
@@ -34,7 +36,7 @@ function CreditNoteList({kind}: {kind: BillKind}) {
             partyFilter={useSupplierFilter()}
             columns={[
                 {accessor: "trans_date", title: t('date')},
-                {accessor: "reference_no", title: t('referenceNo'), render: (row) => <span className="fw-semibold text-dark">{row.reference_no}</span>},
+                {accessor: "reference_no", title: t('referenceNo'), render: (row) => <DocRef type={row.trans_type} id={row.id} reference={row.reference_no} />},
                 ...(kind === "bill" ? [{accessor: "supplier_invoice_no", title: t('supplierCreditNoteNo')}] : []),
                 {accessor: "supplier_id", title: t('supplier'), render: (row) => row.supplier?.name ?? "-"},
                 {accessor: "grand_total", title: t('total'), tdClasses: "text-end", render: (row) => <span>{formatDecimal(row.grand_total)} <span className="text-muted small">{row.currency}</span></span>},
@@ -112,17 +114,17 @@ function ViewCreditNote({kind}: {kind: BillKind}) {
                     pathOf={purchaseDocumentPath}
                     einvoice={kind === "self_billed" ? {transType: "self_billed_credit_note", transId: note.id, live: note.status === "active"} : undefined}
                     actions={note.status === "active" ? (
-                        <Button variant="outline-danger" size="sm" onClick={() => einvoice.guard(() => run(async () => {
+                        <ActionButton variant="outline-danger" size="sm" onClick={() => einvoice.guard(() => run(async () => {
                             await api.void(note.id, null);
                             await einvoice.refresh();
                         }, einvoice.confirmText(t('voidCreditNoteText', {ref: note.reference_no})), t('creditNoteVoided')))}>
                             <XCircle size={14} className="me-1" />{t('void')}
-                        </Button>
+                        </ActionButton>
                     ) : undefined}
                 />
             )}
         >
-            {canApply && <ApplySupplierCredit credit={note} onApplied={async () => { await mutate(); }} />}
+            {canApply && <Can module="supplier_payments" action="create"><ApplySupplierCredit credit={note} onApplied={async () => { await mutate(); }} /></Can>}
         </DocumentSummary>
     );
 }

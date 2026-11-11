@@ -1,4 +1,4 @@
-import {CornerUpLeft, CreditCard, FileText, Inbox, ShoppingBag, Truck, Users} from "react-feather";
+import {CornerUpLeft, CreditCard, FileText, Inbox, RotateCcw, ShoppingBag, ShoppingCart, Truck, Users} from "react-feather";
 import type {ModuleSidebarConfig} from "@/layout/Module/ModuleSidebarMenu";
 
 export const SALES_PATH = "/sales";
@@ -9,6 +9,8 @@ export const DELIVERIES_PATH = `${SALES_PATH}/deliveries`;
 export const INVOICES_PATH = `${SALES_PATH}/invoices`;
 export const CREDIT_NOTES_PATH = `${SALES_PATH}/credit-notes`;
 export const PAYMENTS_PATH = `${SALES_PATH}/payments`;
+export const POS_RECEIPTS_PATH = `${SALES_PATH}/pos-receipts`;
+export const POS_CREDIT_NOTES_PATH = `${SALES_PATH}/pos-credit-notes`;
 
 /** Branch pages live under their customer. */
 export const branchPath = (customerId: number | string, branchId?: number | string) =>
@@ -22,6 +24,8 @@ const DOCUMENT_PATHS: Record<string, string> = {
     sales_invoice: INVOICES_PATH,
     customer_credit_note: CREDIT_NOTES_PATH,
     customer_payment: PAYMENTS_PATH,
+    pos_receipt: POS_RECEIPTS_PATH,
+    pos_credit_note: POS_CREDIT_NOTES_PATH,
 };
 
 /** Page of a sales document, or null when its type has no screen yet. */
@@ -39,6 +43,7 @@ export const salesModule: ModuleSidebarConfig = {
         {name: "Direct Invoice", path: `${INVOICES_PATH}/create`},
         {name: "Credit Note", path: `${CREDIT_NOTES_PATH}/create`},
         {name: "Customer Payment", path: `${PAYMENTS_PATH}/create`},
+        {name: "POS Receipt", path: `${POS_RECEIPTS_PATH}/create`},
         {name: "Customer", path: `${CUSTOMERS_PATH}/create`},
     ],
     menus: [
@@ -48,6 +53,13 @@ export const salesModule: ModuleSidebarConfig = {
         {name: "Invoices", path: INVOICES_PATH, icon: Inbox},
     ],
     sections: [
+        {
+            title: "Point of Sale",
+            menus: [
+                {name: "POS Receipts", path: POS_RECEIPTS_PATH, icon: ShoppingCart},
+                {name: "POS Credit Notes", path: POS_CREDIT_NOTES_PATH, icon: RotateCcw},
+            ],
+        },
         {
             title: "Receivables",
             menus: [

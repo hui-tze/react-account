@@ -1,7 +1,9 @@
 import {useCallback, useEffect, useState} from "react";
+import {DocRef} from "@/views/Documents/DocumentPreview";
 import {Badge, Card, Col, Form, Row} from "react-bootstrap";
 import {CheckSquare, List, Settings} from "react-feather";
-import {Link, useParams} from "react-router-dom";
+import {useParams} from "react-router-dom";
+import {Link} from "@/components/Access/Guarded";
 import SimpleBar from "simplebar-react";
 import type {SWRResponse} from "swr";
 import type {BankRegisterRow, BankRegisterSummary} from "@/apis/models/banking";
@@ -162,7 +164,7 @@ export function BankAccountRegister() {
                 {accessor: "trans_date", title: t('date'), width: 110},
                 {accessor: "reference_no", title: t('referenceNo'), render: (row) => (
                     <>
-                        <span className="fw-semibold text-dark">{row.reference_no}</span>
+                        <DocRef type={row.trans_type} id={row.trans_id ?? row.id} reference={row.reference_no} />
                         <div className="small text-muted">{row.trans_type_label}</div>
                     </>
                 )},

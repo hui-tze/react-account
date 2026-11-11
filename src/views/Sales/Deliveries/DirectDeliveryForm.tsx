@@ -1,4 +1,5 @@
 import {ReactNode, useMemo} from "react";
+import {formatQuantity} from "@/utils/display-format";
 import {Col, Row} from "react-bootstrap";
 import {useWatch} from "react-hook-form";
 import {useRequestForm} from "@/hooks/use-request-handler";
@@ -8,7 +9,6 @@ import {useGetStockOnHand} from "@/apis/requests/inventory-movement-api";
 import {TextAreaField, TextField} from "@/components/FormField/FormFields";
 import SettingsFormPage from "@/views/Settings/shared/SettingsFormPage";
 import {applyServerErrors, today} from "@/views/Inventory/shared/document";
-import {formatDecimal} from "@/views/Inventory/shared/options";
 import {blankToNull} from "@/views/Settings/Organization/Profile/profile-form";
 import {useSmartTranslation} from "@/hooks/use-translation";
 import {PartySection, PaymentTermField, useCustomerChecks} from "../shared/PartySection";
@@ -20,6 +20,7 @@ import {DeliveryFromFields, DeliverToBillingCheck, DeliverySection, useDeliveryA
 import {ExchangeRateField} from "../shared/ExchangeRateField";
 import {useDocumentPricing} from "../shared/useDocumentPricing";
 import {EMPTY_DELIVERY_ADDRESS, EMPTY_LINE} from "../shared/sales-form";
+import {DimensionFields} from "@/views/Dimensions/shared/DimensionFields";
 
 type DirectDeliveryFormProps = {
     record?: CustomerTransDocument,
@@ -47,6 +48,7 @@ function toValues(record?: CustomerTransDocument): DirectDeliveryRequest {
         contact_no: record?.contact_no ?? "",
         remarks: record?.remarks ?? "",
         delivery_address: {...EMPTY_DELIVERY_ADDRESS, ...(record?.delivery_address ?? {})},
+        dimensions: record?.dimensions ?? [],
         lines: record?.lines?.map(l => ({item_id: l.item_id, description: l.description, quantity: Number(l.quantity), unit_price: Number(l.unit_price), discount_percent: Number(l.discount_percent)}))
             ?? [{...EMPTY_LINE}],
     };
@@ -105,7 +107,7 @@ export function DirectDeliveryForm({record, backTo, onSubmit, onSuccess, banner}
                 lines: values.lines.map(l => ({item_id: l.item_id, description: (l.description ?? "").trim(), quantity: l.quantity, unit_price: l.unit_price, discount_percent: l.discount_percent ?? 0})),
             });
         } catch (e) {
-            applyServerErrors(e, setError, ["reference_no", "customer_id", "branch_id", "trans_date", "inventory_location_id", "exchange_rate", "lines", "accounts"]);
+            applyServerErrors(e, setError, ["reference_no", "customer_id", "branch_id", "trans_date", "inventory_location_id", "exchange_rate", "dimensions", "lines", "accounts"]);
             throw e;
         }
     };
@@ -122,7 +124,7 @@ export function DirectDeliveryForm({record, backTo, onSubmit, onSuccess, banner}
                         errorCheck,
                         ...party.issues,
                         ...lineCheck.issues,
-                        ...shortages.map(s => ({text: t('stockShortage', {code: s.item.code, available: formatDecimal(s.available), qty: formatDecimal(s.qty)}), tone: "warning" as const})),
+                        ...shortages.map(s => ({text: t('stockShortage', {code: s.item.code, available: formatQuantity(s.available), qty: formatQuantity(s.qty)}), tone: "warning" as const})),
                     ]}
                     ready={[...party.ready, t('lineCount', {count: lineCheck.filled})]}
                 />
@@ -150,6 +152,7 @@ export function DirectDeliveryForm({record, backTo, onSubmit, onSuccess, banner}
                         </Col>
                         <DeliveryFromFields control={control} locationRequired readOnly={readOnly} />
                         <ExchangeRateField control={control} pricing={pricing} savedRate={record?.exchange_rate} readOnly={readOnly} />
+                        <DimensionFields control={control} readOnly={readOnly} />
                     </Row>
                 </DocCard>
             </DocPair>

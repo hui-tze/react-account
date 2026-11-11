@@ -9,10 +9,11 @@ import type {
     BankRegisterSummary,
     ReconciliationState,
 } from "@/apis/models/banking";
+import type {DimensionTag} from "@/apis/models/dimension";
 
 type Id = number | string;
 
-export type BankLineRequest = {account_id: number | null, memo: string | null, amount: number | null};
+export type BankLineRequest = {account_id: number | null, memo: string | null, amount: number | null, dimensions: DimensionTag[]};
 
 /** Bank payment / bank deposit. */
 export type BankMoneyRequest = {
@@ -41,6 +42,7 @@ export type FundsTransferRequest = {
     bank_charge: number | null,
     exchange_rate: number | null,
     memo: string | null,
+    dimensions: DimensionTag[],
 };
 
 export const bankingApi = {

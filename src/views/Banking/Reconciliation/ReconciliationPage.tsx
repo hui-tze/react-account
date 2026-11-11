@@ -1,7 +1,10 @@
 import {useEffect, useState} from "react";
+import {useAccess} from "@/providers/access";
+import {formatDate} from "@/utils/display-format";
 import {Alert, Badge, Button, Card, Col, Form, Row, Spinner, Table} from "react-bootstrap";
 import {CheckCircle} from "react-feather";
-import {Link, useSearchParams} from "react-router-dom";
+import {useSearchParams} from "react-router-dom";
+import {ActionButton, Link} from "@/components/Access/Guarded";
 import SimpleBar from "simplebar-react";
 import {bankingApi} from "@/apis/requests/banking-api";
 import {ConditionalError} from "@/components/Display/ErrorBoundary";
@@ -26,6 +29,9 @@ export function Reconciliation() {
     const [statementDate, setStatementDate] = useState(search.get("date") ?? today());
     const [statementBalance, setStatementBalance] = useState<string>("");
     const [busy, setBusy] = useState(false);
+    // ticking lines and finishing change the bank records: banking "edit"
+    const {canHere} = useAccess();
+    const canReconcile = canHere("edit");
     const {data: state, error, mutate} = bankingApi.useReconciliation(accountId || null, statementDate || null, {revalidateOnFocus: false});
 
     // reopening a finished statement prefills its closing balance
@@ -42,7 +48,7 @@ export function Reconciliation() {
     const finished = !!state && state.bank_account.last_reconciled_at === state.statement_date && difference === 0;
 
     const mark = async (ids: number[], reconciled: boolean) => {
-        if (!state || !ids.length) {
+        if (!state || !ids.length || !canReconcile) {
             return;
         }
         setBusy(true);
@@ -57,7 +63,7 @@ export function Reconciliation() {
     };
 
     const finish = async () => {
-        if (!state || balance === null) {
+        if (!state || balance === null || !canReconcile) {
             return;
         }
         setBusy(true);
@@ -122,9 +128,9 @@ export function Reconciliation() {
                                     </div></div>
                                 <div className="ms-auto align-self-center d-flex gap-2">
                                     {busy && <Spinner animation="border" size="sm" className="align-self-center" />}
-                                    <Button variant="primary" disabled={busy || difference !== 0} onClick={finish} title={difference !== 0 ? t('bankFinishHint') : undefined}>
+                                    <ActionButton action="edit" variant="primary" disabled={busy || difference !== 0} onClick={finish} title={difference !== 0 ? t('bankFinishHint') : undefined}>
                                         <CheckCircle size={14} className="me-1" />{t('bankFinishReconciliation')}
-                                    </Button>
+                                    </ActionButton>
                                 </div>
                             </div>
                             <p className="small text-muted">{t('bankBookBalanceAt', {date: state.statement_date})}: {code} {money(state.book_balance, false)}</p>
@@ -141,7 +147,7 @@ export function Reconciliation() {
                                         <thead className="table-light">
                                             <tr>
                                                 <th className="ps-3" style={{width: 40}}>
-                                                    <Form.Check type="checkbox" aria-label={t('bankTickAll')} checked={allTicked} disabled={busy || !state.items.length}
+                                                    <Form.Check type="checkbox" aria-label={t('bankTickAll')} checked={allTicked} disabled={busy || !canReconcile || !state.items.length}
                                                         onChange={() => mark(state.items.filter(i => i.reconciled === allTicked).map(i => i.id), !allTicked)} />
                                                 </th>
                                                 <th>{t('date')}</th>
@@ -160,10 +166,10 @@ export function Reconciliation() {
                                                 return (
                                                     <tr key={item.id} className={item.reconciled ? "table-success" : undefined} role="button" onClick={() => !busy && mark([item.id], !item.reconciled)}>
                                                         <td className="ps-3" onClick={(e) => e.stopPropagation()}>
-                                                            <Form.Check type="checkbox" aria-label={item.reference_no} checked={item.reconciled} disabled={busy}
+                                                            <Form.Check type="checkbox" aria-label={item.reference_no} checked={item.reconciled} disabled={busy || !canReconcile}
                                                                 onChange={() => mark([item.id], !item.reconciled)} />
                                                         </td>
-                                                        <td>{item.trans_date}</td>
+                                                        <td>{formatDate(item.trans_date)}</td>
                                                         <td onClick={(e) => e.stopPropagation()}>
                                                             {path ? <Link to={path} className="fw-semibold">{item.reference_no}</Link> : <span className="fw-semibold">{item.reference_no}</span>}
                                                             <div className="small text-muted">{item.trans_type_label}</div>

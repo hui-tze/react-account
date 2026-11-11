@@ -1,7 +1,10 @@
 import {useRef} from "react";
+import {formatQuantity} from "@/utils/display-format";
+import {DocRef} from "@/views/Documents/DocumentPreview";
 import {Button} from "react-bootstrap";
 import {Package, RotateCcw, Slash, XCircle} from "react-feather";
-import {Link, useNavigate, useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
+import {ActionButton, Link} from "@/components/Access/Guarded";
 import {PurchaseOrderDocument} from "@/apis/models/purchase-document";
 import {purchaseOrderApi} from "@/apis/requests/purchase-api";
 import {ConditionalError} from "@/components/Display/ErrorBoundary";
@@ -28,7 +31,7 @@ export function PurchaseOrders() {
             partyFilter={useSupplierFilter()}
             columns={[
                 {accessor: "order_date", title: t('date')},
-                {accessor: "reference_no", title: t('referenceNo'), render: (row) => <span className="fw-semibold text-dark">{row.reference_no}</span>},
+                {accessor: "reference_no", title: t('referenceNo'), render: (row) => <DocRef type={row.trans_type} id={row.id} reference={row.reference_no} />},
                 {accessor: "supplier_id", title: t('supplier'), render: (row) => row.supplier?.name ?? "-"},
                 {accessor: "expected_delivery", title: t('expectedDelivery'), render: (row) => row.expected_delivery ?? "-"},
                 {accessor: "grand_total", title: t('total'), tdClasses: "text-end", render: (row) => <span>{formatDecimal(row.grand_total)} <span className="text-muted small">{row.currency}</span></span>},
@@ -38,7 +41,7 @@ export function PurchaseOrders() {
                     render: (row) => (
                         <div>
                             <SalesStateBadge state={row.state} />
-                            {row.state === "partially_received" && <div className="small text-muted">{formatDecimal(sum(row, "received_qty"))} / {formatDecimal(sum(row, "quantity"))}</div>}
+                            {row.state === "partially_received" && <div className="small text-muted">{formatQuantity(sum(row, "received_qty"))} / {formatQuantity(sum(row, "quantity"))}</div>}
                         </div>
                     ),
                 },
@@ -105,19 +108,19 @@ export function EditPurchaseOrder() {
                                 </Link>
                             )}
                             {record.status === "active" && received > 0 && outstanding && (
-                                <Button variant="outline-secondary" size="sm" onClick={() => run(() => purchaseOrderApi.close(record.id), t('closePurchaseOrderText', {ref: record.reference_no}), t('orderClosed'))}>
+                                <ActionButton action="edit" variant="outline-secondary" size="sm" onClick={() => run(() => purchaseOrderApi.close(record.id), t('closePurchaseOrderText', {ref: record.reference_no}), t('orderClosed'))}>
                                     <Slash size={14} className="me-1" />{t('closeOrder')}
-                                </Button>
+                                </ActionButton>
                             )}
                             {record.status === "active" && received === 0 && (
-                                <Button variant="outline-danger" size="sm" onClick={() => run(() => purchaseOrderApi.cancel(record.id), t('cancelOrderText', {ref: record.reference_no}), t('orderCancelled'))}>
+                                <ActionButton variant="outline-danger" size="sm" onClick={() => run(() => purchaseOrderApi.cancel(record.id), t('cancelOrderText', {ref: record.reference_no}), t('orderCancelled'))}>
                                     <XCircle size={14} className="me-1" />{t('cancelOrder')}
-                                </Button>
+                                </ActionButton>
                             )}
                             {record.status === "closed" && (
-                                <Button variant="outline-secondary" size="sm" onClick={() => run(() => purchaseOrderApi.reopen(record.id), t('reopenOrderText', {ref: record.reference_no}), t('orderReopened'))}>
+                                <ActionButton action="edit" variant="outline-secondary" size="sm" onClick={() => run(() => purchaseOrderApi.reopen(record.id), t('reopenOrderText', {ref: record.reference_no}), t('orderReopened'))}>
                                     <RotateCcw size={14} className="me-1" />{t('reopenOrder')}
-                                </Button>
+                                </ActionButton>
                             )}
                         </>
                     )}

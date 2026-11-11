@@ -1,7 +1,10 @@
 import {useRef} from "react";
+import {formatDate} from "@/utils/display-format";
+import {DocRef} from "@/views/Documents/DocumentPreview";
 import {Button} from "react-bootstrap";
 import {CreditCard, CornerUpLeft, XCircle} from "react-feather";
-import {Link, useNavigate, useParams, useSearchParams} from "react-router-dom";
+import {useNavigate, useParams, useSearchParams} from "react-router-dom";
+import {ActionButton, Link} from "@/components/Access/Guarded";
 import {CustomerTransDocument} from "@/apis/models/sales-document";
 import {invoiceApi, InvoiceRequest} from "@/apis/requests/sales-billing-api";
 import {useGetOneDeliveryNote} from "@/apis/requests/delivery-note-api";
@@ -31,9 +34,9 @@ export function Invoices() {
             searchPlaceholder={t('searchSalesDocuments')}
             columns={[
                 {accessor: "trans_date", title: t('date')},
-                {accessor: "reference_no", title: t('referenceNo'), render: (row) => <span className="fw-semibold text-dark">{row.reference_no}</span>},
+                {accessor: "reference_no", title: t('referenceNo'), render: (row) => <DocRef type={row.trans_type} id={row.id} reference={row.reference_no} />},
                 {accessor: "customer_id", title: t('customer'), render: (row) => row.customer?.name ?? "-"},
-                {accessor: "due_date", title: t('dueDate'), render: (row) => <span className={row.state === "overdue" ? "text-danger fw-semibold" : ""}>{row.due_date ?? "-"}</span>},
+                {accessor: "due_date", title: t('dueDate'), render: (row) => <span className={row.state === "overdue" ? "text-danger fw-semibold" : ""}>{formatDate(row.due_date)}</span>},
                 {accessor: "grand_total", title: t('total'), tdClasses: "text-end", render: (row) => <span>{formatDecimal(row.grand_total)} <span className="text-muted small">{row.currency?.code}</span></span>},
                 {accessor: "balance", title: t('balanceDue'), tdClasses: "text-end", render: (row) => row.status === "active" ? formatDecimal(row.balance ?? 0) : "-"},
                 {accessor: "state", title: t('status'), render: (row) => <SalesStateBadge state={row.state} />},
@@ -119,7 +122,7 @@ export function EditInvoice() {
                         </Link>
                     )}
                     {!locked && (
-                        <Button variant="outline-danger" size="sm" onClick={() => einvoice.guard(() => confirmAndExecute(async () => {
+                        <ActionButton variant="outline-danger" size="sm" onClick={() => einvoice.guard(() => confirmAndExecute(async () => {
                             try {
                                 await invoiceApi.void(invoice.id, null);
                                 notify.success(t('invoiceVoided'));
@@ -130,7 +133,7 @@ export function EditInvoice() {
                             }
                         }, {text: einvoice.confirmText(t('voidInvoiceText', {ref: invoice.reference_no}))}))}>
                             <XCircle size={14} className="me-1" />{t('void')}
-                        </Button>
+                        </ActionButton>
                     )}
                 </>
             ) : undefined}

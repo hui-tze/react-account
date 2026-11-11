@@ -1,6 +1,7 @@
 // purchase orders, goods receipts (GRN) and supplier documents (bills, self-billed invoices,
 // credit notes, payments). Model decimals arrive as strings; computed values as numbers.
 import type {DocumentDeliveryAddress, RelatedDocument, SalesTaxSummary} from "@/apis/models/sales-document";
+import type {DimensionTag} from "@/apis/models/dimension";
 
 export type PurchaseLineItem = {
     id: number,
@@ -57,6 +58,7 @@ export type PurchaseOrderDocument = {
     taxes?: SalesTaxSummary[],
     delivery_address?: DocumentDeliveryAddress | null,
     related?: RelatedDocument[],
+    dimensions?: DimensionTag[],
 };
 
 export type GoodsReceiptLine = {
@@ -101,6 +103,7 @@ export type GoodsReceiptDocument = {
     // received without a purchase order
     direct?: boolean,
     related?: RelatedDocument[],
+    dimensions?: DimensionTag[],
 };
 
 /** Received goods not billed yet — what a bill is made from. */
@@ -194,6 +197,7 @@ export type SupplierTransDocument = {
     taxes?: SalesTaxSummary[],
     related?: RelatedDocument[],
     allocations?: SupplierAllocationRow[],
+    dimensions?: DimensionTag[],
     // bills: location the direct lines came into
     warehouse_id?: number | null,
     // payments

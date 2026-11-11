@@ -4,9 +4,10 @@ import {SalesTaxContext} from "@/apis/models/sales-lookup";
 import {SalesPerson} from "@/apis/models/sales-person";
 import {ShippingCompany} from "@/apis/models/shipping-company";
 
-/** Taxes the branch is charged plus item tax category exemptions. */
-export function useGetSalesTaxContext(branchId: number | null | undefined): SWRResponse<SalesTaxContext> {
-    return useConsoleSwr(branchId ? `/sales/lookups/tax-context?branch_id=${branchId}` : null, authFetcher);
+/** Taxes the branch is charged (else those of `taxGroupId`, e.g. a POS) plus item tax category exemptions. */
+export function useGetSalesTaxContext(branchId: number | null | undefined, taxGroupId?: number | null): SWRResponse<SalesTaxContext> {
+    const params = new URLSearchParams({...(branchId ? {branch_id: String(branchId)} : {}), ...(taxGroupId ? {tax_group_id: String(taxGroupId)} : {})});
+    return useConsoleSwr(branchId || taxGroupId ? `/sales/lookups/tax-context?${params}` : null, authFetcher);
 }
 
 /** Selling price per item id for a sales type and currency (derived through sales type factors when not priced directly). */

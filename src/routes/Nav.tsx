@@ -5,6 +5,8 @@ import {useAuth} from "@/providers/auth";
 import {ErrorBoundary} from "react-error-boundary";
 import {generalFallbackRenderer} from "@/components/Display/ErrorBoundary";
 import LayoutClassic from '@/layout/MainLayout/ClassicLayout';
+import {DisplayPreferences} from "@/providers/display-preferences";
+import {AccessProvider} from "@/providers/access";
 
 export default function Nav() {
     const location = useLocation();
@@ -21,18 +23,22 @@ export default function Nav() {
     return (
         <>
             {/* <AnimatePresence> */}
-            <LayoutClassic>
-                <ErrorBoundary fallbackRender={generalFallbackRenderer}>
-                    <Suspense
-                        fallback={
-                            <div className="preloader-it position-fixed">
-                                <div className="loader-pendulums" />
-                            </div>
-                        }>
-                        <Outlet/>
-                    </Suspense>
-                </ErrorBoundary>
-            </LayoutClassic>
+            <DisplayPreferences>
+                <AccessProvider>
+                    <LayoutClassic>
+                        <ErrorBoundary fallbackRender={generalFallbackRenderer}>
+                            <Suspense
+                                fallback={
+                                    <div className="preloader-it position-fixed">
+                                        <div className="loader-pendulums" />
+                                    </div>
+                                }>
+                                <Outlet/>
+                            </Suspense>
+                        </ErrorBoundary>
+                    </LayoutClassic>
+                </AccessProvider>
+            </DisplayPreferences>
 
             {/* </AnimatePresence> */}
         </>

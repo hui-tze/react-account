@@ -1,4 +1,4 @@
-import {Link} from "react-router-dom";
+import {Link} from "@/components/Access/Guarded";
 import {Plus} from "react-feather";
 import {useSmartTranslation} from "@/hooks/use-translation";
 

@@ -1,6 +1,6 @@
 import {useNotification} from "@/hooks/notification";
 import {createContext, type ReactNode, useContext, useEffect, useRef, useState} from "react";
-import {loadToken, loadUser, loadPermissions, removeCompanyId, removeToken, saveToken, saveUser, savePermissions, saveLanguage, saveHourFormat} from "@/utils/token-utility";
+import {loadToken, loadUser, loadPermissions, removeCompanyId, removeToken, removeUser, saveToken, saveUser, savePermissions} from "@/utils/token-utility";
 import {handleErrorResponse} from "@/apis/response-handler";
 import {attemptLogin, logout} from "@/apis/requests/auth-api";
 import equal from "fast-deep-equal/es6/react";
@@ -8,7 +8,7 @@ import {LoggedInUser, SuccessfulLoginResponse} from "@/apis/models/auth";
 
 type AuthContextType = {
     token: string | null ,
-    signIn:  (code: string, username: string, password: string, onSuccess: (result:SuccessfulLoginResponse) => void, onFailure: (message:string) => void) => void,
+    signIn: (email: string, password: string, onSuccess: (result:SuccessfulLoginResponse) => void, onFailure: (message:string) => void) => void,
     signOut: (callback: VoidFunction) => void,
     updateUser: (user: LoggedInUser) => void,
     updatePermissions: (permissions: string[]) => void,
@@ -37,16 +37,13 @@ export function Auth({children}: { children: ReactNode }) {
     };
 
     const signIn = async (
-        code: string,
-        username: string,
+        email: string,
         password: string,
         onSuccess: (result: SuccessfulLoginResponse) => void,
         onFailure: (message: string) => void
     ) => {
         try {
-            console.log(username);
-            console.log(password);
-            const res = await attemptLogin(code, username, password);
+            const res = await attemptLogin(email, password);
 
             setToken(res.access_token);
             saveToken(res.access_token);
@@ -70,17 +67,19 @@ export function Auth({children}: { children: ReactNode }) {
         }
     };
 
+    // the session ends in this browser even when the server call fails (e.g. the token already expired)
     const signOut = (callback: VoidFunction) => {
         logout()
+            .catch(() => undefined)
             .then(() => {
                 removeToken();
+                removeUser();
                 removeCompanyId();
                 setToken(null);
+                setUser(null);
+                setPermissions(null);
                 callback();
-            })
-            .catch(handleErrorResponse((message) => {
-                error(message);
-            }));
+            });
     };
 
     const value = {token, signIn, signOut, updateUser, updatePermissions};

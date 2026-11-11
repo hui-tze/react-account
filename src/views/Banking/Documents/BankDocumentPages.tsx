@@ -1,7 +1,9 @@
 import {useCallback, useMemo, useRef, useState} from "react";
+import {DocRef} from "@/views/Documents/DocumentPreview";
 import {Alert, Badge, Button, Col, Form, Row, Table} from "react-bootstrap";
 import {Plus, Trash2, XCircle} from "react-feather";
-import {Link, useNavigate, useParams, useSearchParams} from "react-router-dom";
+import {useNavigate, useParams, useSearchParams} from "react-router-dom";
+import {ActionButton, Link} from "@/components/Access/Guarded";
 import {Controller, useFieldArray, useFormState, useWatch} from "react-hook-form";
 import Select from "react-select";
 import Swal from "sweetalert2";
@@ -25,6 +27,10 @@ import {accountLedgerPath} from "@/views/GeneralLedger/gl-menu";
 import {money, today} from "@/views/GeneralLedger/shared/report-ui";
 import {reactSelectCustomStyles} from "@/utils/ReactSelect";
 import {BANK_TRANSACTIONS_PATH, bankRegisterPath} from "../banking-menu";
+import type {DimensionTag} from "@/apis/models/dimension";
+import {
+    applyDimensionDefaults, DimensionFields, DimensionHeaderCells, DimensionLineCells, DimensionTagsText, useActiveDimensions,
+} from "@/views/Dimensions/shared/DimensionFields";
 
 const Loading = () => <div className="loader-pendulums mt-10" />;
 const TYPES: BankDocumentType[] = ["bank_payment", "bank_deposit", "funds_transfer"];
@@ -98,7 +104,7 @@ export function BankTransactions() {
                 {accessor: "trans_date", title: t('date'), width: 110},
                 {accessor: "reference_no", title: t('referenceNo'), render: (row) => (
                     <>
-                        <span className="fw-semibold text-dark">{row.reference_no}</span>
+                        <DocRef type={row.trans_type} id={row.id} reference={row.reference_no} />
                         <div><TypeBadge type={row.trans_type} label={t(`docType_${row.trans_type}`)} /></div>
                     </>
                 )},
@@ -123,9 +129,9 @@ export function BankTransactions() {
     );
 }
 
-type LineValues = {account_id: number | null, memo: string, amount: number | null};
+type LineValues = {account_id: number | null, memo: string, amount: number | null, dimensions: DimensionTag[]};
 type MoneyValues = Omit<BankMoneyRequest, "lines"> & {lines: LineValues[]};
-const EMPTY_LINE: LineValues = {account_id: null, memo: "", amount: null};
+const EMPTY_LINE: LineValues = {account_id: null, memo: "", amount: null, dimensions: []};
 
 /** Bank payment (money out) or deposit (money in) to / from GL accounts. */
 function BankMoneyForm({type}: {type: "bank_payment" | "bank_deposit"}) {
@@ -138,6 +144,7 @@ function BankMoneyForm({type}: {type: "bank_payment" | "bank_deposit"}) {
     const {data: customers} = useGetCustomerOptions();
     const {data: suppliers} = useGetSupplierOptions();
     const createdId = useRef<number | null>(null);
+    const {dimensions} = useActiveDimensions();
 
     // ordinary postable accounts: not receivable / payable control accounts, not a bank's own account
     const accountOptions: SelectOption[] = useMemo(() => [...(allAccounts ?? [])]
@@ -146,11 +153,11 @@ function BankMoneyForm({type}: {type: "bank_payment" | "bank_deposit"}) {
         .map(a => ({value: a.id, label: `${a.account_code} - ${a.account_name}`})), [allAccounts, banks.glIds]);
 
     const defaultBank = Number(search.get("account")) || banks.accounts.find(a => a.is_default)?.id || null;
-    const {control, setError, submitting, handleSubmitRequest} = useRequestForm<MoneyValues>({
+    const {control, setError, setValue, getValues, submitting, handleSubmitRequest} = useRequestForm<MoneyValues>({
         formOptions: {
             defaultValues: {
                 reference_no: "", trans_date: today(), bank_account_id: defaultBank, party_type: "other", party_id: null, payee_name: "",
-                exchange_rate: null, bank_charge: null, memo: "", lines: [{...EMPTY_LINE}],
+                exchange_rate: null, bank_charge: null, memo: "", lines: [{...EMPTY_LINE, dimensions: []}],
             },
         },
     });
@@ -171,7 +178,7 @@ function BankMoneyForm({type}: {type: "bank_payment" | "bank_deposit"}) {
             payee_name: blankToNull(values.payee_name),
             memo: blankToNull(values.memo),
             lines: values.lines.filter(l => l.account_id && Number(l.amount) > 0)
-                .map(l => ({account_id: l.account_id, memo: blankToNull(l.memo), amount: Number(l.amount)})),
+                .map(l => ({account_id: l.account_id, memo: blankToNull(l.memo), amount: Number(l.amount), dimensions: l.dimensions ?? []})),
         };
         try {
             const saved = await (out ? bankingApi.addPayment(body) : bankingApi.addDeposit(body));
@@ -226,6 +233,7 @@ function BankMoneyForm({type}: {type: "bank_payment" | "bank_deposit"}) {
                             <tr>
                                 <th style={{minWidth: 280}}>{t('account')}</th>
                                 <th>{t('memo')}</th>
+                                <DimensionHeaderCells />
                                 <th style={{width: 180}} className="text-end">{t('amount')}{currency ? ` (${currency})` : ""}</th>
                                 <th style={{width: 48}} />
                             </tr>
@@ -239,7 +247,12 @@ function BankMoneyForm({type}: {type: "bank_payment" | "bank_deposit"}) {
                                                 <Select<SelectOption, false>
                                                     options={accountOptions}
                                                     value={accountOptions.find(o => o.value === f.value) ?? null}
-                                                    onChange={(o) => f.onChange(o ? Number(o.value) : null)}
+                                                    onChange={(o) => {
+                                                        const accountId = o ? Number(o.value) : null;
+                                                        f.onChange(accountId);
+                                                        // the account's default dimension values
+                                                        void applyDimensionDefaults(getValues, setValue, [["account", accountId]], `lines.${index}.dimensions`);
+                                                    }}
                                                     placeholder={t('pleaseSelect')}
                                                     styles={reactSelectCustomStyles as never}
                                                     menuPortalTarget={document.body}
@@ -253,6 +266,7 @@ function BankMoneyForm({type}: {type: "bank_payment" | "bank_deposit"}) {
                                         <Controller control={control} name={`lines.${index}.memo`}
                                             render={({field: f}) => <Form.Control value={f.value ?? ""} onChange={f.onChange} maxLength={255} />} />
                                     </td>
+                                    <DimensionLineCells control={control} name={`lines.${index}.dimensions`} skipCheck={!lines?.[index]?.account_id} />
                                     <td>
                                         <Controller control={control} name={`lines.${index}.amount`} render={({field: f, fieldState}) => (
                                             <Form.Control type="number" min={0} step="0.01" className="text-end" value={f.value ?? ""} isInvalid={!!fieldState.error}
@@ -268,8 +282,8 @@ function BankMoneyForm({type}: {type: "bank_payment" | "bank_deposit"}) {
                         </tbody>
                         <tfoot>
                             <tr className="fw-semibold">
-                                <td colSpan={2}>
-                                    <Button variant="link" size="sm" className="p-0" onClick={() => append({...EMPTY_LINE})}><Plus size={14} className="me-1" />{t('addLine')}</Button>
+                                <td colSpan={2 + dimensions.length}>
+                                    <Button variant="link" size="sm" className="p-0" onClick={() => append({...EMPTY_LINE, dimensions: []})}><Plus size={14} className="me-1" />{t('addLine')}</Button>
                                 </td>
                                 <td className="text-end">{money(total, false)}</td>
                                 <td />
@@ -295,7 +309,7 @@ export function CreateBankTransfer() {
     const {control, setError, submitting, handleSubmitRequest} = useRequestForm<FundsTransferRequest>({
         formOptions: {
             defaultValues: {reference_no: "", trans_date: today(), bank_account_id: Number(search.get("account")) || null, to_bank_account_id: null,
-                amount: null, to_amount: null, bank_charge: null, exchange_rate: null, memo: ""},
+                amount: null, to_amount: null, bank_charge: null, exchange_rate: null, memo: "", dimensions: []},
         },
     });
     const [fromId, toId, amount] = useWatch({control, name: ["bank_account_id", "to_bank_account_id", "amount"]});
@@ -313,7 +327,7 @@ export function CreateBankTransfer() {
             });
             createdId.current = saved.id;
         } catch (e) {
-            applyServerErrors(e, setError, ["reference_no", "trans_date", "bank_account_id", "to_bank_account_id", "amount", "to_amount", "exchange_rate", "bank_charge"]);
+            applyServerErrors(e, setError, ["reference_no", "trans_date", "bank_account_id", "to_bank_account_id", "amount", "to_amount", "exchange_rate", "bank_charge", "dimensions"]);
             throw e;
         }
     };
@@ -350,6 +364,7 @@ export function CreateBankTransfer() {
                         </Col>
                     </>
                 )}
+                <DimensionFields control={control} />
                 <Col md={12}><TextAreaField control={control} name="memo" label={t('memo')} rows={2} /></Col>
             </Row>
             {crossCurrency && <Alert variant="info" className="small py-2">{t('bankCrossCurrencyNote')}</Alert>}
@@ -411,9 +426,9 @@ export function ViewBankDocument() {
                     <div className="ms-auto d-flex gap-2">
                         <Link to={BANK_TRANSACTIONS_PATH} className="btn btn-sm btn-outline-secondary">{t('back')}</Link>
                         {doc.status !== "voided" && (
-                            <Button variant="outline-danger" size="sm" onClick={voidDoc} disabled={doc.reconciled} title={doc.reconciled ? t('bankVoidReconciled') : undefined}>
+                            <ActionButton variant="outline-danger" size="sm" onClick={voidDoc} disabled={doc.reconciled} title={doc.reconciled ? t('bankVoidReconciled') : undefined}>
                                 <XCircle size={14} className="me-1" />{t('void')}
-                            </Button>
+                            </ActionButton>
                         )}
                     </div>
                 </div>
@@ -431,6 +446,7 @@ export function ViewBankDocument() {
                         {label: t('bankCharge'), value: doc.bank_charge ? `${code} ${money(doc.bank_charge, false)}` : null},
                         {label: t('exchangeRate'), value: doc.exchange_rate !== 1 ? String(doc.exchange_rate) : null},
                         {label: t('memo'), value: doc.memo},
+                        {label: t('dimensions'), value: transfer && doc.dimensions?.length ? <DimensionTagsText tags={doc.dimensions} /> : null},
                     ]} />
                 </DocCard>
 
@@ -445,7 +461,10 @@ export function ViewBankDocument() {
                                     {doc.lines.map(line => (
                                         <tr key={line.id}>
                                             <td><Link to={accountLedgerPath(line.account_id)} className="text-reset"><span className="text-muted small me-2">{line.account_code}</span>{line.account_name}</Link></td>
-                                            <td className="text-muted">{line.memo}</td>
+                                            <td className="text-muted">
+                                                {line.memo}
+                                                {!!line.dimensions?.length && <div className="small"><DimensionTagsText tags={line.dimensions} /></div>}
+                                            </td>
                                             <td className="text-end">{money(line.amount, false)}</td>
                                         </tr>
                                     ))}

@@ -1,6 +1,7 @@
 import {Table} from "react-bootstrap";
 import {MapPin, Plus} from "react-feather";
-import {Link, useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router-dom";
+import {Link} from "@/components/Access/Guarded";
 import {Customer} from "@/apis/models/customer";
 import {useGetSalesTypeOptions} from "@/apis/requests/sales-type-api";
 import {useGetTaxGroupOptions} from "@/apis/requests/tax-group-api";

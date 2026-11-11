@@ -1,6 +1,7 @@
 import {useMemo} from "react";
 import {useGetItemOptions} from "@/apis/requests/item-api";
 import {SelectOption} from "@/components/FormField/FormFields";
+import {formatAmount} from "@/utils/display-format";
 
 /** Items as select options ("A100 - Widget"); inactive items are kept only when already selected. */
 export function useItemOptions(selectedId?: number | null): SelectOption[] {
@@ -21,8 +22,10 @@ export function dateOnly(value: string | null | undefined): string | null {
     return value ? value.slice(0, 10) : null;
 }
 
-/** Decimal strings from the backend shown with fixed places, e.g. "12.5000" -> "12.50". */
-export function formatDecimal(value: string | number | null | undefined, places = 2): string {
-    const n = Number(value ?? 0);
-    return Number.isFinite(n) ? n.toLocaleString(undefined, {minimumFractionDigits: places, maximumFractionDigits: places}) : "-";
+/**
+ * Decimal strings from the backend in the Display Preference format, e.g. "12.5000" -> "12.50":
+ * price decimal places and the company's separators, unless `places` is given.
+ */
+export function formatDecimal(value: string | number | null | undefined, places?: number): string {
+    return formatAmount(value, places);
 }

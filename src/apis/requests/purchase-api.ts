@@ -7,6 +7,7 @@ import type {
 } from "@/apis/models/purchase-document";
 import {PaginationResponse} from "@/apis/pagination";
 import type {AllocationRequest} from "@/apis/requests/sales-billing-api";
+import type {DimensionTag} from "@/apis/models/dimension";
 
 /** Item line of an order or a direct receipt / bill / credit (discount_percent is ignored: purchases have none). */
 export type PurchaseLineRequest = {
@@ -32,6 +33,7 @@ export type PurchaseOrderRequest = {
     tax_included: boolean | null,
     remarks: string | null,
     delivery_address: DocumentDeliveryAddress,
+    dimensions: DimensionTag[],
     lines: PurchaseLineRequest[],
 };
 
@@ -43,6 +45,7 @@ export type GoodsReceiptRequest = {
     warehouse_id: number | null,
     exchange_rate: number | null,
     remarks: string | null,
+    dimensions: DimensionTag[],
     // direct receipts only
     supplier_id?: number | null,
     tax_included?: boolean | null,
@@ -69,6 +72,7 @@ export type BillRequest = {
     // where direct stock lines come in
     warehouse_id: number | null,
     remarks: string | null,
+    dimensions: DimensionTag[],
     lines: SupplierLineRequest[],
 };
 
@@ -82,6 +86,7 @@ export type SupplierCreditNoteRequest = {
     exchange_rate: number | null,
     tax_included: boolean | null,
     remarks: string | null,
+    dimensions: DimensionTag[],
     lines: SupplierLineRequest[],
 };
 
@@ -96,6 +101,7 @@ export type SupplierPaymentRequest = {
     exchange_rate: number | null,
     payment_ref: string | null,
     remarks: string | null,
+    dimensions: DimensionTag[],
     allocations: AllocationRequest[],
 };
 

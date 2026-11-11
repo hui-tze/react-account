@@ -5,19 +5,32 @@ import { Dropdown, Nav } from "react-bootstrap";
 import React from "react";
 import { useSmartTranslation } from "@/hooks/use-translation";
 import { translateMenu } from "@/i18n/menu";
+import { useAccess } from "@/providers/access";
 
 interface ModuleSidebarProps {
     module: string;
 }
 
 export const ModuleSidebar = ({ module }: ModuleSidebarProps) => {
-    const config = ModuleSidebarMenu[module];
     const { t } = useSmartTranslation();
     const { pathname } = useLocation();
+    const { canPath } = useAccess();
+    const base = ModuleSidebarMenu[module];
 
-    if (!config) {
+    if (!base) {
         return null;
     }
+
+    // only what the user's role allows: screens they can view, "Create" entries they can create
+    const config = {
+        ...base,
+        createMenu: base.createMenu?.filter((action) => canPath(action.path, 'create')),
+        actions: base.actions?.filter((action) => canPath(action.path)),
+        menus: base.menus?.filter((menu) => canPath(menu.path)),
+        sections: base.sections
+            ?.map((section) => ({ ...section, menus: section.menus.filter((menu) => canPath(menu.path)) }))
+            .filter((section) => section.menus.length > 0),
+    };
 
     const isActive = (path: string) =>
         pathname === path || pathname.startsWith(`${path}/`);

@@ -1,7 +1,7 @@
 import {useEffect, useRef, useState} from "react";
 import {Alert, Button, Col, Form, Row, Spinner} from "react-bootstrap";
 import {CheckCircle, Zap} from "react-feather";
-import {Link} from "react-router-dom";
+import {Link} from "@/components/Access/Guarded";
 import {Control, Controller, FieldValues, Path} from "react-hook-form";
 import type {EinvoiceSetting} from "@/apis/models/einvoice";
 import {einvoiceSettingApi} from "@/apis/requests/einvoice-api";

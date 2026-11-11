@@ -1,4 +1,5 @@
 import {Button, ButtonGroup, Form, Table} from "react-bootstrap";
+import {formatDate} from "@/utils/display-format";
 import {Link2, Zap} from "react-feather";
 import {Control, Controller, FieldValues, UseFormSetValue} from "react-hook-form";
 import type {OpenItem} from "@/apis/models/sales-document";
@@ -81,8 +82,8 @@ export function AllocationTable<T extends PayForm>(props: AllocationTableProps<T
                             {rows.map((row, index) => (
                                 <tr key={row.id}>
                                     <td className="sales-line-amount">{row.reference_no}</td>
-                                    <td className="sales-line-amount fw-normal">{row.trans_date}</td>
-                                    <td className={`sales-line-amount fw-normal ${row.due_date && row.due_date < today() ? "text-danger" : ""}`}>{row.due_date ?? "-"}</td>
+                                    <td className="sales-line-amount fw-normal">{formatDate(row.trans_date)}</td>
+                                    <td className={`sales-line-amount fw-normal ${row.due_date && row.due_date < today() ? "text-danger" : ""}`}>{formatDate(row.due_date)}</td>
                                     <td className="text-end sales-line-amount fw-normal">{formatDecimal(row.grand_total)}</td>
                                     <td className="text-end sales-line-amount">{formatDecimal(row.open)}</td>
                                     <td>

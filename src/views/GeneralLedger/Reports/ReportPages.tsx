@@ -1,7 +1,8 @@
 import {useState} from "react";
+import {formatDate} from "@/utils/display-format";
 import {Badge, Form} from "react-bootstrap";
 import {CheckCircle, AlertTriangle, Edit2} from "react-feather";
-import {Link} from "react-router-dom";
+import {Link} from "@/components/Access/Guarded";
 import type {StatementAmounts, TrialBalanceAmounts} from "@/apis/models/ledger";
 import {ledgerApi} from "@/apis/requests/ledger-api";
 import {ConditionalError} from "@/components/Display/ErrorBoundary";
@@ -81,7 +82,7 @@ export function TrialBalance() {
     return (
         <ReportPage
             title={t('menu_TrialBalance')}
-            subtitle={<>{t('glPeriod', {from: range.from, to: range.to})} {data && <BalancedBadge balanced={data.balanced} difference={data.totals.closing_debit - data.totals.closing_credit} />}</>}
+            subtitle={<>{t('glPeriod', {from: formatDate(range.from), to: formatDate(range.to)})} {data && <BalancedBadge balanced={data.balanced} difference={data.totals.closing_debit - data.totals.closing_credit} />}</>}
             toolbar={<><DateRangeBar range={range} onChange={setRange} /><ShowZeroSwitch value={showZero} onChange={setShowZero} /></>}
         >
             {error ? <ConditionalError error={error} /> : isLoading || !data ? <Loading /> : (
@@ -112,7 +113,7 @@ export function ProfitAndLoss() {
     return (
         <ReportPage
             title={t('menu_ProfitLoss')}
-            subtitle={t('glPeriod', {from: range.from, to: range.to})}
+            subtitle={t('glPeriod', {from: formatDate(range.from), to: formatDate(range.to)})}
             toolbar={<><DateRangeBar range={range} onChange={setRange} /><ShowZeroSwitch value={showZero} onChange={setShowZero} /></>}
         >
             {error ? <ConditionalError error={error} /> : isLoading || !data ? <Loading /> : (
@@ -162,7 +163,7 @@ export function BalanceSheet() {
     return (
         <ReportPage
             title={t('menu_BalanceSheet')}
-            subtitle={<>{t('glAsAt', {date: asOf})} {data && <BalancedBadge balanced={data.balanced} difference={data.difference} />}</>}
+            subtitle={<>{t('glAsAt', {date: formatDate(asOf)})} {data && <BalancedBadge balanced={data.balanced} difference={data.difference} />}</>}
             toolbar={(
                 <>
                     <span className="small text-muted">{t('glAsAtLabel')}</span>

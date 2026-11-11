@@ -1,4 +1,6 @@
 import {useState} from "react";
+import {useAccess} from "@/providers/access";
+import {formatDate} from "@/utils/display-format";
 import {Col, Container, Form, Row, Table} from "react-bootstrap";
 import {Link2} from "react-feather";
 import SimpleBar from "simplebar-react";
@@ -13,6 +15,8 @@ import {ApplySupplierCredit} from "../shared/ApplySupplierCredit";
 /** Payments and credit notes with money still unapplied: pick one and apply it to the supplier's bills. */
 export default function SupplierAllocationPage() {
     const {t} = useSmartTranslation();
+    // applying credits creates allocations: supplier payments "create"
+    const canAllocate = useAccess().canModule("supplier_payments", "create");
     const supplierFilter = useSupplierFilter();
     const [supplierId, setSupplierId] = useState<number | null>(null);
     const [selected, setSelected] = useState<number | null>(null);
@@ -50,7 +54,7 @@ export default function SupplierAllocationPage() {
                                 <tbody>
                                     {credits.map(row => (
                                         <tr key={row.id} role="button" className={row.id === selected ? "table-active" : ""} onClick={() => setSelected(row.id)}>
-                                            <td>{row.trans_date}</td>
+                                            <td>{formatDate(row.trans_date)}</td>
                                             <td>
                                                 <div className="fw-semibold text-dark">{row.reference_no}</div>
                                                 <div className="small text-muted">{t(`docType_${row.trans_type}`)}</div>
@@ -65,7 +69,7 @@ export default function SupplierAllocationPage() {
                         </div>
                     )}
 
-                    {credit && (
+                    {credit && canAllocate && (
                         <DocCard icon={Link2} title={t('applyDocument', {ref: credit.reference_no})} className="mb-0">
                             <ApplySupplierCredit credit={credit} onApplied={async () => {
                                 setSelected(null);

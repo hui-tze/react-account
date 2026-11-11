@@ -18,6 +18,8 @@ import {useSmartTranslation} from "@/hooks/use-translation";
 import {CustomerPicker} from "./CustomerPicker";
 import {toDeliveryAddress} from "./sales-form";
 import type {EntryCheck} from "./EntryLayout";
+import type {DimensionTag} from "@/apis/models/dimension";
+import {applyDimensionDefaults} from "@/views/Dimensions/shared/DimensionFields";
 
 /** The fields this section reads and fills — any sales document form has them. */
 export type PartyValues = {
@@ -31,6 +33,8 @@ export type PartyValues = {
     exchange_rate: number | null,
     deliver_to: string | null,
     delivery_address: DocumentDeliveryAddress,
+    // forms with dimensions get the customer's / branch's default values on a pick
+    dimensions?: DimensionTag[] | null,
 };
 
 type PartySectionProps<T extends FieldValues> = {
@@ -79,6 +83,7 @@ export function PartySection<T extends FieldValues>(props: PartySectionProps<T>)
         setValue("shipping_company_id", branch.shipping_id);
         setValue("deliver_to", branch.name);
         setValue("delivery_address", toDeliveryAddress(branch.addresses?.find(a => a.is_primary) ?? branch.addresses?.[0]));
+        void applyDimensionDefaults(getValues, setValue, [["customer", getValues("customer_id")], ["customer_branch", branch.id]]);
     };
 
     const applyCustomer = (picked: Customer | undefined) => {

@@ -2,7 +2,7 @@ import {Col, Row} from "react-bootstrap";
 import {useRequestForm} from "@/hooks/use-request-handler";
 import {CompanyDetail} from "@/apis/models/company";
 import {updateCompany} from "@/apis/requests/company-api";
-import {Link} from "react-router-dom";
+import {Link} from "@/components/Access/Guarded";
 import {TextField} from "@/components/FormField/FormFields";
 import {EINVOICE_SETTINGS_PATH} from "@/views/Einvoice/einvoice-menu";
 import SettingsFormPage, {FormSectionTitle} from "@/views/Settings/shared/SettingsFormPage";

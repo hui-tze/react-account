@@ -1,4 +1,5 @@
 import {ReactNode} from "react";
+import {formatQuantity} from "@/utils/display-format";
 import {Badge, Button, Form, Table} from "react-bootstrap";
 import {Lock, Plus, X} from "react-feather";
 import {Control, Controller, useFieldArray, UseFormSetValue, useWatch} from "react-hook-form";
@@ -134,7 +135,7 @@ export function SalesLinesTable<T extends LinesForm>(props: SalesLinesTableProps
                                                     {stockOnHand && ["stock", "manufactured"].includes(item.item_type) && (() => {
                                                         const onHand = Number(stockOnHand[item.id] ?? 0);
                                                         const short = (Number(line?.quantity) || 0) > onHand + 0.00005;
-                                                        return <span className={short ? "text-danger fw-semibold" : "text-success fw-semibold"}> · {t('qtyOnHand', {qty: formatDecimal(onHand)})}</span>;
+                                                        return <span className={short ? "text-danger fw-semibold" : "text-success fw-semibold"}> · {t('qtyOnHand', {qty: formatQuantity(onHand)})}</span>;
                                                     })()}
                                                 </div>
                                                 </>
@@ -148,7 +149,7 @@ export function SalesLinesTable<T extends LinesForm>(props: SalesLinesTableProps
                                             disabled={readOnly}
                                             validate={(v) => {
                                                 if (v <= 0) return t('valueMustBePositive');
-                                                if (lock && v < lock.minQuantity) return t('quantityBelowDone', {qty: formatDecimal(lock.minQuantity)});
+                                                if (lock && v < lock.minQuantity) return t('quantityBelowDone', {qty: formatQuantity(lock.minQuantity)});
                                                 return true;
                                             }}
                                         />

@@ -1,6 +1,8 @@
 // General ledger module (laravel-account /panel/gl). gl_trans amounts are debit positive;
 // report amounts are shown in each account class's normal direction.
 
+import type {DimensionTag} from "@/apis/models/dimension";
+
 export type NormalBalance = "debit" | "credit";
 export type FinancialStatement = "balance_sheet" | "profit_loss";
 
@@ -134,6 +136,7 @@ export type JournalLine = {
     memo: string | null,
     debit: number,
     credit: number,
+    dimensions?: DimensionTag[],
 };
 
 export type JournalDetail = Journal & {lines: JournalLine[], void_reason: string | null};

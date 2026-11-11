@@ -68,6 +68,16 @@ export const SidebarMenu = [
                 },
             },
             {
+                id: 'dimensions',
+                name: 'Budgeting & Cost Centres',
+                icon: <Icons.ChartPie />,
+                path: '/dimensions',
+                element: <ModuleLayout />,
+                handle: {
+                    module: 'dimensions',
+                },
+            },
+            {
                 id: 'einvoice',
                 name: 'E-Invoice',
                 icon: <Icons.FileInvoice />,
@@ -184,7 +194,7 @@ export const SidebarMenu = [
                 path: '/settings',
                 exact: true,
             },
-            /* {
+            {
                 id: "settings_organization",
                 name: 'Organization',
                 icon: <Icons.Home />,
@@ -267,10 +277,10 @@ export const SidebarMenu = [
                         grp_name: "apps",
                     },
                 ]
-            }, */
+            },
         ]
     },
-    {
+    /* {
         group: 'Documentation',
         contents: [
             {
@@ -284,6 +294,6 @@ export const SidebarMenu = [
                 path: 'https://nubra-ui-react.netlify.app/avatar',
             },
         ]
-    },
+    }, */
 
 ]

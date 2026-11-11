@@ -1,6 +1,7 @@
 import type {SWRConfiguration, SWRResponse} from "swr";
 import {authApiRequest, authFetcher, useConsoleSwr} from "@/lib/request-client/client";
 import type {PaginationResponse} from "@/apis/pagination";
+import type {DimensionTag} from "@/apis/models/dimension";
 import type {
     BalanceSheetReport,
     ChartOfAccountsReport,
@@ -27,7 +28,7 @@ const query = (params: Record<string, string | number | boolean | null | undefin
     return q.toString();
 };
 
-export type JournalLineRequest = {account_id: number | null, memo: string | null, debit: number | null, credit: number | null};
+export type JournalLineRequest = {account_id: number | null, memo: string | null, debit: number | null, credit: number | null, dimensions: DimensionTag[]};
 export type JournalRequest = {
     // blank: generated from Document No
     reference_no: string | null,

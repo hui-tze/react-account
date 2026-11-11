@@ -1,4 +1,5 @@
 import type {PropsWithChildren, ReactNode} from "react";
+import {formatDate, isIsoDate} from "@/utils/display-format";
 import React, {useState} from "react";
 import useSortableData from "./hooks/useSortableData";
 import classNames from "classnames";
@@ -231,7 +232,8 @@ export default function HkDataTable<TData extends { [key: string]: any }>({
                                                         {cols.render ? (
                                                             cols.render(row, indx, mutator) // Call render function if it exists
                                                         ) : (
-                                                            cols.accessor !== undefined ? row[cols.accessor] : ''
+                                                            // plain YYYY-MM-DD values show in the Display Preference date format
+                                                            cols.accessor !== undefined ? (isIsoDate(row[cols.accessor]) ? formatDate(row[cols.accessor] as string) : row[cols.accessor]) : ''
                                                         )}
                                                     </div>
                                                 </td>

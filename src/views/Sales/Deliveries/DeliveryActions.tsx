@@ -1,5 +1,5 @@
 import {FileText} from "react-feather";
-import {Link} from "react-router-dom";
+import {Link} from "@/components/Access/Guarded";
 import {CustomerTransDocument} from "@/apis/models/sales-document";
 import {useSmartTranslation} from "@/hooks/use-translation";
 import {INVOICES_PATH} from "../sales-menu";

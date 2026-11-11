@@ -1,4 +1,5 @@
 import {ReactNode, useCallback, useMemo, useState} from "react";
+import {formatQuantity} from "@/utils/display-format";
 import {Badge, Col, Form, Row} from "react-bootstrap";
 import Select from "react-select";
 import type {SWRResponse} from "swr";
@@ -216,7 +217,7 @@ export default function ItemMovements() {
                     </Row>
                     {!itemId && <div className="form-text mt-2">{t('stockCardHint')}</div>}
                     {itemId && card && (
-                        <div className="form-text mt-2">{t('periodInOut', {in: formatDecimal(card.quantity_in), out: formatDecimal(card.quantity_out)})}</div>
+                        <div className="form-text mt-2">{t('periodInOut', {in: formatQuantity(card.quantity_in), out: formatQuantity(card.quantity_out)})}</div>
                     )}
                 </div>
             )}

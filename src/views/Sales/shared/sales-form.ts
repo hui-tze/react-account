@@ -58,6 +58,7 @@ export function blankOrderValues(kind: "quotation" | "order"): SalesOrderRequest
         remarks: "",
         internal_notes: "",
         delivery_address: {...EMPTY_DELIVERY_ADDRESS},
+        dimensions: [],
         source_quotation_id: null,
         lines: [{...EMPTY_LINE}],
     };
@@ -86,6 +87,7 @@ export function orderToValues(record: SalesOrderDocument): SalesOrderRequest {
         remarks: record.remarks ?? "",
         internal_notes: record.internal_notes ?? "",
         delivery_address: record.delivery_address ? {...EMPTY_DELIVERY_ADDRESS, ...record.delivery_address} : {...EMPTY_DELIVERY_ADDRESS},
+        dimensions: record.dimensions ?? [],
         source_quotation_id: record.source_quotation_id,
         lines: (record.lines ?? []).map(line => ({
             id: line.id,

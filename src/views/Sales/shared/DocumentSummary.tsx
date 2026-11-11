@@ -1,6 +1,7 @@
 import {ReactNode} from "react";
+import {formatQuantity, formatDate} from "@/utils/display-format";
 import {Col, Container, Row, Table} from "react-bootstrap";
-import {Link} from "react-router-dom";
+import {Link} from "@/components/Access/Guarded";
 import SimpleBar from "simplebar-react";
 import {CreditAllocation, CustomerTransDocument} from "@/apis/models/sales-document";
 import {FormSectionTitle} from "@/views/Settings/shared/SettingsFormPage";
@@ -72,7 +73,7 @@ export function DocumentSummary({document, currencyCode, pathOf = salesDocumentP
                                         {(document.lines ?? []).map(line => (
                                             <tr key={line.id}>
                                                 <td><div className="fw-semibold text-dark">{line.item_code}</div><div className="small text-muted">{line.description}</div></td>
-                                                <td className="text-end">{formatDecimal(line.quantity)} <span className="text-muted small">{line.item?.uom}</span></td>
+                                                <td className="text-end">{formatQuantity(line.quantity)} <span className="text-muted small">{line.item?.uom}</span></td>
                                                 <td className="text-end">{formatDecimal(line.unit_price)}</td>
                                                 {hasDiscount && <td className="text-end">{Number(line.discount_percent) > 0 ? `${formatDecimal(line.discount_percent ?? 0)}%` : "-"}</td>}
                                                 <td className="text-end fw-semibold">{formatDecimal(line.line_total)}</td>
@@ -112,7 +113,7 @@ export function DocumentSummary({document, currencyCode, pathOf = salesDocumentP
                                             return (
                                                 <tr key={a.id}>
                                                     <td>{path ? <Link to={path}>{a.reference_no}</Link> : a.reference_no}</td>
-                                                    <td>{a.date}</td>
+                                                    <td>{formatDate(a.date)}</td>
                                                     <td className="text-end">{formatDecimal(a.grand_total)}</td>
                                                     <td className="text-end fw-semibold">{formatDecimal(a.amount)}</td>
                                                 </tr>

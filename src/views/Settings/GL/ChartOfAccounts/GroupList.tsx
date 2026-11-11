@@ -1,4 +1,5 @@
 import {Button, Card, ListGroup} from "react-bootstrap";
+import {ActionButton} from "@/components/Access/Guarded";
 import {Plus} from "react-feather";
 import {AccountGroup} from "@/apis/models/account-group";
 import {Account} from "@/apis/models/account";
@@ -33,7 +34,7 @@ export default function GroupList({groups, accounts, selectedId, selectedClass, 
                     <div className="text-center text-muted small py-4 px-2">
                         <p className="mb-2">{selectedClass ? t('noGroupsInClassYet', {name: selectedClass.name}) : t('pickClassFirst')}</p>
                         {selectedClass && (
-                            <Button size="sm" variant="outline-secondary" onClick={onCreate}>{t('addFirstGroup')}</Button>
+                            <ActionButton action="create" size="sm" variant="outline-secondary" onClick={onCreate}>{t('addFirstGroup')}</ActionButton>
                         )}
                     </div>
                 )}

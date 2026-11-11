@@ -1,6 +1,7 @@
 import {authApiRequest, authFetcher, useConsoleSwr} from "@/lib/request-client/client";
 import type {SWRConfiguration, SWRResponse} from "swr";
 import {CustomerTransDocument, DocumentDeliveryAddress} from "@/apis/models/sales-document";
+import type {DimensionTag} from "@/apis/models/dimension";
 import {PaginationResponse} from "@/apis/pagination";
 import {SalesLineRequest} from "@/apis/requests/sales-order-api";
 
@@ -24,6 +25,7 @@ export type DeliveryNoteRequest = {
     // the rest of the order will not be delivered
     close_order_balance: boolean,
     delivery_address: DocumentDeliveryAddress,
+    dimensions: DimensionTag[],
     lines: DeliveryLineRequest[],
 };
 
@@ -45,6 +47,7 @@ export type DirectDeliveryRequest = {
     contact_no: string | null,
     remarks: string | null,
     delivery_address: DocumentDeliveryAddress,
+    dimensions: DimensionTag[],
     lines: SalesLineRequest[],
 };
 

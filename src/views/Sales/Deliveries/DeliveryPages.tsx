@@ -1,4 +1,7 @@
 import {useRef} from "react";
+import {ActionButton} from "@/components/Access/Guarded";
+import {formatQuantity} from "@/utils/display-format";
+import {DocRef} from "@/views/Documents/DocumentPreview";
 import {Button} from "react-bootstrap";
 import {XCircle} from "react-feather";
 import {useNavigate, useParams, useSearchParams} from "react-router-dom";
@@ -31,7 +34,7 @@ export function DeliveryNotes() {
             searchPlaceholder={t('searchSalesDocuments')}
             columns={[
                 {accessor: "trans_date", title: t('date')},
-                {accessor: "reference_no", title: t('referenceNo'), render: (row) => <span className="fw-semibold text-dark">{row.reference_no}</span>},
+                {accessor: "reference_no", title: t('referenceNo'), render: (row) => <DocRef type={row.trans_type} id={row.id} reference={row.reference_no} />},
                 {accessor: "sales_order_id", title: t('salesOrder'), render: (row) => row.sales_order?.reference_no ?? "-"},
                 {accessor: "customer_id", title: t('customer'), render: (row) => row.customer?.name ?? "-"},
                 {accessor: "inventory_location_id", title: t('deliverFrom'), render: (row) => row.inventory_location?.name ?? "-"},
@@ -104,14 +107,14 @@ export function EditDelivery() {
     const banner = (
         <DocumentBanner
             state={note.state}
-            progress={note.invoiced_qty ? t('invoicedOf', {done: formatDecimal(note.invoiced_qty), total: formatDecimal(note.delivered_qty ?? 0)}) : undefined}
+            progress={note.invoiced_qty ? t('invoicedOf', {done: formatQuantity(note.invoiced_qty), total: formatQuantity(note.delivered_qty ?? 0)}) : undefined}
             source={order ? {type: "sales_order", id: order.id, reference_no: order.reference_no} : null}
             related={note.related}
             actions={note.status === "active" ? (
                 <>
                     <DeliveryActions note={note} />
                     {note.state === "uninvoiced" && (
-                        <Button variant="outline-danger" size="sm" onClick={() => confirmAndExecute(async () => {
+                        <ActionButton variant="outline-danger" size="sm" onClick={() => confirmAndExecute(async () => {
                             try {
                                 await voidDeliveryNote(note.id, null);
                                 notify.success(t('deliveryVoided'));
@@ -121,7 +124,7 @@ export function EditDelivery() {
                             }
                         }, {text: t('voidDeliveryText', {ref: note.reference_no})})}>
                             <XCircle size={14} className="me-1" />{t('void')}
-                        </Button>
+                        </ActionButton>
                     )}
                 </>
             ) : undefined}

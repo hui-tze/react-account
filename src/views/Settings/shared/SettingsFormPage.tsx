@@ -2,7 +2,9 @@ import {FormEventHandler, ReactNode} from "react";
 import {Button, Container, Form, Spinner} from "react-bootstrap";
 import {useNavigate} from "react-router-dom";
 import SimpleBar from "simplebar-react";
+import {Lock} from "react-feather";
 import {useSmartTranslation} from "@/hooks/use-translation";
+import {useAccess} from "@/providers/access";
 
 export type SettingsFormPageProps = {
     onSubmit: FormEventHandler<HTMLFormElement>,
@@ -29,11 +31,16 @@ export type SettingsFormPageProps = {
 export default function SettingsFormPage({onSubmit, submitting, isEditing, backTo, onDelete, submitLabel, deleteLabel, readOnly, stickyActions, actionsSummary, documentLayout, children}: SettingsFormPageProps) {
     const {t} = useSmartTranslation();
     const navigate = useNavigate();
+    const {canHere} = useAccess();
+    // the user's role decides whether this record can be saved / deleted here
+    const allowed = canHere(isEditing ? "edit" : "create");
+    const locked = !allowed && !readOnly;
+    const canDelete = !!onDelete && canHere("delete");
 
     // delete on the left, away from cancel / save on the right
     const actions = (
         <>
-            {onDelete && (
+            {canDelete && (
                 <Button variant="outline-danger" type="button" onClick={onDelete}>{deleteLabel ?? t('delete')}</Button>
             )}
             {actionsSummary && <div className="form-sticky-actions-summary">{actionsSummary}</div>}
@@ -41,7 +48,7 @@ export default function SettingsFormPage({onSubmit, submitting, isEditing, backT
                 {backTo && (
                     <Button variant="outline-secondary" type="button" onClick={() => navigate(backTo)}>{t('cancel')}</Button>
                 )}
-                {!readOnly && (
+                {!readOnly && allowed && (
                     <Button type="submit" variant="primary" disabled={submitting}>
                         <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className={submitting ? "me-2" : "d-none"} />
                         {submitLabel ?? (isEditing ? t('saveChanges') : t('create'))}
@@ -56,7 +63,13 @@ export default function SettingsFormPage({onSubmit, submitting, isEditing, backT
             <SimpleBar className="nicescroll-bar">
                 <Container fluid className={documentLayout ? "py-3 doc-entry-page" : "py-3"}>
                     <Form noValidate onSubmit={onSubmit}>
-                        {documentLayout ? <div className="doc-entry">{children}</div> : children}
+                        {locked && (
+                            <div className="access-view-only"><Lock size={14} />{t(isEditing ? 'viewOnlyCannotEdit' : 'viewOnlyCannotCreate')}</div>
+                        )}
+                        {/* without permission the fields are shown but can't be changed */}
+                        <fieldset disabled={locked} className="access-fieldset">
+                            {documentLayout ? <div className="doc-entry">{children}</div> : children}
+                        </fieldset>
 
                         {stickyActions ? (
                             <div className="form-sticky-actions">

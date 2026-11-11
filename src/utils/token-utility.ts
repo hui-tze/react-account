@@ -25,6 +25,11 @@ export function loadUser(): LoggedInUser | null {
     return null;
 }
 
+export function removeUser() {
+    localStorage.removeItem(`${AuthTokenName}-user`);
+    localStorage.removeItem(`${AuthTokenName}-permissions`);
+}
+
 export function savePermissions(permissions: string[]) {
     localStorage.setItem(`${AuthTokenName}-permissions`, JSON.stringify(permissions));
 }

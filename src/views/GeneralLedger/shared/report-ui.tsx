@@ -1,7 +1,7 @@
 import {Fragment, ReactNode, useState} from "react";
 import {Badge, Button, ButtonGroup, Card, Form, Table} from "react-bootstrap";
 import {ChevronDown, ChevronRight, Printer} from "react-feather";
-import {Link} from "react-router-dom";
+import {Link} from "@/components/Access/Guarded";
 import SimpleBar from "simplebar-react";
 import moment from "moment";
 import type {LedgerTreeAccount, LedgerTreeClass, LedgerTreeGroup} from "@/apis/models/ledger";

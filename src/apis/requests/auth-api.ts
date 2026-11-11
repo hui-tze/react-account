@@ -1,4 +1,4 @@
-import type {SuccessfulLoginResponse} from "@/apis/models/auth";
+import type {AccountUser, SuccessfulLoginResponse} from "@/apis/models/auth";
 import {authApiRequest, authFetcher, useConsoleSwr} from "@/lib/request-client/client";
 import {DeviceBind, UpdatePasswordRequest, UploadAvatarRequest, UserInfo, DepartmentInfo, SystemPrefRequest} from "../models/user";
 import {PaginationResponse} from "../pagination";
@@ -39,14 +39,20 @@ export function setMyPreferredLanguage(data: SystemPrefRequest) {
     return authApiRequest(`/me/set-preferred-lang`).add(data).put();
 }
 
-export function attemptLogin(code: string, email: string, password: string): Promise<SuccessfulLoginResponse> {
+export function attemptLogin(email: string, password: string): Promise<SuccessfulLoginResponse> {
     return authApiRequest(`/sign-in`)
         .add({
-            code,
             email,
             password,
         })
         .post();
+}
+
+/** The signed-in user (top bar). */
+export function useGetCurrentUser() {
+    return useConsoleSwr<AccountUser>(`/user`, authFetcher, {
+        revalidateOnFocus: false
+    });
 }
 
 export function logout() {

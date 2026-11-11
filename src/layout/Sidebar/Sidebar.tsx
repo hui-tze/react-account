@@ -11,6 +11,7 @@ import classNames from 'classnames';
 import {toggleCollapsedNav} from '../../redux/action/Theme';
 import SidebarHeader from './SidebarHeader';
 import {SidebarMenu} from './SidebarMenu';
+import {useAccess} from '@/providers/access';
 import {useSmartTranslation} from '@/hooks/use-translation';
 import {translateMenu} from '@/i18n/menu';
 
@@ -55,6 +56,7 @@ const Sidebar: React.FC<PropsFromRedux> = ({
     toggleCollapsedNav,
 }) => {
     const {t} = useSmartTranslation();
+    const {canArea} = useAccess();
     const [activeMenu, setActiveMenu] = useState<string | undefined>();
     const [activeSubMenu, setActiveSubMenu] = useState<string | undefined>();
 
@@ -103,7 +105,11 @@ const Sidebar: React.FC<PropsFromRedux> = ({
                 {/* Main Menu */}
                 <SimpleBar className="nicescroll-bar">
                     <div className="menu-content-wrap">
-                        {(SidebarMenu as MenuGroup[]).map((routes, index) => (
+                        {(SidebarMenu as MenuGroup[])
+                            // only areas the user's role can open
+                            .map((group) => ({...group, contents: group.contents.filter((item) => canArea(item.path ?? ''))}))
+                            .filter((group) => group.contents.length > 0)
+                            .map((routes, index) => (
                             <React.Fragment key={index}>
                                 <div className="menu-group">
                                     {routes.group && (
@@ -237,8 +243,7 @@ const Sidebar: React.FC<PropsFromRedux> = ({
                                                                                 className="nav-item"
                                                                                 key={indx}
                                                                             >
-                                                                                <Nav.Link
-                                                                                    as={NavLink}
+                                                                                <NavLink
                                                                                     to={subMenu.path}
                                                                                     onClick={() =>
                                                                                         handleClick(
@@ -257,7 +262,7 @@ const Sidebar: React.FC<PropsFromRedux> = ({
                                                                                     <span className="nav-link-text">
                                                                                         {translateMenu(t, subMenu.name)}
                                                                                     </span>
-                                                                                </Nav.Link>
+                                                                                </NavLink>
                                                                             </li>
                                                                         )
                                                                     )}
@@ -287,8 +292,7 @@ const Sidebar: React.FC<PropsFromRedux> = ({
                                                                 {menus.badge && menus.badge}
                                                             </a>
                                                         ) : (
-                                                            <Nav.Link
-                                                                as={NavLink}
+                                                            <NavLink
                                                                 to={menus.path}
                                                                 end={menus.exact}
                                                                 onClick={() =>
@@ -316,7 +320,7 @@ const Sidebar: React.FC<PropsFromRedux> = ({
                                                                 </span>
 
                                                                 {menus.badge && menus.badge}
-                                                            </Nav.Link>
+                                                            </NavLink>
                                                         )}
                                                     </>
                                                 )}
@@ -329,7 +333,7 @@ const Sidebar: React.FC<PropsFromRedux> = ({
                             </React.Fragment>
                         ))}
 
-                        <Card
+                       {/*  <Card
                             bg="orange-light-5"
                             className="callout card-flush text-center w-220p mx-auto"
                         >
@@ -352,7 +356,7 @@ const Sidebar: React.FC<PropsFromRedux> = ({
                                     Go Nubra-UI
                                 </Button>
                             </Card.Body>
-                        </Card>
+                        </Card> */}
                     </div>
                 </SimpleBar>
                 {/* /Main Menu */}

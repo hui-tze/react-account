@@ -1,13 +1,14 @@
 import {useRef} from "react";
+import {formatQuantity} from "@/utils/display-format";
 import {Button} from "react-bootstrap";
 import {ArrowRightCircle, Slash, Truck, XCircle} from "react-feather";
-import {Link, useNavigate, useParams, useSearchParams} from "react-router-dom";
+import {useNavigate, useParams, useSearchParams} from "react-router-dom";
+import {ActionButton, Link} from "@/components/Access/Guarded";
 import {SalesOrderDocument} from "@/apis/models/sales-document";
 import {orderApi, quotationApi, SalesOrderRequest} from "@/apis/requests/sales-order-api";
 import {ConditionalError} from "@/components/Display/ErrorBoundary";
 import {useConfirmAction} from "@/hooks/use-confirmation-action";
 import {useNotification} from "@/hooks/notification";
-import {formatDecimal} from "@/views/Inventory/shared/options";
 import {useSmartTranslation} from "@/hooks/use-translation";
 import {DELIVERIES_PATH, ORDERS_PATH, QUOTATIONS_PATH} from "../sales-menu";
 import {DocumentBanner} from "../shared/DocumentBanner";
@@ -79,7 +80,7 @@ function EditPage({kind}: {kind: SalesOrderKind}) {
 
     const live = record.status === "active";
     const progress = record.ordered_qty > 0 && record.progress_qty > 0
-        ? t(kind === "quotation" ? 'orderedOf' : 'deliveredOf', {done: formatDecimal(record.progress_qty), total: formatDecimal(record.ordered_qty)})
+        ? t(kind === "quotation" ? 'orderedOf' : 'deliveredOf', {done: formatQuantity(record.progress_qty), total: formatQuantity(record.ordered_qty)})
         : undefined;
 
     const actions = <OrderActions kind={kind} record={record} run={run} />;
@@ -125,9 +126,9 @@ function OrderActions({kind, record, run}: OrderActionsProps) {
                         <ArrowRightCircle size={14} className="me-1" />{t('convertToSalesOrder')}
                     </Link>
                 )}
-                <Button variant="outline-danger" size="sm" onClick={() => run(() => quotationApi.cancel(record.id), t('cancelQuotationText', {ref: record.reference_no}), t('quotationCancelled'))}>
+                <ActionButton variant="outline-danger" size="sm" onClick={() => run(() => quotationApi.cancel(record.id), t('cancelQuotationText', {ref: record.reference_no}), t('quotationCancelled'))}>
                     <XCircle size={14} className="me-1" />{t('cancelQuotation')}
-                </Button>
+                </ActionButton>
             </>
         );
     }
@@ -142,14 +143,14 @@ function OrderActions({kind, record, run}: OrderActionsProps) {
                 </Link>
             )}
             {delivered && outstanding && (
-                <Button variant="outline-secondary" size="sm" onClick={() => run(() => orderApi.close(record.id), t('closeOrderText', {ref: record.reference_no}), t('orderClosed'))}>
+                <ActionButton action="edit" variant="outline-secondary" size="sm" onClick={() => run(() => orderApi.close(record.id), t('closeOrderText', {ref: record.reference_no}), t('orderClosed'))}>
                     <Slash size={14} className="me-1" />{t('closeOrder')}
-                </Button>
+                </ActionButton>
             )}
             {!delivered && (
-                <Button variant="outline-danger" size="sm" onClick={() => run(() => orderApi.cancel(record.id), t('cancelOrderText', {ref: record.reference_no}), t('orderCancelled'))}>
+                <ActionButton variant="outline-danger" size="sm" onClick={() => run(() => orderApi.cancel(record.id), t('cancelOrderText', {ref: record.reference_no}), t('orderCancelled'))}>
                     <XCircle size={14} className="me-1" />{t('cancelOrder')}
-                </Button>
+                </ActionButton>
             )}
         </>
     );

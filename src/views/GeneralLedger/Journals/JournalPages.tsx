@@ -1,7 +1,9 @@
 import {useCallback, useRef, useState} from "react";
+import {DocRef} from "@/views/Documents/DocumentPreview";
 import {Badge, Button, Col, Form, Row, Table} from "react-bootstrap";
 import {Plus, Trash2, XCircle} from "react-feather";
-import {Link, useNavigate, useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
+import {ActionButton, Link} from "@/components/Access/Guarded";
 import {Controller, useFieldArray, useFormState, useWatch} from "react-hook-form";
 import Swal from "sweetalert2";
 import type {Journal} from "@/apis/models/ledger";
@@ -20,6 +22,10 @@ import {applyServerErrors} from "@/views/Inventory/shared/document";
 import {blankToNull} from "@/views/Settings/Organization/Profile/profile-form";
 import {accountLedgerPath, GL_JOURNALS_PATH} from "../gl-menu";
 import {money, today} from "../shared/report-ui";
+import type {DimensionTag} from "@/apis/models/dimension";
+import {
+    applyDimensionDefaults, DimensionHeaderCells, DimensionLineCells, DimensionTagsText, useActiveDimensions,
+} from "@/views/Dimensions/shared/DimensionFields";
 
 const Loading = () => <div className="loader-pendulums mt-10" />;
 
@@ -72,7 +78,7 @@ export function Journals() {
                 </Row>
             )}
             columns={[
-                {accessor: "reference_no", title: t('referenceNo'), render: (row) => <span className="fw-semibold text-dark">{row.reference_no}</span>},
+                {accessor: "reference_no", title: t('referenceNo'), render: (row) => <DocRef type="journal_entry" id={row.id} reference={row.reference_no} />},
                 {accessor: "journal_date", title: t('date'), render: (row) => row.journal_date?.slice(0, 10)},
                 {accessor: "remarks", title: t('description'), render: (row) => (
                     <>
@@ -87,10 +93,10 @@ export function Journals() {
     );
 }
 
-type LineValues = {account_id: number | null, memo: string, debit: number | null, credit: number | null};
+type LineValues = {account_id: number | null, memo: string, debit: number | null, credit: number | null, dimensions: DimensionTag[]};
 type JournalValues = Omit<JournalRequest, "lines"> & {lines: LineValues[]};
 
-const EMPTY_LINE: LineValues = {account_id: null, memo: "", debit: null, credit: null};
+const EMPTY_LINE: LineValues = {account_id: null, memo: "", debit: null, credit: null, dimensions: []};
 
 /** Manual journal: balanced debit and credit lines posted straight to the ledger. */
 export function CreateJournal() {
@@ -98,10 +104,11 @@ export function CreateJournal() {
     const navigate = useNavigate();
     const accounts = useAccountOptions();
     const createdId = useRef<number | null>(null);
+    const {dimensions} = useActiveDimensions();
 
-    const {control, setError, setValue, submitting, handleSubmitRequest} = useRequestForm<JournalValues>({
+    const {control, setError, setValue, getValues, submitting, handleSubmitRequest} = useRequestForm<JournalValues>({
         formOptions: {
-            defaultValues: {reference_no: "", journal_date: today(), source_reference: "", remarks: "", lines: [{...EMPTY_LINE}, {...EMPTY_LINE}]},
+            defaultValues: {reference_no: "", journal_date: today(), source_reference: "", remarks: "", lines: [{...EMPTY_LINE, dimensions: []}, {...EMPTY_LINE, dimensions: []}]},
         },
     });
     const {fields, append, remove} = useFieldArray({control, name: "lines", keyName: "fieldKey"});
@@ -122,7 +129,7 @@ export function CreateJournal() {
                 remarks: blankToNull(values.remarks),
                 lines: values.lines
                     .filter(l => l.account_id && ((Number(l.debit) || 0) > 0 || (Number(l.credit) || 0) > 0))
-                    .map(l => ({account_id: l.account_id, memo: blankToNull(l.memo), debit: Number(l.debit) || 0, credit: Number(l.credit) || 0})),
+                    .map(l => ({account_id: l.account_id, memo: blankToNull(l.memo), debit: Number(l.debit) || 0, credit: Number(l.credit) || 0, dimensions: l.dimensions ?? []})),
             });
             createdId.current = saved.id;
         } catch (e) {
@@ -175,6 +182,7 @@ export function CreateJournal() {
                             <tr>
                                 <th style={{minWidth: 260}}>{t('account')}</th>
                                 <th>{t('memo')}</th>
+                                <DimensionHeaderCells />
                                 <th style={{width: 160}} className="text-end">{t('debit')}</th>
                                 <th style={{width: 160}} className="text-end">{t('credit')}</th>
                                 <th style={{width: 48}} />
@@ -190,7 +198,12 @@ export function CreateJournal() {
                                             render={({field: f, fieldState}) => (
                                                 <>
                                                     <Form.Select value={f.value ?? ""} isInvalid={!!fieldState.error}
-                                                        onChange={(e) => f.onChange(e.target.value ? Number(e.target.value) : null)}>
+                                                        onChange={(e) => {
+                                                            const accountId = e.target.value ? Number(e.target.value) : null;
+                                                            f.onChange(accountId);
+                                                            // the account's default dimension values
+                                                            void applyDimensionDefaults(getValues, setValue, [["account", accountId]], `lines.${index}.dimensions`);
+                                                        }}>
                                                         <option value="">{t('pleaseSelect')}</option>
                                                         {accounts.options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                                                     </Form.Select>
@@ -203,6 +216,7 @@ export function CreateJournal() {
                                         <Controller control={control} name={`lines.${index}.memo`}
                                             render={({field: f}) => <Form.Control value={f.value ?? ""} onChange={f.onChange} maxLength={255} />} />
                                     </td>
+                                    <DimensionLineCells control={control} name={`lines.${index}.dimensions`} skipCheck={!lines?.[index]?.account_id} />
                                     <td>{amountField(index, "debit")}</td>
                                     <td>{amountField(index, "credit")}</td>
                                     <td className="text-end">
@@ -216,8 +230,8 @@ export function CreateJournal() {
                         </tbody>
                         <tfoot>
                             <tr className="fw-semibold">
-                                <td colSpan={2}>
-                                    <Button variant="link" size="sm" className="p-0" onClick={() => append({...EMPTY_LINE})}>
+                                <td colSpan={2 + dimensions.length}>
+                                    <Button variant="link" size="sm" className="p-0" onClick={() => append({...EMPTY_LINE, dimensions: []})}>
                                         <Plus size={14} className="me-1" />{t('addLine')}
                                     </Button>
                                 </td>
@@ -227,7 +241,7 @@ export function CreateJournal() {
                             </tr>
                             {difference !== 0 && (
                                 <tr>
-                                    <td colSpan={5} className="text-end text-danger small">
+                                    <td colSpan={5 + dimensions.length} className="text-end text-danger small">
                                         {t('glDifference', {amount: money(Math.abs(difference), false), side: difference > 0 ? t('credit') : t('debit')})}
                                     </td>
                                 </tr>
@@ -290,7 +304,7 @@ export function ViewJournal() {
                     <div className="ms-auto d-flex gap-2">
                         <Link to={GL_JOURNALS_PATH} className="btn btn-sm btn-outline-secondary">{t('back')}</Link>
                         {journal.status !== "Voided" && (
-                            <Button variant="outline-danger" size="sm" onClick={voidJournal}><XCircle size={14} className="me-1" />{t('void')}</Button>
+                            <ActionButton variant="outline-danger" size="sm" onClick={voidJournal}><XCircle size={14} className="me-1" />{t('void')}</ActionButton>
                         )}
                     </div>
                 </div>
@@ -323,7 +337,10 @@ export function ViewJournal() {
                                                 <span className="text-muted small me-2">{line.account_code}</span>{line.account_name}
                                             </Link>
                                         </td>
-                                        <td className="text-muted">{line.memo}</td>
+                                        <td className="text-muted">
+                                            {line.memo}
+                                            {!!line.dimensions?.length && <div className="small"><DimensionTagsText tags={line.dimensions} /></div>}
+                                        </td>
                                         <td className="text-end">{money(line.debit)}</td>
                                         <td className="text-end">{money(line.credit)}</td>
                                     </tr>

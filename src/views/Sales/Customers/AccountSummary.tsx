@@ -1,6 +1,6 @@
 import {Card, Col, Row} from "react-bootstrap";
 import {CreditCard, FileText} from "react-feather";
-import {Link} from "react-router-dom";
+import {Link} from "@/components/Access/Guarded";
 import {Customer} from "@/apis/models/customer";
 import {useGetCustomerOpenItems} from "@/apis/requests/sales-billing-api";
 import {formatDecimal} from "@/views/Inventory/shared/options";

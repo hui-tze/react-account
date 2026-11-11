@@ -1,5 +1,7 @@
 // Banking module (laravel-account /panel/banking). Bank amounts are in each bank account's currency.
 
+import type {DimensionTag} from "@/apis/models/dimension";
+
 export type BankDocumentType = "bank_payment" | "bank_deposit" | "funds_transfer";
 
 /** A bank account with its book and reconciled balances. */
@@ -56,6 +58,7 @@ export type BankDocumentLine = {
     account_name: string | null,
     memo: string | null,
     amount: number,
+    dimensions?: DimensionTag[],
 };
 
 export type BankDocument = {
@@ -88,6 +91,8 @@ export type BankDocumentDetail = BankDocument & {
     to_bank_currency: string | null,
     reconciled: boolean,
     void_reason: string | null,
+    // funds transfers (payment / deposit values are per line)
+    dimensions?: DimensionTag[],
 };
 
 export type ReconciliationItem = {

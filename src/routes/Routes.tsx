@@ -8,6 +8,7 @@ import ModuleLayout from "@/layout/Module/ModuleLayout";
 // Views
 
 import Dashboard from "@/views/Dashboard";
+import SearchPage from "@/views/Search/SearchPage";
 import Nav from "./Nav";
 import SettingsHome from "@/views/Settings";
 import CreateLink from "@/views/Settings/shared/CreateLink";
@@ -118,8 +119,10 @@ import {CreateQuotation, CreateSalesOrder, EditQuotation, EditSalesOrder} from "
 import {CreateDelivery, DeliveryNotes, EditDelivery} from "@/views/Sales/Deliveries/DeliveryPages";
 import {CreateInvoice, EditInvoice, Invoices} from "@/views/Sales/Invoices/InvoicePages";
 import {CreateCreditNote, CreditNotes, ViewCreditNote} from "@/views/Sales/CreditNotes/CreditNotePages";
+import {CreatePosCreditNote, CreatePosReceipt, PosCreditNotes, PosReceipts, ViewPosCreditNote, ViewPosReceipt} from "@/views/Sales/Pos/PosPages";
+import {ConsolidationPage} from "@/views/Einvoice/Consolidation/ConsolidationPage";
 import {CreatePayment, EditPayment, Payments} from "@/views/Sales/Payments/PaymentPages";
-import {CREDIT_NOTES_PATH, CUSTOMERS_PATH, DELIVERIES_PATH, INVOICES_PATH, ORDERS_PATH, PAYMENTS_PATH, QUOTATIONS_PATH} from "@/views/Sales/sales-menu";
+import {CREDIT_NOTES_PATH, CUSTOMERS_PATH, DELIVERIES_PATH, INVOICES_PATH, ORDERS_PATH, PAYMENTS_PATH, POS_RECEIPTS_PATH, QUOTATIONS_PATH} from "@/views/Sales/sales-menu";
 
 // Purchases
 import {CreateSupplier, EditSupplier, Suppliers} from "@/views/Purchases/Suppliers/SupplierPages";
@@ -144,6 +147,13 @@ import {CreateJournal, Journals, ViewJournal} from "@/views/GeneralLedger/Journa
 import {TaxReport} from "@/views/GeneralLedger/Taxes/TaxReport";
 import {BalanceSheet, GlChartOfAccounts, ProfitAndLoss, TrialBalance} from "@/views/GeneralLedger/Reports/ReportPages";
 import {GL_JOURNALS_PATH} from "@/views/GeneralLedger/gl-menu";
+import {DimensionDetail, DimensionList} from "@/views/Dimensions/Dimensions/DimensionPages";
+import {DefaultsPage} from "@/views/Dimensions/Defaults/DefaultsPage";
+import {BudgetList, CreateBudget, EditBudget} from "@/views/Dimensions/Budgets/BudgetPages";
+import {BudgetVsActual, DimensionProfitLoss} from "@/views/Dimensions/Reports/DimensionReports";
+import {BUDGETS_PATH} from "@/views/Dimensions/dimensions-menu";
+import {CreateRole, EditRole, Roles} from "@/views/Settings/Organization/Access/RolePages";
+import {Users} from "@/views/Settings/Organization/Access/UsersPage";
 
 // E-Invoice (LHDN MyInvois)
 import EinvoiceSettings from "@/views/Settings/Organization/Einvoice";
@@ -181,6 +191,7 @@ export const mainRouter = createBrowserRouter(
     createRoutesFromElements(
         <Route path="/" element={<Nav />} handle={{hide: true}} >
             <Route index path="/dashboard" element={<Dashboard />} handle={{title: "dashboard", hide: false, canNavigate: true}} />
+            <Route path="/search" element={<SearchPage />} handle={{title: "Search", canNavigate: false}} />
 
             <Route path="/sales" element={<ModuleLayout />} handle={{title: "Sales", module: "sales", canNavigate: true}} >
                 <Route index element={<Navigate to="quotations" replace />} />
@@ -193,6 +204,16 @@ export const mainRouter = createBrowserRouter(
                     <Route index element={<CreditNotes />} handle={{hide: true, headerOptions: <CreateLink to={`${CREDIT_NOTES_PATH}/create`} labelKey="newCreditNote" />}} />
                     <Route path="create" element={<CreateCreditNote />} handle={{title: "Create", canNavigate: false}} />
                     <Route path=":id" element={<ViewCreditNote />} handle={{title: "View", canNavigate: false}} />
+                </Route>
+                <Route path="pos-receipts" handle={{title: "POS Receipts", canNavigate: true}}>
+                    <Route index element={<PosReceipts />} handle={{hide: true, headerOptions: <CreateLink to={`${POS_RECEIPTS_PATH}/create`} labelKey="posNewReceipt" />}} />
+                    <Route path="create" element={<CreatePosReceipt />} handle={{title: "Create", canNavigate: false}} />
+                    <Route path=":id" element={<ViewPosReceipt />} handle={{title: "View", canNavigate: false}} />
+                </Route>
+                <Route path="pos-credit-notes" handle={{title: "POS Credit Notes", canNavigate: true}}>
+                    <Route index element={<PosCreditNotes />} handle={{hide: true}} />
+                    <Route path="create" element={<CreatePosCreditNote />} handle={{title: "Create", canNavigate: false}} />
+                    <Route path=":id" element={<ViewPosCreditNote />} handle={{title: "View", canNavigate: false}} />
                 </Route>
                 {crudRoutes({path: "payments", basePath: PAYMENTS_PATH, title: "Customer Payments", newLabelKey: "newPayment", List: Payments, Create: CreatePayment, Edit: EditPayment})}
                 <Route path="customers" handle={{title: "Customers", canNavigate: true}}>
@@ -258,6 +279,22 @@ export const mainRouter = createBrowserRouter(
                 <Route path="trial-balance" element={<TrialBalance />} handle={{title: "Trial Balance", canNavigate: true}} />
             </Route>
 
+            <Route path="/dimensions" element={<ModuleLayout />} handle={{title: "Budgeting & Cost Centres", module: "dimensions", canNavigate: true}} >
+                <Route index element={<Navigate to="list" replace />} />
+                <Route path="list" handle={{title: "All Dimensions", canNavigate: true}}>
+                    <Route index element={<DimensionList />} handle={{hide: true}} />
+                    <Route path=":id" element={<DimensionDetail />} handle={{title: "Values", canNavigate: false}} />
+                </Route>
+                <Route path="defaults" element={<DefaultsPage />} handle={{title: "Default Values", canNavigate: true}} />
+                <Route path="budgets" handle={{title: "Budgets", canNavigate: true}}>
+                    <Route index element={<BudgetList />} handle={{hide: true, headerOptions: <CreateLink to={`${BUDGETS_PATH}/create`} labelKey="newBudget" />}} />
+                    <Route path="create" element={<CreateBudget />} handle={{title: "Create", canNavigate: false}} />
+                    <Route path=":id" element={<EditBudget />} handle={{title: "Edit", canNavigate: false}} />
+                </Route>
+                <Route path="budget-vs-actual" element={<BudgetVsActual />} handle={{title: "Budget vs Actual", canNavigate: true}} />
+                <Route path="profit-loss" element={<DimensionProfitLoss />} handle={{title: "Profit & Loss by Dimension", canNavigate: true}} />
+            </Route>
+
             <Route path="/einvoice" element={<ModuleLayout />} handle={{title: "E-Invoice", module: "einvoice", canNavigate: true}} >
                 <Route index element={<Navigate to="documents" replace />} />
                 <Route path="documents" handle={{title: "Submitted Documents", canNavigate: true}}>
@@ -265,6 +302,7 @@ export const mainRouter = createBrowserRouter(
                     <Route path=":id" element={<ViewEinvoiceDocument />} handle={{title: "View", canNavigate: false}} />
                 </Route>
                 <Route path="outstanding" element={<OutstandingEinvoices />} handle={{title: "Not Yet Submitted", canNavigate: true}} />
+                <Route path="consolidation" element={<ConsolidationPage />} handle={{title: "Consolidated (POS)", canNavigate: true}} />
             </Route>
 
             <Route path="/inventory" element={<ModuleLayout />} handle={{title: "Item & Inventory", module: "inventory", canNavigate: true}} >
@@ -294,6 +332,12 @@ export const mainRouter = createBrowserRouter(
                     <Route path="display-preference" element={<DisplayPreference />} handle={{title: "Display Preference", canNavigate: true}} />
                     <Route path="system-setup" element={<SystemSetup />} handle={{title: "System Setup", canNavigate: true}} />
                     <Route path="einvoice" element={<EinvoiceSettings />} handle={{title: "E-Invoice (MyInvois)", canNavigate: true}} />
+                    <Route path="users" element={<Users />} handle={{title: "Users", canNavigate: true}} />
+                    <Route path="roles" handle={{title: "Roles & Access", canNavigate: true}}>
+                        <Route index element={<Roles />} handle={{hide: true}} />
+                        <Route path="create" element={<CreateRole />} handle={{title: "Create", canNavigate: false}} />
+                        <Route path=":id" element={<EditRole />} handle={{title: "Edit", canNavigate: false}} />
+                    </Route>
                     {crudRoutes({path: "document-numbering", basePath: "/settings/organization/document-numbering", title: "Document No", newLabelKey: "newDocumentNumbering", List: DocumentNumberings, Create: CreateDocumentNumbering, Edit: EditDocumentNumbering})}
                 </Route>
 

@@ -13,19 +13,22 @@ type CustomerPickerProps<T extends FieldValues> = {
     customers: Customer[],
     label: string,
     disabled?: boolean,
+    // may be left blank (e.g. a walk-in POS sale)
+    optional?: boolean,
+    placeholder?: string,
     // runs only on a user's pick, never on load — the place to apply the customer's defaults
     onPicked?: (customer: Customer | undefined) => void,
 };
 
 /** Searchable customer select (name, short name); inactive customers only when already chosen. */
-export function CustomerPicker<T extends FieldValues>({control, name, customers, label, disabled, onPicked}: CustomerPickerProps<T>) {
+export function CustomerPicker<T extends FieldValues>({control, name, customers, label, disabled, optional, placeholder, onPicked}: CustomerPickerProps<T>) {
     const {t} = useSmartTranslation();
 
     return (
         <Controller
             control={control}
             name={name}
-            rules={{required: '*' + t('required')}}
+            rules={optional ? undefined : {required: '*' + t('required')}}
             render={({field, fieldState}) => {
                 const options: CustomerOption[] = customers
                     .filter(c => c.status === "active" || c.id === field.value)
@@ -33,7 +36,7 @@ export function CustomerPicker<T extends FieldValues>({control, name, customers,
 
                 return (
                     <Form.Group className="mb-3">
-                        <Form.Label htmlFor={field.name} className="require-label">{label}</Form.Label>
+                        <Form.Label htmlFor={field.name} className={optional ? undefined : "require-label"}>{label}</Form.Label>
                         <Select<CustomerOption, false>
                             inputId={field.name}
                             options={options}
@@ -44,7 +47,8 @@ export function CustomerPicker<T extends FieldValues>({control, name, customers,
                             }}
                             onBlur={field.onBlur}
                             isDisabled={disabled}
-                            placeholder={t('searchCustomers')}
+                            isClearable={optional}
+                            placeholder={placeholder ?? t('searchCustomers')}
                             noOptionsMessage={() => t('noCustomers')}
                             styles={reactSelectCustomStyles as StylesConfig<CustomerOption, false>}
                             classNamePrefix="select"

@@ -3,6 +3,8 @@ import {useRequestForm} from "@/hooks/use-request-handler";
 import {PosSetting} from "@/apis/models/pos-setting";
 import {PosSettingRequest} from "@/apis/requests/pos-setting-api";
 import {useGetInventoryLocationOptions} from "@/apis/requests/inventory-location-api";
+import {useGetTaxGroupOptions} from "@/apis/requests/tax-group-api";
+import {useGetSalesTypeOptions} from "@/apis/requests/sales-type-api";
 import {SelectField, StatusField, SwitchField, TextField} from "@/components/FormField/FormFields";
 import SettingsFormPage from "@/views/Settings/shared/SettingsFormPage";
 import {RecordFormProps} from "@/views/Settings/shared/SettingsEditPage";
@@ -14,6 +16,10 @@ export function PosSettingForm({record, onSubmit, onSuccess, onDelete}: RecordFo
     const {t} = useSmartTranslation();
     const {options: accountOptions} = useAccountOptions();
     const {data: locations} = useGetInventoryLocationOptions();
+    const {data: taxGroups} = useGetTaxGroupOptions();
+    const {data: salesTypes} = useGetSalesTypeOptions();
+    const taxGroupOptions = (taxGroups ?? []).filter(g => g.status === "active" || g.id === record?.tax_group_id).map(g => ({value: g.id, label: g.name}));
+    const salesTypeOptions = (salesTypes ?? []).filter(s => s.status === "active" || s.id === record?.sales_type_id).map(s => ({value: s.id, label: s.name}));
 
     // keep the saved (possibly inactive) location selectable
     const locationOptions = (locations ?? [])
@@ -26,6 +32,8 @@ export function PosSettingForm({record, onSubmit, onSuccess, onDelete}: RecordFo
                 name: record?.name ?? "",
                 account_id: record?.account_id,
                 location_id: record?.location_id,
+                tax_group_id: record?.tax_group_id ?? null,
+                sales_type_id: record?.sales_type_id ?? null,
                 allow_credit_sale_terms: record?.allow_credit_sale_terms ?? false,
                 allow_cash_sale_terms: record?.allow_cash_sale_terms ?? false,
                 status: record?.status ?? "active",
@@ -53,6 +61,12 @@ export function PosSettingForm({record, onSubmit, onSuccess, onDelete}: RecordFo
                 </Col>
                 <Col md={6}>
                     <SelectField control={control} name="location_id" label={t('inventoryLocation')} options={locationOptions} numeric required placeholder="" />
+                </Col>
+                <Col md={6}>
+                    <SelectField control={control} name="tax_group_id" label={t('posTaxGroup')} options={taxGroupOptions} numeric placeholder="" hint={t('posTaxGroupHint')} />
+                </Col>
+                <Col md={6}>
+                    <SelectField control={control} name="sales_type_id" label={t('posPriceList')} options={salesTypeOptions} numeric placeholder="" hint={t('posPriceListHint')} />
                 </Col>
                 <Col md={6}>
                     <SwitchField control={control} name="allow_credit_sale_terms" label={t('allowCreditSaleTerms')} />

@@ -1,4 +1,6 @@
 import {useRef} from "react";
+import {ActionButton} from "@/components/Access/Guarded";
+import {DocRef} from "@/views/Documents/DocumentPreview";
 import {Button} from "react-bootstrap";
 import {XCircle} from "react-feather";
 import {useNavigate, useParams, useSearchParams} from "react-router-dom";
@@ -26,7 +28,7 @@ export function SupplierPayments() {
             partyFilter={useSupplierFilter()}
             columns={[
                 {accessor: "trans_date", title: t('date')},
-                {accessor: "reference_no", title: t('paymentVoucherNo'), render: (row) => <span className="fw-semibold text-dark">{row.reference_no}</span>},
+                {accessor: "reference_no", title: t('paymentVoucherNo'), render: (row) => <DocRef type={row.trans_type} id={row.id} reference={row.reference_no} />},
                 {accessor: "supplier_id", title: t('supplier'), render: (row) => row.supplier?.name ?? "-"},
                 {accessor: "bank_account_id", title: t('payFrom'), render: (row) => row.bank_account?.account_name ?? "-"},
                 {accessor: "supplier_invoice_no", title: t('chequeOrTransferRef'), render: (row) => row.supplier_invoice_no || "-"},
@@ -97,9 +99,9 @@ export function EditSupplierPayment() {
                     related={(payment.allocations ?? []).map(a => ({type: a.type, id: a.id, reference_no: a.reference_no, date: a.date, status: a.status, amount: a.amount}))}
                     pathOf={purchaseDocumentPath}
                     actions={payment.status === "active" ? (
-                        <Button variant="outline-danger" size="sm" onClick={() => run(() => supplierPaymentApi.void(payment.id, null), t('voidPaymentText', {ref: payment.reference_no}), t('paymentVoided'))}>
+                        <ActionButton variant="outline-danger" size="sm" onClick={() => run(() => supplierPaymentApi.void(payment.id, null), t('voidPaymentText', {ref: payment.reference_no}), t('paymentVoided'))}>
                             <XCircle size={14} className="me-1" />{t('void')}
-                        </Button>
+                        </ActionButton>
                     ) : undefined}
                 />
             )}

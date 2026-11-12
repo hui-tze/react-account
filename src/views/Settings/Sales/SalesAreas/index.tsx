@@ -4,7 +4,7 @@ import SettingsListPage from "@/views/Settings/shared/SettingsListPage";
 import {StatusBadge} from "@/views/Settings/shared/StatusBadge";
 import {useSmartTranslation} from "@/hooks/use-translation";
 
-export const SALES_AREAS_PATH = "/settings/sales/sales-areas";
+export const SALES_AREAS_PATH = "/sales/setup/sales-areas";
 
 export default function SalesAreas() {
     const {t} = useSmartTranslation();

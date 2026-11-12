@@ -1,4 +1,5 @@
-import {useNavigate, useParams} from "react-router-dom";
+import {useParams} from "react-router-dom";
+import {useAreaNavigate as useNavigate} from "@/utils/setup-area";
 import {CurrencyForm} from "../CurrencyForm";
 import {deleteCurrency, updateCurrency, useGetOneCurrency} from "@/apis/requests/currency-api";
 import {ConditionalError} from "@/components/Display/ErrorBoundary";
@@ -30,13 +31,13 @@ export default function EditCurrency() {
                 await mutate();
             }}
             onSuccess={async () => {
-                navigate("/settings/gl/currencies");
+                navigate("/gl/setup/currencies");
             }}
             onDelete={data.status === "active" ? () => confirmAndExecute(async () => {
                 try {
                     await deleteCurrency(id);
                     notify.success(t('currencyDeleted'));
-                    navigate("/settings/gl/currencies");
+                    navigate("/gl/setup/currencies");
                 } catch (err) {
                     notify.error(err);
                 }

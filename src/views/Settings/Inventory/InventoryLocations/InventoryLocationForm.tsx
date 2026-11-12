@@ -40,7 +40,7 @@ export function InventoryLocationForm({record, onSubmit, onSuccess, onDelete}: R
                 <Col md={4}>
                     <StatusField control={control} name="status" />
                 </Col>
-                <Col md={8} className="d-flex align-items-center">
+                <Col md={12} className="d-flex align-items-center">
                     <SwitchField control={control} name="fixed_asset" label={t('fixedAssetLocation')} />
                 </Col>
             </Row>

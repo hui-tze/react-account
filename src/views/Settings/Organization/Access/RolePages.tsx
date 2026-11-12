@@ -16,8 +16,8 @@ import {useAccess} from "@/providers/access";
 import SettingsFormPage from "@/views/Settings/shared/SettingsFormPage";
 import {applyServerErrors} from "@/views/Inventory/shared/document";
 
-export const ROLES_PATH = "/settings/organization/roles";
-export const USERS_PATH = "/settings/organization/users";
+export const ROLES_PATH = "/settings/user-management/roles";
+export const USERS_PATH = "/settings/user-management/users";
 
 const Loading = () => <div className="loader-pendulums my-5" />;
 

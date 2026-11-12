@@ -128,3 +128,22 @@ export type ConsolidationPreview = {
     total: number,
     documents: ConsolidationDocument[],
 };
+
+/** A consolidated POS document not yet in a consolidated e-invoice LHDN has. */
+export type PendingConsolidationDocument = {
+    id: number,
+    trans_type: ConsolidationSource,
+    reference_no: string,
+    trans_date: string,
+    buyer_name: string,
+    pos: string | null,
+    grand_total: number,
+    tax_total: number,
+    currency: string | null,
+    period: string,
+    deadline: string,
+    overdue: boolean,
+    // waiting: not in a batch yet; in_batch: in a batch whose e-invoice failed / was rejected / cancelled
+    state: "waiting" | "in_batch",
+    batch: {id: number, doc_number: string, process_status: string | null, last_error_message: string | null} | null,
+};

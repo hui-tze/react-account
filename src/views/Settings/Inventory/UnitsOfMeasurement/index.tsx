@@ -4,7 +4,7 @@ import SettingsListPage from "@/views/Settings/shared/SettingsListPage";
 import {StatusBadge} from "@/views/Settings/shared/StatusBadge";
 import {useSmartTranslation} from "@/hooks/use-translation";
 
-export const UNITS_OF_MEASUREMENT_PATH = "/settings/inventory/units-of-measurement";
+export const UNITS_OF_MEASUREMENT_PATH = "/inventory/setup/units-of-measurement";
 
 export default function UnitsOfMeasurement() {
     const {t} = useSmartTranslation();

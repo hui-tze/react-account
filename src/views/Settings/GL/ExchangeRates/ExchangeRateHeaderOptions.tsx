@@ -6,7 +6,7 @@ export default function ExchangeRateHeaderOptions() {
     const {t} = useSmartTranslation();
 
     return (
-        <Link to="/settings/gl/exchange-rates/create" className="btn btn-primary btn-sm">
+        <Link to="/gl/setup/exchange-rates/create" className="btn btn-primary btn-sm">
             <Plus size={16} className="me-1" /> {t('newExchangeRate')}
         </Link>
     );

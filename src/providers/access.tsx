@@ -42,8 +42,15 @@ const PATH_MODULES: [string, PermissionModule][] = [
     ["/dimensions/budget-vs-actual", "budgets"],
     ["/dimensions/profit-loss", "budgets"],
     ["/dimensions", "dimensions"],
-    ["/settings/organization/users", "users"],
-    ["/settings/organization/roles", "users"],
+    // module settings screens (Setup section of each module)
+    ["/sales/setup", "settings"],
+    ["/inventory/setup", "settings"],
+    ["/banking/setup", "settings"],
+    ["/gl/setup", "settings"],
+    // MyInvois settings are saved through /einvoice/settings, an e-invoice permission
+    ["/einvoice/settings", "einvoice"],
+    ["/settings/einvoice", "einvoice"],
+    ["/settings/user-management", "users"],
     ["/settings", "settings"],
 ];
 

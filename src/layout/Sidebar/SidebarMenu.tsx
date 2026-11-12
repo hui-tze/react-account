@@ -69,7 +69,7 @@ export const SidebarMenu = [
             },
             {
                 id: 'dimensions',
-                name: 'Budgeting & Cost Centres',
+                name: 'Budgets & Costs',
                 icon: <Icons.ChartPie />,
                 path: '/dimensions',
                 element: <ModuleLayout />,
@@ -86,6 +86,96 @@ export const SidebarMenu = [
                 handle: {
                     module: 'einvoice',
                 },
+            },
+            {
+                id: "settings",
+                name: 'Settings',
+                icon: <Icons.LayoutGrid />,
+                path: '/settings',
+                exact: true,
+                linkable: true,
+                childrens: [
+                    {
+                        id: "settings_organization",
+                        name: 'Organization',
+                        icon: <Icons.Home />,
+                        path: '/settings/organization',
+                        element: <ModuleLayout />,
+                        handle: {
+                            module: 'settings_organization',
+                        },
+                    },
+                    {
+                        id: "settings_einvoice",
+                        name: 'E-Invoice',
+                        icon: <Icons.Send />,
+                        path: '/settings/einvoice',
+                        element: <ModuleLayout />,
+                        handle: {
+                            module: 'settings_einvoice',
+                        },
+                    },
+                    {
+                        id: "settings_users",
+                        name: 'User Management',
+                        icon: <Icons.Users />,
+                        path: '/settings/user-management',
+                        element: <ModuleLayout />,
+                        handle: {
+                            module: 'settings_users',
+                        },
+                    },
+                    {
+                        id: "settings_sales",
+                        name: 'Sales',
+                        icon: <Icons.TrendingUp />,
+                        path: '/settings/sales',
+                        element: <ModuleLayout />,
+                        handle: {
+                            module: 'settings_sales',
+                        },
+                    },
+                    {
+                        id: "settings_inventory",
+                        name: 'Inventory',
+                        icon: <Icons.Box />,
+                        path: '/settings/inventory',
+                        element: <ModuleLayout />,
+                        handle: {
+                            module: 'settings_inventory',
+                        },
+                    },
+                    {
+                        id: "settings_banking",
+                        name: 'Banking',
+                        icon: <Icons.BuildingBank />,
+                        path: '/settings/banking',
+                        element: <ModuleLayout />,
+                        handle: {
+                            module: 'settings_banking',
+                        },
+                    },
+                    {
+                        id: "settings_gl",
+                        name: 'General Ledger',
+                        icon: <Icons.Book />,
+                        path: '/settings/gl',
+                        element: <ModuleLayout />,
+                        handle: {
+                            module: 'settings_gl',
+                        },
+                    },
+                    {
+                        id: "settings_taxes",
+                        name: 'Taxes',
+                        icon: <Icons.Percentage />,
+                        path: '/settings/taxes',
+                        element: <ModuleLayout />,
+                        handle: {
+                            module: 'settings_taxes',
+                        },
+                    },
+                ]
             },
             /* {
                 id: "dash_scrumboard",
@@ -181,103 +271,6 @@ export const SidebarMenu = [
                     },
                 ]
             }, */
-        ]
-    },
-
-    {
-        group: 'Settings',
-        contents: [
-            {
-                id: "settings_overview",
-                name: 'Overview',
-                icon: <Icons.LayoutGrid />,
-                path: '/settings',
-                exact: true,
-            },
-            {
-                id: "settings_organization",
-                name: 'Organization',
-                icon: <Icons.Home />,
-                path: '/settings/organization',
-                element: <ModuleLayout />,
-                handle: {
-                    module: 'settings_organization',
-                },
-            },
-            {
-                id: "settings_sales",
-                name: 'Sales',
-                icon: <Icons.TrendingUp />,
-                path: '/settings/sales',
-                element: <ModuleLayout />,
-                handle: {
-                    module: 'settings_sales',
-                },
-            },
-            {
-                id: "settings_inventory",
-                name: 'Inventory',
-                icon: <Icons.Box />,
-                path: '/settings/inventory',
-                element: <ModuleLayout />,
-                handle: {
-                    module: 'settings_inventory',
-                },
-            },
-            {
-                id: "settings_banking",
-                name: 'Banking',
-                icon: <Icons.BuildingBank />,
-                path: '/settings/banking',
-                element: <ModuleLayout />,
-                handle: {
-                    module: 'settings_banking',
-                },
-            },
-            {
-                id: "settings_gl",
-                name: 'General Ledger',
-                icon: <Icons.Book />,
-                path: '/settings/gl',
-                element: <ModuleLayout />,
-                handle: {
-                    module: 'settings_gl',
-                },
-            },
-            {
-                id: "settings_taxes",
-                name: 'Taxes',
-                icon: <Icons.Percentage />,
-                path: '/settings/taxes',
-                element: <ModuleLayout />,
-                handle: {
-                    module: 'settings_taxes',
-                },
-            },
-            {
-                id: "dash_profile",
-                name: 'Profile',
-                icon: <Icons.UserSearch />,
-                path: '/pages',
-                badgeIndicator: <HkBadge bg="danger" indicator className="position-absolute top-0 start-100" />,
-                childrens: [
-                    {
-                        name: 'Profile',
-                        path: '/pages/profile',
-                        grp_name: "apps",
-                    },
-                    {
-                        name: 'Edit Profile',
-                        path: '/pages/edit-profile',
-                        grp_name: "apps",
-                    },
-                    {
-                        name: 'Account',
-                        path: '/pages/account',
-                        grp_name: "apps",
-                    },
-                ]
-            },
         ]
     },
     /* {

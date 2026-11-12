@@ -121,6 +121,7 @@ import {CreateInvoice, EditInvoice, Invoices} from "@/views/Sales/Invoices/Invoi
 import {CreateCreditNote, CreditNotes, ViewCreditNote} from "@/views/Sales/CreditNotes/CreditNotePages";
 import {CreatePosCreditNote, CreatePosReceipt, PosCreditNotes, PosReceipts, ViewPosCreditNote, ViewPosReceipt} from "@/views/Sales/Pos/PosPages";
 import {ConsolidationPage} from "@/views/Einvoice/Consolidation/ConsolidationPage";
+import {PendingConsolidationPage} from "@/views/Einvoice/Consolidation/PendingConsolidationPage";
 import {CreatePayment, EditPayment, Payments} from "@/views/Sales/Payments/PaymentPages";
 import {CREDIT_NOTES_PATH, CUSTOMERS_PATH, DELIVERIES_PATH, INVOICES_PATH, ORDERS_PATH, PAYMENTS_PATH, POS_RECEIPTS_PATH, QUOTATIONS_PATH} from "@/views/Sales/sales-menu";
 
@@ -187,6 +188,72 @@ function crudRoutes({path, basePath, title, newLabelKey, List, Create, Edit}: Cr
     );
 }
 
+/** Setup screens of the Sales module, mounted under the module and under Settings at `base`. */
+function salesSetupRoutes(base: string) {
+    return (
+        <>
+            <Route index element={<Navigate to="contact-categories" replace />} />
+            {crudRoutes({path: "contact-categories", basePath: `${base}/contact-categories`, title: "Contact Categories", newLabelKey: "newContactCategory", List: ContactCategories, Create: CreateContactCategory, Edit: EditContactCategory})}
+            {crudRoutes({path: "sales-groups", basePath: `${base}/sales-groups`, title: "Sales Groups", newLabelKey: "newSalesGroup", List: SalesGroups, Create: CreateSalesGroup, Edit: EditSalesGroup})}
+            {crudRoutes({path: "sales-types", basePath: `${base}/sales-types`, title: "Sales Type", newLabelKey: "newSalesType", List: SalesTypes, Create: CreateSalesType, Edit: EditSalesType})}
+            {crudRoutes({path: "sales-areas", basePath: `${base}/sales-areas`, title: "Sales Areas", newLabelKey: "newSalesArea", List: SalesAreas, Create: CreateSalesArea, Edit: EditSalesArea})}
+            {crudRoutes({path: "credit-statuses", basePath: `${base}/credit-statuses`, title: "Credit Status", newLabelKey: "newCreditStatus", List: CreditStatuses, Create: CreateCreditStatus, Edit: EditCreditStatus})}
+            {crudRoutes({path: "payment-terms", basePath: `${base}/payment-terms`, title: "Payment Terms", newLabelKey: "newPaymentTerm", List: PaymentTerms, Create: CreatePaymentTerm, Edit: EditPaymentTerm})}
+            {crudRoutes({path: "pos-settings", basePath: `${base}/pos-settings`, title: "POS Settings", newLabelKey: "newPosSetting", List: PosSettings, Create: CreatePosSetting, Edit: EditPosSetting})}
+        </>
+    );
+}
+
+/** Setup screens of the Inventory module, mounted under the module and under Settings at `base`. */
+function inventorySetupRoutes(base: string) {
+    return (
+        <>
+            <Route index element={<Navigate to="item-categories" replace />} />
+            {crudRoutes({path: "item-categories", basePath: `${base}/item-categories`, title: "Item Categories", newLabelKey: "newItemCategory", List: ItemCategories, Create: CreateItemCategory, Edit: EditItemCategory})}
+            {crudRoutes({path: "inventory-locations", basePath: `${base}/inventory-locations`, title: "Inventory Locations", newLabelKey: "newInventoryLocation", List: InventoryLocations, Create: CreateInventoryLocation, Edit: EditInventoryLocation})}
+            {crudRoutes({path: "units-of-measurement", basePath: `${base}/units-of-measurement`, title: "Unit of Measurement", newLabelKey: "newUnitOfMeasurement", List: UnitsOfMeasurement, Create: CreateUom, Edit: EditUom})}
+        </>
+    );
+}
+
+/** Setup screens of the Banking module, mounted under the module and under Settings at `base`. */
+function bankingSetupRoutes(base: string) {
+    return (
+        <>
+            <Route index element={<Navigate to="bank-accounts" replace />} />
+            {crudRoutes({path: "bank-accounts", basePath: `${base}/bank-accounts`, title: "Bank Account", newLabelKey: "newBankAccount", List: BankAccounts, Create: CreateBankAccount, Edit: EditBankAccount})}
+        </>
+    );
+}
+
+/** Setup screens of the General Ledger module, mounted under the module and under Settings at `base`. */
+function glSetupRoutes(base: string) {
+    return (
+        <>
+            <Route index element={<Navigate to="chart-of-accounts" replace />} />
+            <Route path="chart-of-accounts" element={<ChartOfAccounts />} handle={{title: "Chart of Accounts", canNavigate: true, headerOptions: <ChartOfAccountsHeaderOptions/>}} />
+
+            <Route path="fiscal-years" handle={{title: "Fiscal Years", canNavigate: true}}>
+                <Route index element={<FiscalYears />} handle={{hide: true, headerOptions: <FiscalYearHeaderOptions/>}} />
+                <Route path="create" element={<CreateFiscalYear />} handle={{title: "Create", canNavigate: false}} />
+                <Route path=":id" element={<EditFiscalYear />} handle={{title: "Edit", canNavigate: false}} />
+            </Route>
+
+            <Route path="currencies" handle={{title: "Currencies", canNavigate: true}}>
+                <Route index element={<Currencies />} handle={{hide: true, headerOptions: <CurrencyHeaderOptions/>}} />
+                <Route path="create" element={<CreateCurrency />} handle={{title: "Create", canNavigate: false}} />
+                <Route path=":id" element={<EditCurrency />} handle={{title: "Edit", canNavigate: false}} />
+            </Route>
+
+            <Route path="exchange-rates" handle={{title: "Exchange Rates", canNavigate: true}}>
+                <Route index element={<ExchangeRates />} handle={{hide: true, headerOptions: <ExchangeRateHeaderOptions/>}} />
+                <Route path="create" element={<CreateExchangeRate />} handle={{title: "Create", canNavigate: false}} />
+                <Route path=":id" element={<EditExchangeRate />} handle={{title: "Edit", canNavigate: false}} />
+            </Route>
+        </>
+    );
+}
+
 export const mainRouter = createBrowserRouter(
     createRoutesFromElements(
         <Route path="/" element={<Nav />} handle={{hide: true}} >
@@ -223,6 +290,10 @@ export const mainRouter = createBrowserRouter(
                     {/* siblings, not children, so the branch's :id doesn't shadow the customer's */}
                     <Route path=":customerId/branches/create" element={<CreateBranch />} handle={{title: "New Branch", canNavigate: false}} />
                     <Route path=":customerId/branches/:id" element={<EditBranch />} handle={{title: "Branch", canNavigate: false}} />
+                </Route>
+
+                <Route path="setup" handle={{title: "Setup", canNavigate: false}}>
+                    {salesSetupRoutes("/sales/setup")}
                 </Route>
             </Route>
 
@@ -262,9 +333,13 @@ export const mainRouter = createBrowserRouter(
                 <Route path="deposits/create" element={<CreateBankDeposit />} handle={{title: "Deposit", canNavigate: false}} />
                 <Route path="transfers/create" element={<CreateBankTransfer />} handle={{title: "Bank Account Transfer", canNavigate: false}} />
                 <Route path="reconciliation" element={<Reconciliation />} handle={{title: "Reconciliation", canNavigate: true}} />
+
+                <Route path="setup" handle={{title: "Setup", canNavigate: false}}>
+                    {bankingSetupRoutes("/banking/setup")}
+                </Route>
             </Route>
 
-            <Route path="/gl" element={<ModuleLayout />} handle={{title: "General Ledger", module: "gl", canNavigate: true}} >
+            <Route path="/gl" element={<NewAccountTriggerProvider><ModuleLayout /></NewAccountTriggerProvider>} handle={{title: "General Ledger", module: "gl", canNavigate: true}} >
                 <Route index element={<Navigate to="entries" replace />} />
                 <Route path="entries" element={<LedgerEntries />} handle={{title: "All General Ledger", canNavigate: true}} />
                 <Route path="journals" handle={{title: "All Journals", canNavigate: true}}>
@@ -277,6 +352,10 @@ export const mainRouter = createBrowserRouter(
                 <Route path="profit-loss" element={<ProfitAndLoss />} handle={{title: "Profit & Loss", canNavigate: true}} />
                 <Route path="balance-sheet" element={<BalanceSheet />} handle={{title: "Balance Sheet", canNavigate: true}} />
                 <Route path="trial-balance" element={<TrialBalance />} handle={{title: "Trial Balance", canNavigate: true}} />
+
+                <Route path="setup" handle={{title: "Setup", canNavigate: false}}>
+                    {glSetupRoutes("/gl/setup")}
+                </Route>
             </Route>
 
             <Route path="/dimensions" element={<ModuleLayout />} handle={{title: "Budgeting & Cost Centres", module: "dimensions", canNavigate: true}} >
@@ -303,6 +382,8 @@ export const mainRouter = createBrowserRouter(
                 </Route>
                 <Route path="outstanding" element={<OutstandingEinvoices />} handle={{title: "Not Yet Submitted", canNavigate: true}} />
                 <Route path="consolidation" element={<ConsolidationPage />} handle={{title: "Consolidated (POS)", canNavigate: true}} />
+                <Route path="pos-pending" element={<PendingConsolidationPage />} handle={{title: "POS Not Yet Consolidated", canNavigate: true}} />
+                <Route path="settings" element={<EinvoiceSettings />} handle={{title: "MyInvois Settings", canNavigate: true}} />
             </Route>
 
             <Route path="/inventory" element={<ModuleLayout />} handle={{title: "Item & Inventory", module: "inventory", canNavigate: true}} >
@@ -321,6 +402,10 @@ export const mainRouter = createBrowserRouter(
                     <Route index element={<StandardCosts />} handle={{hide: true}} />
                     <Route path=":id" element={<EditStandardCost />} handle={{title: "Edit", canNavigate: false}} />
                 </Route>
+
+                <Route path="setup" handle={{title: "Setup", canNavigate: false}}>
+                    {inventorySetupRoutes("/inventory/setup")}
+                </Route>
             </Route>
 
             <Route path="/settings" element={<NewAccountTriggerProvider><ModuleLayout /></NewAccountTriggerProvider>} handle={{title: "Settings", canNavigate: true}} >
@@ -331,59 +416,42 @@ export const mainRouter = createBrowserRouter(
                     <Route path="profile" element={<Profile />} handle={{title: "Profile", canNavigate: true}} />
                     <Route path="display-preference" element={<DisplayPreference />} handle={{title: "Display Preference", canNavigate: true}} />
                     <Route path="system-setup" element={<SystemSetup />} handle={{title: "System Setup", canNavigate: true}} />
-                    <Route path="einvoice" element={<EinvoiceSettings />} handle={{title: "E-Invoice (MyInvois)", canNavigate: true}} />
+                    {/* moved to their own sections; old links land there */}
+                    <Route path="einvoice" element={<Navigate to="/settings/einvoice/myinvois" replace />} />
+                    <Route path="users" element={<Navigate to="/settings/user-management/users" replace />} />
+                    <Route path="roles/*" element={<Navigate to="/settings/user-management/roles" replace />} />
+                    {crudRoutes({path: "document-numbering", basePath: "/settings/organization/document-numbering", title: "Document No", newLabelKey: "newDocumentNumbering", List: DocumentNumberings, Create: CreateDocumentNumbering, Edit: EditDocumentNumbering})}
+                </Route>
+
+                <Route path="sales" handle={{ title: 'Sales', module: "settings_sales"}}>
+                    {salesSetupRoutes("/settings/sales")}
+                </Route>
+
+                <Route path="inventory" handle={{ title: 'Inventory', module: "settings_inventory"}}>
+                    {inventorySetupRoutes("/settings/inventory")}
+                </Route>
+
+                <Route path="banking" handle={{ title: 'Banking', module: "settings_banking"}}>
+                    {bankingSetupRoutes("/settings/banking")}
+                </Route>
+
+                <Route path="gl" handle={{ title: 'General Ledger', module: "settings_gl"}}>
+                    {glSetupRoutes("/settings/gl")}
+                </Route>
+
+                <Route path="einvoice" handle={{ title: 'E-Invoice', module: "settings_einvoice"}}>
+                    <Route index element={<Navigate to="myinvois" replace />} />
+                    {/* also in the E-Invoice module at /einvoice/settings */}
+                    <Route path="myinvois" element={<EinvoiceSettings />} handle={{title: "MyInvois Settings", canNavigate: true}} />
+                </Route>
+
+                <Route path="user-management" handle={{ title: 'User Management', module: "settings_users"}}>
+                    <Route index element={<Navigate to="users" replace />} />
                     <Route path="users" element={<Users />} handle={{title: "Users", canNavigate: true}} />
                     <Route path="roles" handle={{title: "Roles & Access", canNavigate: true}}>
                         <Route index element={<Roles />} handle={{hide: true}} />
                         <Route path="create" element={<CreateRole />} handle={{title: "Create", canNavigate: false}} />
                         <Route path=":id" element={<EditRole />} handle={{title: "Edit", canNavigate: false}} />
-                    </Route>
-                    {crudRoutes({path: "document-numbering", basePath: "/settings/organization/document-numbering", title: "Document No", newLabelKey: "newDocumentNumbering", List: DocumentNumberings, Create: CreateDocumentNumbering, Edit: EditDocumentNumbering})}
-                </Route>
-
-                <Route path="sales" handle={{ title: 'Sales', module: "settings_sales"}}>
-                    <Route index element={<Navigate to="contact-categories" replace />} />
-                    {crudRoutes({path: "contact-categories", basePath: "/settings/sales/contact-categories", title: "Contact Categories", newLabelKey: "newContactCategory", List: ContactCategories, Create: CreateContactCategory, Edit: EditContactCategory})}
-                    {crudRoutes({path: "sales-groups", basePath: "/settings/sales/sales-groups", title: "Sales Groups", newLabelKey: "newSalesGroup", List: SalesGroups, Create: CreateSalesGroup, Edit: EditSalesGroup})}
-                    {crudRoutes({path: "sales-types", basePath: "/settings/sales/sales-types", title: "Sales Type", newLabelKey: "newSalesType", List: SalesTypes, Create: CreateSalesType, Edit: EditSalesType})}
-                    {crudRoutes({path: "sales-areas", basePath: "/settings/sales/sales-areas", title: "Sales Areas", newLabelKey: "newSalesArea", List: SalesAreas, Create: CreateSalesArea, Edit: EditSalesArea})}
-                    {crudRoutes({path: "credit-statuses", basePath: "/settings/sales/credit-statuses", title: "Credit Status", newLabelKey: "newCreditStatus", List: CreditStatuses, Create: CreateCreditStatus, Edit: EditCreditStatus})}
-                    {crudRoutes({path: "payment-terms", basePath: "/settings/sales/payment-terms", title: "Payment Terms", newLabelKey: "newPaymentTerm", List: PaymentTerms, Create: CreatePaymentTerm, Edit: EditPaymentTerm})}
-                    {crudRoutes({path: "pos-settings", basePath: "/settings/sales/pos-settings", title: "POS Settings", newLabelKey: "newPosSetting", List: PosSettings, Create: CreatePosSetting, Edit: EditPosSetting})}
-                </Route>
-
-                <Route path="inventory" handle={{ title: 'Inventory', module: "settings_inventory"}}>
-                    <Route index element={<Navigate to="item-categories" replace />} />
-                    {crudRoutes({path: "item-categories", basePath: "/settings/inventory/item-categories", title: "Item Categories", newLabelKey: "newItemCategory", List: ItemCategories, Create: CreateItemCategory, Edit: EditItemCategory})}
-                    {crudRoutes({path: "inventory-locations", basePath: "/settings/inventory/inventory-locations", title: "Inventory Locations", newLabelKey: "newInventoryLocation", List: InventoryLocations, Create: CreateInventoryLocation, Edit: EditInventoryLocation})}
-                    {crudRoutes({path: "units-of-measurement", basePath: "/settings/inventory/units-of-measurement", title: "Unit of Measurement", newLabelKey: "newUnitOfMeasurement", List: UnitsOfMeasurement, Create: CreateUom, Edit: EditUom})}
-                </Route>
-
-                <Route path="banking" handle={{ title: 'Banking', module: "settings_banking"}}>
-                    <Route index element={<Navigate to="bank-accounts" replace />} />
-                    {crudRoutes({path: "bank-accounts", basePath: "/settings/banking/bank-accounts", title: "Bank Account", newLabelKey: "newBankAccount", List: BankAccounts, Create: CreateBankAccount, Edit: EditBankAccount})}
-                </Route>
-
-                <Route path="gl" handle={{ title: 'General Ledger', module: "settings_gl"}}>
-                    <Route index element={<Navigate to="chart-of-accounts" replace />} />
-                    <Route path="chart-of-accounts" element={<ChartOfAccounts />} handle={{title: "Chart of Accounts", canNavigate: true, headerOptions: <ChartOfAccountsHeaderOptions/>}} />
-
-                    <Route path="fiscal-years" handle={{title: "Fiscal Years", canNavigate: true}}>
-                        <Route index element={<FiscalYears />} handle={{hide: true, headerOptions: <FiscalYearHeaderOptions/>}} />
-                        <Route path="create" element={<CreateFiscalYear />} handle={{title: "Create", canNavigate: false}} />
-                        <Route path=":id" element={<EditFiscalYear />} handle={{title: "Edit", canNavigate: false}} />
-                    </Route>
-
-                    <Route path="currencies" handle={{title: "Currencies", canNavigate: true}}>
-                        <Route index element={<Currencies />} handle={{hide: true, headerOptions: <CurrencyHeaderOptions/>}} />
-                        <Route path="create" element={<CreateCurrency />} handle={{title: "Create", canNavigate: false}} />
-                        <Route path=":id" element={<EditCurrency />} handle={{title: "Edit", canNavigate: false}} />
-                    </Route>
-
-                    <Route path="exchange-rates" handle={{title: "Exchange Rates", canNavigate: true}}>
-                        <Route index element={<ExchangeRates />} handle={{hide: true, headerOptions: <ExchangeRateHeaderOptions/>}} />
-                        <Route path="create" element={<CreateExchangeRate />} handle={{title: "Create", canNavigate: false}} />
-                        <Route path=":id" element={<EditExchangeRate />} handle={{title: "Edit", canNavigate: false}} />
                     </Route>
                 </Route>
 

@@ -4,7 +4,7 @@ import SettingsListPage from "@/views/Settings/shared/SettingsListPage";
 import {StatusBadge, YesNoBadge} from "@/views/Settings/shared/StatusBadge";
 import {useSmartTranslation} from "@/hooks/use-translation";
 
-export const CREDIT_STATUSES_PATH = "/settings/sales/credit-statuses";
+export const CREDIT_STATUSES_PATH = "/sales/setup/credit-statuses";
 
 export default function CreditStatuses() {
     const {t} = useSmartTranslation();

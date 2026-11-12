@@ -1,6 +1,6 @@
 import {Badge, Button} from "react-bootstrap";
 import {Trash2} from "react-feather";
-import {useNavigate} from "react-router-dom";
+import {useAreaNavigate as useNavigate} from "@/utils/setup-area";
 import SimpleBar from "simplebar-react";
 import {AutoGenerateRemoteTable} from "@/components/@hk-data-table/tables";
 import {TableFilters} from "@/apis/table";
@@ -28,7 +28,7 @@ export default function FiscalYears() {
                         params={NO_FILTERS}
                         sort={["begin|desc"]}
                         hover
-                        onRowClick={(fiscalYear: FiscalYear) => navigate(`/settings/gl/fiscal-years/${fiscalYear.id}`)}
+                        onRowClick={(fiscalYear: FiscalYear) => navigate(`/gl/setup/fiscal-years/${fiscalYear.id}`)}
                         columns={[
                             {
                                 accessor: "begin",

@@ -5,7 +5,7 @@ import SettingsListPage from "@/views/Settings/shared/SettingsListPage";
 import {StatusBadge, YesNoBadge} from "@/views/Settings/shared/StatusBadge";
 import {useSmartTranslation} from "@/hooks/use-translation";
 
-export const CONTACT_CATEGORIES_PATH = "/settings/sales/contact-categories";
+export const CONTACT_CATEGORIES_PATH = "/sales/setup/contact-categories";
 
 // translation keys for App\Domain\Constants\ContactEntityType
 export const CONTACT_ENTITY_TYPE_LABEL_KEYS: Record<string, string> = {

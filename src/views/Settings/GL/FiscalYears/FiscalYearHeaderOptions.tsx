@@ -6,7 +6,7 @@ export default function FiscalYearHeaderOptions() {
     const {t} = useSmartTranslation();
 
     return (
-        <Link to="/settings/gl/fiscal-years/create" className="btn btn-primary btn-sm">
+        <Link to="/gl/setup/fiscal-years/create" className="btn btn-primary btn-sm">
             <Plus size={16} className="me-1" /> {t('newFiscalYear')}
         </Link>
     );

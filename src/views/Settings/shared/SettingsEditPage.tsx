@@ -1,5 +1,6 @@
 import {ReactElement} from "react";
-import {useNavigate, useParams} from "react-router-dom";
+import {useParams} from "react-router-dom";
+import {useAreaNavigate as useNavigate} from "@/utils/setup-area";
 import type {SWRConfiguration, SWRResponse} from "swr";
 import {ConditionalError} from "@/components/Display/ErrorBoundary";
 import {useConfirmAction} from "@/hooks/use-confirmation-action";

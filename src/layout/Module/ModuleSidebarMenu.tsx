@@ -2,6 +2,7 @@
 
 import { ComponentType } from 'react';
 import { settingsSections } from '@/views/Settings/settings-menu';
+import { settingsPathOf } from '@/utils/setup-area';
 import { inventoryModule } from '@/views/Inventory/inventory-menu';
 import { salesModule } from '@/views/Sales/sales-menu';
 import { purchasesModule } from '@/views/Purchases/purchases-menu';
@@ -43,7 +44,8 @@ const settingsModules = settingsSections.reduce<Record<string, ModuleSidebarConf
         actions: [],
         menus: section.items
             .filter((item) => !item.comingSoon)
-            .map(({ name, path, icon }) => ({ name, path, icon })),
+            // module setup screens: their Settings address here (/settings/sales/…)
+            .map(({ name, path, icon }) => ({ name, path: settingsPathOf(path), icon })),
     };
     return modules;
 }, {});

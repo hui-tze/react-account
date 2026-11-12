@@ -1,5 +1,6 @@
 import {BarChart2, BookOpen, Columns, FileText, Layers, List, Percent} from "react-feather";
 import type {ModuleSidebarConfig} from "@/layout/Module/ModuleSidebarMenu";
+import {moduleSetupSection} from "@/views/Settings/settings-menu";
 import {salesDocumentPath} from "@/views/Sales/sales-menu";
 import {purchaseDocumentPath} from "@/views/Purchases/purchases-menu";
 import {bankDocumentPath} from "@/views/Banking/banking-menu";
@@ -13,7 +14,7 @@ export const GL_PROFIT_LOSS_PATH = `${GL_PATH}/profit-loss`;
 export const GL_BALANCE_SHEET_PATH = `${GL_PATH}/balance-sheet`;
 export const GL_TRIAL_BALANCE_PATH = `${GL_PATH}/trial-balance`;
 // where the chart itself is maintained
-export const GL_CHART_SETTINGS_PATH = "/settings/gl/chart-of-accounts";
+export const GL_CHART_SETTINGS_PATH = "/gl/setup/chart-of-accounts";
 
 /** Page of the document behind a ledger posting, or null when it has no screen. */
 export function ledgerDocumentPath(type: string, id: number): string | null {
@@ -46,5 +47,7 @@ export const glModule: ModuleSidebarConfig = {
                 {name: "Trial Balance", path: GL_TRIAL_BALANCE_PATH, icon: Columns},
             ],
         },
+        // the chart is maintained here; "Chart Of Account" above is its read-only view
+        moduleSetupSection("settings_gl", {"Chart of Accounts": "Manage Chart of Accounts"}),
     ],
 };

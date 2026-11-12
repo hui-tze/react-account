@@ -4,7 +4,7 @@ import SettingsListPage from "@/views/Settings/shared/SettingsListPage";
 import {StatusBadge, YesNoBadge} from "@/views/Settings/shared/StatusBadge";
 import {useSmartTranslation} from "@/hooks/use-translation";
 
-export const INVENTORY_LOCATIONS_PATH = "/settings/inventory/inventory-locations";
+export const INVENTORY_LOCATIONS_PATH = "/inventory/setup/inventory-locations";
 
 export default function InventoryLocations() {
     const {t} = useSmartTranslation();

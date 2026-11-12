@@ -8,8 +8,8 @@ export const BANK_RECONCILIATION_PATH = `${BANKING_PATH}/reconciliation`;
 export const BANK_PAYMENT_CREATE_PATH = `${BANKING_PATH}/payments/create`;
 export const BANK_DEPOSIT_CREATE_PATH = `${BANKING_PATH}/deposits/create`;
 export const BANK_TRANSFER_CREATE_PATH = `${BANKING_PATH}/transfers/create`;
-// bank accounts themselves are maintained in settings
-export const BANK_ACCOUNT_SETTINGS_PATH = "/settings/banking/bank-accounts";
+// bank accounts themselves are maintained under Setup
+export const BANK_ACCOUNT_SETTINGS_PATH = "/banking/setup/bank-accounts";
 
 const BANK_DOCUMENT_TYPES = ["bank_payment", "bank_deposit", "funds_transfer"];
 
@@ -37,7 +37,7 @@ export const bankingModule: ModuleSidebarConfig = {
         {
             title: "Setup",
             menus: [
-                {name: "Manage Bank Accounts", path: BANK_ACCOUNT_SETTINGS_PATH, icon: Settings},
+                {name: "Bank Accounts", path: BANK_ACCOUNT_SETTINGS_PATH, icon: Settings},
             ],
         },
     ],

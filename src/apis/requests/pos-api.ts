@@ -4,7 +4,7 @@ import type {DimensionTag} from "@/apis/models/dimension";
 import type {SalesLineRequest} from "@/apis/requests/sales-order-api";
 import type {PaginationResponse} from "@/apis/pagination";
 import type {
-    ConsolidationBatch, ConsolidationOverview, ConsolidationPreview, ConsolidationSource, PosDocument, PosPaymentMethod,
+    ConsolidationBatch, ConsolidationOverview, ConsolidationPreview, ConsolidationSource, PendingConsolidationDocument, PosDocument, PosPaymentMethod,
 } from "@/apis/models/pos";
 
 // the shared sales line grid's shape: item, description, qty, price, discount
@@ -80,6 +80,10 @@ export const consolidationApi = {
     },
     usePreview(period: string | null, source: ConsolidationSource | null): SWRResponse<ConsolidationPreview> {
         return useConsoleSwr(period && source ? `/einvoice/consolidation/preview?period=${period}&source_type=${source}` : null, authFetcher);
+    },
+    /** Consolidated POS documents of every month not yet in an e-invoice LHDN has (listing: sends `page`). */
+    usePending(params: URLSearchParams): SWRResponse<PaginationResponse<PendingConsolidationDocument>> {
+        return useConsoleSwr(`/einvoice/consolidation/pending?${params}`, authFetcher);
     },
     useBatch(id: number | null): SWRResponse<ConsolidationBatch> {
         return useConsoleSwr(id ? `/einvoice/consolidation/batches/${id}` : null, authFetcher);

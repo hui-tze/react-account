@@ -4,7 +4,7 @@ import SettingsListPage from "@/views/Settings/shared/SettingsListPage";
 import {StatusBadge} from "@/views/Settings/shared/StatusBadge";
 import {useSmartTranslation} from "@/hooks/use-translation";
 
-export const SALES_GROUPS_PATH = "/settings/sales/sales-groups";
+export const SALES_GROUPS_PATH = "/sales/setup/sales-groups";
 
 export default function SalesGroups() {
     const {t} = useSmartTranslation();

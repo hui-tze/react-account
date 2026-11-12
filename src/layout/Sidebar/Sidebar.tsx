@@ -4,7 +4,7 @@ import React, {ReactNode, useState} from 'react';
 import {Button, Card, Nav} from 'react-bootstrap';
 import SimpleBar from 'simplebar-react';
 import {connect, ConnectedProps} from 'react-redux';
-import {NavLink, useLocation} from 'react-router-dom';
+import {NavLink, useLocation, useNavigate} from 'react-router-dom';
 import {useWindowWidth} from '@react-hook/window-size';
 import classNames from 'classnames';
 
@@ -26,6 +26,8 @@ interface MenuItem {
     childrens?: MenuItem[];
     // only active on the exact path (e.g. a parent overview page)
     exact?: boolean;
+    // a parent that is also a page: clicking it opens its own path as well as its children
+    linkable?: boolean;
 }
 
 interface MenuGroup {
@@ -62,6 +64,7 @@ const Sidebar: React.FC<PropsFromRedux> = ({
 
     const windowWidth = useWindowWidth();
     const location = useLocation();
+    const navigate = useNavigate();
 
     /**
      * React Router v7 replacement for useRouteMatch()
@@ -91,6 +94,18 @@ const Sidebar: React.FC<PropsFromRedux> = ({
             toggleCollapsedNav(false);
         }
     };
+
+    // parents (entries with children) toggle open by name; clicking a child records the child's name
+    const parentNames = (SidebarMenu as MenuGroup[]).reduce<string[]>((names, group) => names.concat(group.contents.filter((item) => item.childrens).map((item) => item.name)), []);
+
+    /**
+     * A parent is open when the user opened it, or when the page shown is under it (and the user
+     * has not opened another parent since) — so a settings page keeps the Settings menu open.
+     */
+    const isMenuOpen = (menu: MenuItem): boolean =>
+        activeMenu === menu.name
+        // not in the icons-only sidebar (desktop collapsed): the open list would show as clipped text
+        || (!(navCollapsed && windowWidth > 1199) && !parentNames.includes(activeMenu ?? "") && isRouteActive(menu.path));
 
     const backDropToggle = () => {
         toggleCollapsedNav(!navCollapsed);
@@ -126,7 +141,8 @@ const Sidebar: React.FC<PropsFromRedux> = ({
                                         >
                                             <Nav.Item
                                                 className={classNames({
-                                                    active: isRouteActive(menus.path, menus.exact),
+                                                    // a parent covers every page below it, whatever `exact` says
+                                                    active: isRouteActive(menus.path, menus.exact && !menus.childrens),
                                                 })}
                                             >
                                                 {menus.childrens ? (
@@ -135,10 +151,14 @@ const Sidebar: React.FC<PropsFromRedux> = ({
                                                         <Nav.Link
                                                             data-bs-toggle="collapse"
                                                             data-bs-target={`#${menus.id}`}
-                                                            aria-expanded={activeMenu === menus.name}
-                                                            onClick={() =>
-                                                                setActiveMenu(menus.name)
-                                                            }
+                                                            aria-expanded={isMenuOpen(menus)}
+                                                            onClick={() => {
+                                                                setActiveMenu(menus.name);
+                                                                // a parent that is also a page opens it too
+                                                                if (menus.linkable) {
+                                                                    navigate(menus.path);
+                                                                }
+                                                            }}
                                                         >
                                                             <span
                                                                 className={classNames(
@@ -177,7 +197,7 @@ const Sidebar: React.FC<PropsFromRedux> = ({
                                                             className={classNames(
                                                                 'nav flex-column nav-children',
                                                                 {
-                                                                    collapse: activeMenu !== menus.name,
+                                                                    collapse: !isMenuOpen(menus),
                                                                 }
                                                             )}
                                                         >

@@ -7,7 +7,7 @@ import {StatusBadge, YesNoBadge} from "@/views/Settings/shared/StatusBadge";
 import {useAccountOptions} from "@/views/Settings/shared/options";
 import {useSmartTranslation} from "@/hooks/use-translation";
 
-export const BANK_ACCOUNTS_PATH = "/settings/banking/bank-accounts";
+export const BANK_ACCOUNTS_PATH = "/banking/setup/bank-accounts";
 
 // mirrors App\Domain\Constants\BankAccountType
 export const BANK_ACCOUNT_TYPE_LABEL_KEYS: Record<string, string> = {

@@ -7,7 +7,7 @@ import {StatusBadge, YesNoBadge} from "@/views/Settings/shared/StatusBadge";
 import {useAccountOptions} from "@/views/Settings/shared/options";
 import {useSmartTranslation} from "@/hooks/use-translation";
 
-export const POS_SETTINGS_PATH = "/settings/sales/pos-settings";
+export const POS_SETTINGS_PATH = "/sales/setup/pos-settings";
 
 export default function PosSettings() {
     const {t} = useSmartTranslation();

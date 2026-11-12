@@ -7,7 +7,7 @@ import {StatusBadge} from "@/views/Settings/shared/StatusBadge";
 import {useAccountOptions} from "@/views/Settings/shared/options";
 import {useSmartTranslation} from "@/hooks/use-translation";
 
-export const ITEM_CATEGORIES_PATH = "/settings/inventory/item-categories";
+export const ITEM_CATEGORIES_PATH = "/inventory/setup/item-categories";
 
 export default function ItemCategories() {
     const {t} = useSmartTranslation();

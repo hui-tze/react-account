@@ -1,4 +1,5 @@
-import {useNavigate, useParams} from "react-router-dom";
+import {useParams} from "react-router-dom";
+import {useAreaNavigate as useNavigate} from "@/utils/setup-area";
 import {ExchangeRateForm} from "../ExchangeRateForm";
 import {deleteExchangeRate, updateExchangeRate, useGetOneExchangeRate} from "@/apis/requests/exchange-rate-api";
 import {ConditionalError} from "@/components/Display/ErrorBoundary";
@@ -30,13 +31,13 @@ export default function EditExchangeRate() {
                 await mutate();
             }}
             onSuccess={async () => {
-                navigate("/settings/gl/exchange-rates");
+                navigate("/gl/setup/exchange-rates");
             }}
             onDelete={data.status === "active" ? () => confirmAndExecute(async () => {
                 try {
                     await deleteExchangeRate(id);
                     notify.success(t('exchangeRateDeleted'));
-                    navigate("/settings/gl/exchange-rates");
+                    navigate("/gl/setup/exchange-rates");
                 } catch (err) {
                     notify.error(err);
                 }

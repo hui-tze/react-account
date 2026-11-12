@@ -1,6 +1,6 @@
 import {Badge, Button} from "react-bootstrap";
 import {Trash2} from "react-feather";
-import {useNavigate} from "react-router-dom";
+import {useAreaNavigate as useNavigate} from "@/utils/setup-area";
 import SimpleBar from "simplebar-react";
 import {AutoGenerateRemoteTable} from "@/components/@hk-data-table/tables";
 import {TableFilters} from "@/apis/table";
@@ -28,7 +28,7 @@ export default function ExchangeRates() {
                         params={NO_FILTERS}
                         sort={["rate_date|desc"]}
                         hover
-                        onRowClick={(exchangeRate: ExchangeRate) => navigate(`/settings/gl/exchange-rates/${exchangeRate.id}`)}
+                        onRowClick={(exchangeRate: ExchangeRate) => navigate(`/gl/setup/exchange-rates/${exchangeRate.id}`)}
                         columns={[
                             {
                                 accessor: "rate_date",

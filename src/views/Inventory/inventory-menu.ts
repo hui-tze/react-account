@@ -1,5 +1,6 @@
 import {Box, DollarSign, Repeat, ShoppingBag, Sliders, TrendingUp, Truck} from "react-feather";
 import type {ModuleSidebarConfig} from "@/layout/Module/ModuleSidebarMenu";
+import {moduleSetupSection} from "@/views/Settings/settings-menu";
 
 export const INVENTORY_PATH = "/inventory";
 export const ITEMS_PATH = `${INVENTORY_PATH}/items`;
@@ -34,5 +35,6 @@ export const inventoryModule: ModuleSidebarConfig = {
                 {name: "Standard Costs", path: STANDARD_COSTS_PATH, icon: DollarSign},
             ],
         },
+        moduleSetupSection("settings_inventory"),
     ],
 };

@@ -15,7 +15,7 @@ import {formatDate} from "@/utils/display-format";
 import {useConfirmAction} from "@/hooks/use-confirmation-action";
 import {useNotification} from "@/hooks/notification";
 import {useSmartTranslation} from "@/hooks/use-translation";
-import {EINVOICE_DOCUMENTS_PATH} from "../einvoice-menu";
+import {EINVOICE_DOCUMENTS_PATH, EINVOICE_POS_PENDING_PATH} from "../einvoice-menu";
 import {EinvoiceStatusBadge} from "../shared/einvoice-ui";
 import type {EinvoiceProcessStatus} from "@/apis/models/einvoice";
 
@@ -53,15 +53,16 @@ export function ConsolidationPage() {
     const months = (data?.months ?? []).filter(m => m.has_activity || m.period === moment().subtract(1, "month").format("YYYY-MM"));
 
     return (
-        <div className="hk-pg-body">
+        <div className="app-body">
             <SimpleBar className="nicescroll-bar">
-                <div className="container-xxl py-4">
+                <div className="container-fluid py-3">
                     <div className="d-flex flex-wrap align-items-center gap-3 mb-3">
                         <div>
                             <h5 className="mb-1">{t('consTitle')}</h5>
                             <div className="small text-muted">{t('consIntro')}</div>
                         </div>
-                        <Form.Select value={year} onChange={(e) => setParam("year", e.target.value)} className="ms-auto" style={{width: 120}} aria-label={t('year')}>
+                        <Link to={EINVOICE_POS_PENDING_PATH} className="btn btn-sm btn-outline-secondary ms-auto">{t('posPendingViewAll')}</Link>
+                        <Form.Select value={year} onChange={(e) => setParam("year", e.target.value)} style={{width: 120}} aria-label={t('year')}>
                             {[0, 1, 2].map(n => moment().year() - n).map(y => <option key={y} value={y}>{y}</option>)}
                         </Form.Select>
                     </div>
@@ -118,7 +119,7 @@ function MonthCard({month, onConsolidate, onOpenBatch}: {month: ConsolidationMon
 
                                 {kind.pending_count > 0 ? (
                                     <div className="d-flex flex-wrap align-items-center gap-2 p-2 rounded bg-light mb-2">
-                                        <span className="small">{t('consPending', {count: kind.pending_count, total: formatDecimal(kind.pending_total)})}</span>
+                                        <Link to={`${EINVOICE_POS_PENDING_PATH}`} className="small">{t('consPending', {count: kind.pending_count, total: formatDecimal(kind.pending_total)})}</Link>
                                         {ended ? (
                                             <ActionButton action="create" size="sm" className="ms-auto" onClick={() => onConsolidate(source)}>
                                                 <Send size={13} className="me-1" />{t('consReview')}

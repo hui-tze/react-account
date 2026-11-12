@@ -4,7 +4,7 @@ import SettingsListPage from "@/views/Settings/shared/SettingsListPage";
 import {StatusBadge, YesNoBadge} from "@/views/Settings/shared/StatusBadge";
 import {useSmartTranslation} from "@/hooks/use-translation";
 
-export const SALES_TYPES_PATH = "/settings/sales/sales-types";
+export const SALES_TYPES_PATH = "/sales/setup/sales-types";
 
 export default function SalesTypes() {
     const {t} = useSmartTranslation();

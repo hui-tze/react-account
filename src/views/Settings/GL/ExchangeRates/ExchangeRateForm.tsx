@@ -1,6 +1,6 @@
 import {Button, Col, Container, Form, Row, Spinner} from "react-bootstrap";
 import {ActionButton} from "@/components/Access/Guarded";
-import {useNavigate} from "react-router-dom";
+import {useAreaNavigate as useNavigate} from "@/utils/setup-area";
 import SimpleBar from "simplebar-react";
 import {useRequestForm} from "@/hooks/use-request-handler";
 import {Currency} from "@/apis/models/currency";
@@ -108,7 +108,7 @@ function ExchangeRateFormBody({exchangeRate, currencies, onSubmit, onSuccess, on
                         </Row>
 
                         <div className="d-flex gap-2 mt-3">
-                            <Button variant="outline-secondary" type="button" onClick={() => navigate("/settings/gl/exchange-rates")}>{t('cancel')}</Button>
+                            <Button variant="outline-secondary" type="button" onClick={() => navigate("/gl/setup/exchange-rates")}>{t('cancel')}</Button>
                             <ActionButton action={onDelete ? "edit" : "create"} type="submit" variant="primary" disabled={submitting}>
                                 <Spinner as="span" animation="border" size="sm" className={submitting ? "me-2" : "d-none"} />
                                 {exchangeRate ? t('saveChanges') : t('create')}

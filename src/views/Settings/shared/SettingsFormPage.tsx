@@ -1,6 +1,6 @@
 import {FormEventHandler, ReactNode} from "react";
 import {Button, Container, Form, Spinner} from "react-bootstrap";
-import {useNavigate} from "react-router-dom";
+import {useAreaNavigate as useNavigate} from "@/utils/setup-area";
 import SimpleBar from "simplebar-react";
 import {Lock} from "react-feather";
 import {useSmartTranslation} from "@/hooks/use-translation";

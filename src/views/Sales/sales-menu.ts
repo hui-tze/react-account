@@ -1,5 +1,6 @@
 import {CornerUpLeft, CreditCard, FileText, Inbox, RotateCcw, ShoppingBag, ShoppingCart, Truck, Users} from "react-feather";
 import type {ModuleSidebarConfig} from "@/layout/Module/ModuleSidebarMenu";
+import {moduleSetupSection} from "@/views/Settings/settings-menu";
 
 export const SALES_PATH = "/sales";
 export const CUSTOMERS_PATH = `${SALES_PATH}/customers`;
@@ -68,5 +69,6 @@ export const salesModule: ModuleSidebarConfig = {
                 {name: "Customers", path: CUSTOMERS_PATH, icon: Users},
             ],
         },
+        moduleSetupSection("settings_sales"),
     ],
 };

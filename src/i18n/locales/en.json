@@ -1707,5 +1707,16 @@
     "consReleaseText": "The documents of {{number}} go back to waiting; they can be consolidated again.",
     "consDocuments": "Documents",
     "consPreviewHint": "Each line of the e-invoice covers one POS for one day, listing its receipt numbers.",
-    "consSubmitToLhdn": "Submit to LHDN"
+    "consSubmitToLhdn": "Submit to LHDN",
+    "menu_POSNotYetConsolidated": "POS Not Yet Consolidated",
+    "posPendingIntro": "Consolidated POS receipts and refunds that LHDN does not have yet, from every month: waiting for their month's consolidated e-invoice, or in one that failed, was rejected or cancelled.",
+    "posPendingAllTypes": "Receipts and refunds",
+    "posPendingWaiting": "Waiting",
+    "posPendingInBatch": "In a failed / rejected batch",
+    "posPendingDueBy": "Due to LHDN by",
+    "posPendingViewAll": "All not yet consolidated",
+    "menu_ManageChartOfAccounts": "Manage Chart of Accounts",
+    "settingsHubEinvoiceSectionDesc": "LHDN MyInvois connection, certificate and submission settings.",
+    "settingsHubUserManagementDesc": "Who can sign in to this company and what each role may do.",
+    "menu_UserManagement": "User Management"
 }

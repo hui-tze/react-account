@@ -5,7 +5,7 @@ import SettingsListPage from "@/views/Settings/shared/SettingsListPage";
 import {StatusBadge} from "@/views/Settings/shared/StatusBadge";
 import {useSmartTranslation} from "@/hooks/use-translation";
 
-export const PAYMENT_TERMS_PATH = "/settings/sales/payment-terms";
+export const PAYMENT_TERMS_PATH = "/sales/setup/payment-terms";
 
 const PAYMENT_TERM_TYPE_LABEL_KEYS: Record<string, string> = {
     day: "paymentTermTypeDay",

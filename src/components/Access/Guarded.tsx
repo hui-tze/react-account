@@ -4,6 +4,7 @@ import {Link as RouterLink, LinkProps} from "react-router-dom";
 import type {AccessAction} from "@/apis/requests/access-api";
 import type {Permission, PermissionModule} from "@/constants/permissions";
 import {useAccess} from "@/providers/access";
+import {useAreaPath} from "@/utils/setup-area";
 
 /*
  * Controls that only appear when the signed-in user's role allows them. The backend checks the
@@ -36,11 +37,14 @@ export function Can({children, otherwise = null, ...rule}: CanProps) {
  */
 export const Link = forwardRef<HTMLAnchorElement, LinkProps>(function Link(props, ref) {
     const {canPath} = useAccess();
-    const to = typeof props.to === "string" ? props.to : (props.to.pathname ?? "") + (props.to.search ?? "");
+    const area = useAreaPath();
+    // module setup screens opened from Settings stay in Settings
+    const target = typeof props.to === "string" ? area(props.to) : {...props.to, pathname: props.to.pathname ? area(props.to.pathname) : props.to.pathname};
+    const to = typeof target === "string" ? target : (target.pathname ?? "") + (target.search ?? "");
     const isCreate = /\/create(\/|$|\?)/.test(to);
 
     if (!to || to.startsWith("#") || /^[a-z]+:/i.test(to) || canPath(to, isCreate ? "create" : "view")) {
-        return <RouterLink ref={ref} {...props} />;
+        return <RouterLink ref={ref} {...props} to={target} />;
     }
     if (isCreate) {
         return null;

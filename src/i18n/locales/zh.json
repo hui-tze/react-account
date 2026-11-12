@@ -2890,5 +2890,16 @@
     "consReleaseText": "{{number}} 的单据将恢复为待处理，可重新合并。",
     "consDocuments": "单据",
     "consPreviewHint": "电子发票每一行对应一个 POS 一天的销售，并列出其收据号码。",
-    "consSubmitToLhdn": "提交 LHDN"
+    "consSubmitToLhdn": "提交 LHDN",
+    "menu_POSNotYetConsolidated": "POS 尚未合并",
+    "posPendingIntro": "LHDN 尚未收到的合并 POS 收据与退款（所有月份）：等待该月合并电子发票，或所在合并发票提交失败、被拒或已取消。",
+    "posPendingAllTypes": "收据与退款",
+    "posPendingWaiting": "等待中",
+    "posPendingInBatch": "在失败 / 被拒的批次中",
+    "posPendingDueBy": "提交 LHDN 截止",
+    "posPendingViewAll": "全部尚未合并",
+    "menu_ManageChartOfAccounts": "管理会计科目表",
+    "settingsHubEinvoiceSectionDesc": "LHDN MyInvois 连接、证书与提交设置。",
+    "settingsHubUserManagementDesc": "谁可以登录此公司，以及各角色可执行的操作。",
+    "menu_UserManagement": "用户管理"
 }

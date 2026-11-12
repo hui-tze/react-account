@@ -1,7 +1,7 @@
 import {ReactNode} from "react";
 import {Button} from "react-bootstrap";
 import {Trash2} from "react-feather";
-import {useNavigate} from "react-router-dom";
+import {useAreaNavigate as useNavigate} from "@/utils/setup-area";
 import SimpleBar from "simplebar-react";
 import type {SWRResponse} from "swr";
 import {AutoGenerateRemoteTable, ColumnRecord} from "@/components/@hk-data-table/tables";
@@ -19,7 +19,7 @@ type Identifiable = ColumnRecord & {id: number, status?: string};
 export type SettingsListPageProps<T extends Identifiable> = {
     useFetcher: (params: URLSearchParams) => SWRResponse<PaginationResponse<T>>,
     columns: ColumnProps<T>[],
-    // e.g. (row) => `/settings/sales/sales-areas/${row.id}`
+    // e.g. (row) => `/sales/setup/sales-areas/${row.id}`
     editPath: (row: T) => string,
     sort?: string[],
     onDelete?: (row: T) => Promise<void>,

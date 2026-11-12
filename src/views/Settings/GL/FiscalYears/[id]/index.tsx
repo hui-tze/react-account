@@ -1,4 +1,5 @@
-import {useNavigate, useParams} from "react-router-dom";
+import {useParams} from "react-router-dom";
+import {useAreaNavigate as useNavigate} from "@/utils/setup-area";
 import {FiscalYearForm} from "../FiscalYearForm";
 import {deleteFiscalYear, updateFiscalYear, useGetOneFiscalYear} from "@/apis/requests/fiscal-year-api";
 import {ConditionalError} from "@/components/Display/ErrorBoundary";
@@ -30,13 +31,13 @@ export default function EditFiscalYear() {
                 await mutate();
             }}
             onSuccess={async () => {
-                navigate("/settings/gl/fiscal-years");
+                navigate("/gl/setup/fiscal-years");
             }}
             onDelete={data.status === "active" ? () => confirmAndExecute(async () => {
                 try {
                     await deleteFiscalYear(id);
                     notify.success(t('fiscalYearDeleted'));
-                    navigate("/settings/gl/fiscal-years");
+                    navigate("/gl/setup/fiscal-years");
                 } catch (err) {
                     notify.error(err);
                 }

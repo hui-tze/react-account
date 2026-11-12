@@ -28,6 +28,8 @@ import {
 
 export type SettingsModule =
     | "settings_organization"
+    | "settings_einvoice"
+    | "settings_users"
     | "settings_sales"
     | "settings_inventory"
     | "settings_banking"
@@ -70,66 +72,87 @@ export const settingsSections: SettingsSection[] = [
             {name: "Display Preference", path: "/settings/organization/display-preference", icon: Monitor, descriptionKey: "settingsHubDisplayPreferenceDesc"},
             {name: "Document No", path: "/settings/organization/document-numbering", icon: FileText, descriptionKey: "settingsHubDocumentNoDesc"},
             {name: "System Setup", path: "/settings/organization/system-setup", icon: Settings, descriptionKey: "settingsHubSystemSetupDesc"},
-            {name: "E-Invoice (MyInvois)", path: "/settings/organization/einvoice", icon: Send, descriptionKey: "settingsHubEinvoiceDesc"},
-            {name: "Users", path: "/settings/organization/users", icon: Users, descriptionKey: "settingsHubUsersDesc"},
-            {name: "Roles & Access", path: "/settings/organization/roles", icon: Shield, descriptionKey: "settingsHubRolesDesc"},
             {name: "Opening Balance", path: "/settings/organization/opening-balance", icon: Archive, descriptionKey: "settingsHubOpeningBalanceDesc", comingSoon: true},
+        ],
+    },
+    {
+        module: "settings_einvoice",
+        title: "E-Invoice",
+        icon: Send,
+        path: "/settings/einvoice",
+        descriptionKey: "settingsHubEinvoiceSectionDesc",
+        accentRgb: "0, 120, 212",
+        items: [
+            // also in the E-Invoice module at /einvoice/settings
+            {name: "MyInvois Settings", path: "/settings/einvoice/myinvois", icon: Send, descriptionKey: "settingsHubEinvoiceDesc"},
+        ],
+    },
+    {
+        module: "settings_users",
+        title: "User Management",
+        icon: Users,
+        path: "/settings/user-management",
+        descriptionKey: "settingsHubUserManagementDesc",
+        accentRgb: "108, 117, 125",
+        items: [
+            {name: "Users", path: "/settings/user-management/users", icon: Users, descriptionKey: "settingsHubUsersDesc"},
+            {name: "Roles & Access", path: "/settings/user-management/roles", icon: Shield, descriptionKey: "settingsHubRolesDesc"},
         ],
     },
     {
         module: "settings_sales",
         title: "Sales",
         icon: TrendingUp,
-        path: "/settings/sales",
+        path: "/sales/setup",
         descriptionKey: "settingsHubSalesDesc",
         accentRgb: "255, 145, 0",
         items: [
-            {name: "Contact Categories", path: "/settings/sales/contact-categories", icon: Users, descriptionKey: "settingsHubContactCategoriesDesc"},
-            {name: "Sales Groups", path: "/settings/sales/sales-groups", icon: Grid, descriptionKey: "settingsHubSalesGroupsDesc"},
-            {name: "Sales Type", path: "/settings/sales/sales-types", icon: Tag, descriptionKey: "settingsHubSalesTypeDesc"},
-            {name: "Sales Areas", path: "/settings/sales/sales-areas", icon: MapPin, descriptionKey: "settingsHubSalesAreasDesc"},
-            {name: "Credit Status", path: "/settings/sales/credit-statuses", icon: CreditCard, descriptionKey: "settingsHubCreditStatusDesc"},
-            {name: "Payment Terms", path: "/settings/sales/payment-terms", icon: Clock, descriptionKey: "settingsHubPaymentTermsDesc"},
-            {name: "POS Settings", path: "/settings/sales/pos-settings", icon: Monitor, descriptionKey: "settingsHubPosSettingsDesc"},
+            {name: "Contact Categories", path: "/sales/setup/contact-categories", icon: Users, descriptionKey: "settingsHubContactCategoriesDesc"},
+            {name: "Sales Groups", path: "/sales/setup/sales-groups", icon: Grid, descriptionKey: "settingsHubSalesGroupsDesc"},
+            {name: "Sales Type", path: "/sales/setup/sales-types", icon: Tag, descriptionKey: "settingsHubSalesTypeDesc"},
+            {name: "Sales Areas", path: "/sales/setup/sales-areas", icon: MapPin, descriptionKey: "settingsHubSalesAreasDesc"},
+            {name: "Credit Status", path: "/sales/setup/credit-statuses", icon: CreditCard, descriptionKey: "settingsHubCreditStatusDesc"},
+            {name: "Payment Terms", path: "/sales/setup/payment-terms", icon: Clock, descriptionKey: "settingsHubPaymentTermsDesc"},
+            {name: "POS Settings", path: "/sales/setup/pos-settings", icon: Monitor, descriptionKey: "settingsHubPosSettingsDesc"},
         ],
     },
     {
         module: "settings_inventory",
         title: "Inventory",
         icon: Box,
-        path: "/settings/inventory",
+        path: "/inventory/setup",
         descriptionKey: "settingsHubInventoryDesc",
         accentRgb: "116, 41, 248",
         items: [
-            {name: "Sales Kits", path: "/settings/inventory/sales-kits", icon: Package, descriptionKey: "settingsHubSalesKitsDesc", comingSoon: true},
-            {name: "Item Categories", path: "/settings/inventory/item-categories", icon: Folder, descriptionKey: "settingsHubItemCategoriesDesc"},
-            {name: "Inventory Locations", path: "/settings/inventory/inventory-locations", icon: MapPin, descriptionKey: "settingsHubInventoryLocationsDesc"},
-            {name: "Unit of Measurement", path: "/settings/inventory/units-of-measurement", icon: Sliders, descriptionKey: "settingsHubUomDesc"},
+            {name: "Sales Kits", path: "/inventory/setup/sales-kits", icon: Package, descriptionKey: "settingsHubSalesKitsDesc", comingSoon: true},
+            {name: "Item Categories", path: "/inventory/setup/item-categories", icon: Folder, descriptionKey: "settingsHubItemCategoriesDesc"},
+            {name: "Inventory Locations", path: "/inventory/setup/inventory-locations", icon: MapPin, descriptionKey: "settingsHubInventoryLocationsDesc"},
+            {name: "Unit of Measurement", path: "/inventory/setup/units-of-measurement", icon: Sliders, descriptionKey: "settingsHubUomDesc"},
         ],
     },
     {
         module: "settings_banking",
         title: "Banking",
         icon: Briefcase,
-        path: "/settings/banking",
+        path: "/banking/setup",
         descriptionKey: "settingsHubBankingDesc",
         accentRgb: "50, 43, 243",
         items: [
-            {name: "Bank Account", path: "/settings/banking/bank-accounts", icon: CreditCard, descriptionKey: "settingsHubBankAccountDesc"},
+            {name: "Bank Account", path: "/banking/setup/bank-accounts", icon: CreditCard, descriptionKey: "settingsHubBankAccountDesc"},
         ],
     },
     {
         module: "settings_gl",
         title: "General Ledger",
         icon: BookOpen,
-        path: "/settings/gl",
+        path: "/gl/setup",
         descriptionKey: "settingsHubGlDesc",
         accentRgb: "0, 170, 103",
         items: [
-            {name: "Fiscal Years", path: "/settings/gl/fiscal-years", icon: Calendar, descriptionKey: "settingsHubFiscalYearsDesc"},
-            {name: "Chart of Accounts", path: "/settings/gl/chart-of-accounts", icon: Layers, descriptionKey: "settingsHubChartOfAccountsDesc"},
-            {name: "Currencies", path: "/settings/gl/currencies", icon: DollarSign, descriptionKey: "settingsHubCurrenciesDesc"},
-            {name: "Exchange Rates", path: "/settings/gl/exchange-rates", icon: TrendingUp, descriptionKey: "settingsHubExchangeRatesDesc"},
+            {name: "Fiscal Years", path: "/gl/setup/fiscal-years", icon: Calendar, descriptionKey: "settingsHubFiscalYearsDesc"},
+            {name: "Chart of Accounts", path: "/gl/setup/chart-of-accounts", icon: Layers, descriptionKey: "settingsHubChartOfAccountsDesc"},
+            {name: "Currencies", path: "/gl/setup/currencies", icon: DollarSign, descriptionKey: "settingsHubCurrenciesDesc"},
+            {name: "Exchange Rates", path: "/gl/setup/exchange-rates", icon: TrendingUp, descriptionKey: "settingsHubExchangeRatesDesc"},
         ],
     },
     {
@@ -146,3 +169,17 @@ export const settingsSections: SettingsSection[] = [
         ],
     },
 ];
+
+/**
+ * The "Setup" section of a module's sidebar: that module's settings screens, which live under the
+ * module (/sales/setup/…) so they open inside it. `rename` relabels an entry for that sidebar.
+ */
+export function moduleSetupSection(module: SettingsModule, rename: Record<string, string> = {}) {
+    const section = settingsSections.find(s => s.module === module);
+    return {
+        title: "Setup",
+        menus: (section?.items ?? [])
+            .filter(item => !item.comingSoon)
+            .map(({name, path, icon}) => ({name: rename[name] ?? name, path, icon})),
+    };
+}

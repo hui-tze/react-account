@@ -1,10 +1,10 @@
-import React, { ReactNode, useEffect, useState } from 'react';
+import React, { ReactNode, useEffect, useState} from 'react';
 import classNames from 'classnames';
-import { connect, ConnectedProps } from 'react-redux';
-import { useMatch } from 'react-router-dom';
-import { useWindowWidth } from '@react-hook/window-size';
+import {connect, ConnectedProps} from 'react-redux';
+import {useMatch} from 'react-router-dom';
+import {useWindowWidth} from '@react-hook/window-size';
 
-import { toggleCollapsedNav } from '@/redux/action/Theme';
+import {toggleCollapsedNav} from '@/redux/action/Theme';
 import PageFooter from '@/layout/Footer/PageFooter';
 import TopNav from '@/layout/Header/TopNav';
 import Sidebar from '@/layout/Sidebar/Sidebar';

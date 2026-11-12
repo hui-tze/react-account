@@ -30,6 +30,7 @@ import {HkBadge} from '@/components/@hk-badge/@hk-badge';
 import {CompanySwitcher} from './CompanySwitcher';
 import {UserMenu} from './UserMenu';
 import {GlobalSearch} from './GlobalSearch';
+import {LockButton} from './LockButton';
 
 interface RootState {
     theme: {
@@ -368,6 +369,11 @@ const TopNav: React.FC<Props> = ({
                                     </div>
                                 </Dropdown.Menu>
                             </Dropdown>
+                        </Nav.Item>
+
+                        {/* Lock screen: same lock as the 15-minute idle timeout */}
+                        <Nav.Item>
+                            <LockButton />
                         </Nav.Item>
 
                         {/* User */}

@@ -1,15 +1,15 @@
 // SecondarySidebarMenu.tsx
 
-import { ComponentType } from 'react';
-import { settingsSections } from '@/views/Settings/settings-menu';
-import { settingsPathOf } from '@/utils/setup-area';
-import { inventoryModule } from '@/views/Inventory/inventory-menu';
-import { salesModule } from '@/views/Sales/sales-menu';
-import { purchasesModule } from '@/views/Purchases/purchases-menu';
-import { einvoiceModule } from '@/views/Einvoice/einvoice-menu';
-import { glModule } from '@/views/GeneralLedger/gl-menu';
-import { bankingModule } from '@/views/Banking/banking-menu';
-import { dimensionsModule } from '@/views/Dimensions/dimensions-menu';
+import {ComponentType} from 'react';
+import {settingsSections} from '@/views/Settings/settings-menu';
+import {settingsPathOf} from '@/utils/setup-area';
+import {inventoryModule} from '@/views/Inventory/inventory-menu';
+import {salesModule} from '@/views/Sales/sales-menu';
+import {purchasesModule} from '@/views/Purchases/purchases-menu';
+import {einvoiceModule} from '@/views/Einvoice/einvoice-menu';
+import {glModule} from '@/views/GeneralLedger/gl-menu';
+import {bankingModule} from '@/views/Banking/banking-menu';
+import {dimensionsModule} from '@/views/Dimensions/dimensions-menu';
 
 export interface ModuleSidebarItem {
     name: string;

@@ -48,6 +48,13 @@ export function attemptLogin(email: string, password: string): Promise<Successfu
         .post();
 }
 
+/** Lock screen: checks the signed-in user's password; the session token stays the same. */
+export function unlockScreen(password: string) {
+    return authApiRequest(`/unlock`)
+        .add({password})
+        .post();
+}
+
 /** The signed-in user (top bar). */
 export function useGetCurrentUser() {
     return useConsoleSwr<AccountUser>(`/user`, authFetcher, {

@@ -5,7 +5,7 @@ import App from "@/App";
 // SCSS
 import "@/styles/scss/style.scss";
 
-import { Provider } from "react-redux";
+import {Provider} from "react-redux";
 import store from "@/redux/store";
 
 const rootElement = document.getElementById("root");

@@ -4,7 +4,7 @@ import {AccountClass} from "@/apis/models/account-class";
 import {addAccountClass, AccountClassRequest, updateAccountClass} from "@/apis/requests/account-class-api";
 import FormSection from "./FormSection";
 import {useSmartTranslation} from "@/hooks/use-translation";
-import { FormTextInput } from "@/components/FormInput/FormTextInput";
+import {FormTextInput} from "@/components/FormInput/FormTextInput";
 
 export type AccountClassFormProps = {
     show: boolean,

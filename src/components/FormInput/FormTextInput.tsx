@@ -1,4 +1,4 @@
-import { Col, Form } from "react-bootstrap";
+import {Col, Form} from "react-bootstrap";
 import type {
     FieldError,
     FieldValues,

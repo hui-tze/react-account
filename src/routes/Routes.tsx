@@ -1,5 +1,5 @@
-import { ComponentType } from "react";
-import { createBrowserRouter, createRoutesFromElements, Navigate, Route } from "react-router-dom";
+import {ComponentType} from "react";
+import {createBrowserRouter, createRoutesFromElements, Navigate, Route} from "react-router-dom";
 
 // Layout
 
@@ -63,7 +63,7 @@ import EditBankAccount from "@/views/Settings/Banking/BankAccounts/[id]";
 // Settings — General Ledger
 import ChartOfAccounts from "@/views/Settings/GL/ChartOfAccounts";
 import ChartOfAccountsHeaderOptions from "@/views/Settings/GL/ChartOfAccounts/ChartOfAccountsHeaderOptions";
-import { NewAccountTriggerProvider } from "@/views/Settings/GL/ChartOfAccounts/NewAccountTrigger";
+import {NewAccountTriggerProvider} from "@/views/Settings/GL/ChartOfAccounts/NewAccountTrigger";
 import FiscalYears from "@/views/Settings/GL/FiscalYears";
 import FiscalYearHeaderOptions from "@/views/Settings/GL/FiscalYears/FiscalYearHeaderOptions";
 import CreateFiscalYear from "@/views/Settings/GL/FiscalYears/Create";

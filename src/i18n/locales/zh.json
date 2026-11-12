@@ -2901,5 +2901,10 @@
     "menu_ManageChartOfAccounts": "管理会计科目表",
     "settingsHubEinvoiceSectionDesc": "LHDN MyInvois 连接、证书与提交设置。",
     "settingsHubUserManagementDesc": "谁可以登录此公司，以及各角色可执行的操作。",
-    "menu_UserManagement": "用户管理"
+    "menu_UserManagement": "用户管理",
+    "screenLocked": "屏幕已锁定",
+    "screenLockedHint": "闲置 15 分钟后已锁定。请输入密码以继续。",
+    "unlock": "解锁",
+    "lockScreenSignOut": "不是您？登出",
+    "lockScreen": "锁定屏幕"
 }

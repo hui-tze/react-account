@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import { Outlet, useLocation, useMatches } from 'react-router-dom';
+import React, { useState} from 'react';
+import {Outlet, useLocation, useMatches} from 'react-router-dom';
 
 import {ModuleSidebar} from './ModuleSidebar';
 import ModuleHeader from './ModuleHeader';
 import classNames from 'classnames';
-import { SettingsModule } from '@/views/Settings/settings-menu';
-import { useAccess } from '@/providers/access';
-import { NoAccess } from '@/components/Display/NoAccess';
+import {SettingsModule} from '@/views/Settings/settings-menu';
+import {useAccess} from '@/providers/access';
+import {NoAccess} from '@/components/Display/NoAccess';
 
 type ModuleHandle = {
     module?: ModuleName;

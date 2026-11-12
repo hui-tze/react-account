@@ -1,11 +1,11 @@
 import SimpleBar from "simplebar-react";
-import { ModuleSidebarMenu } from "./ModuleSidebarMenu";
-import { Link, useLocation } from "react-router-dom";
-import { Dropdown, Nav } from "react-bootstrap";
+import {ModuleSidebarMenu} from "./ModuleSidebarMenu";
+import {Link, useLocation} from "react-router-dom";
+import {Dropdown, Nav} from "react-bootstrap";
 import React from "react";
-import { useSmartTranslation } from "@/hooks/use-translation";
-import { translateMenu } from "@/i18n/menu";
-import { useAccess } from "@/providers/access";
+import {useSmartTranslation} from "@/hooks/use-translation";
+import {translateMenu} from "@/i18n/menu";
+import {useAccess} from "@/providers/access";
 
 interface ModuleSidebarProps {
     module: string;

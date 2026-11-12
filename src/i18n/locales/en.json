@@ -1718,5 +1718,10 @@
     "menu_ManageChartOfAccounts": "Manage Chart of Accounts",
     "settingsHubEinvoiceSectionDesc": "LHDN MyInvois connection, certificate and submission settings.",
     "settingsHubUserManagementDesc": "Who can sign in to this company and what each role may do.",
-    "menu_UserManagement": "User Management"
+    "menu_UserManagement": "User Management",
+    "screenLocked": "Screen locked",
+    "screenLockedHint": "Locked after 15 minutes of inactivity. Enter your password to continue.",
+    "unlock": "Unlock",
+    "lockScreenSignOut": "Not you? Sign out",
+    "lockScreen": "Lock screen"
 }

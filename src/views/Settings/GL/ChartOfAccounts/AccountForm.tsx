@@ -7,7 +7,7 @@ import {addAccount, AccountRequest, updateAccount} from "@/apis/requests/account
 import FormSection from "./FormSection";
 import {useSmartTranslation} from "@/hooks/use-translation";
 import {AccountTypeOptions} from "@/constants/AccountType";
-import { SelectController } from "@/components/Select/SelectController";
+import {SelectController} from "@/components/Select/SelectController";
 
 export type AccountFormProps = {
     show: boolean,

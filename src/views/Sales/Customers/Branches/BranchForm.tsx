@@ -9,7 +9,8 @@ import {AddressRows} from "@/views/Settings/Organization/Profile/AddressRows";
 import {addressesToForm, addressesToPayload, blankToNull} from "@/views/Settings/Organization/Profile/profile-form";
 import {useSmartTranslation} from "@/hooks/use-translation";
 import {CUSTOMERS_PATH} from "../../sales-menu";
-import {BranchDefaultsFields} from "../BranchDefaultsFields";
+import {BRANCH_ACCOUNT_DEFAULTS, BranchDefaultsFields} from "../BranchDefaultsFields";
+import {useSetupDefaults} from "@/hooks/use-setup-defaults";
 
 type BranchFormProps = RecordFormProps<CustomerBranch, CustomerBranchRequest> & {
     customerId: number,
@@ -19,7 +20,7 @@ type BranchFormProps = RecordFormProps<CustomerBranch, CustomerBranchRequest> & 
 export function BranchForm({record, customerId, customerName, onSubmit, onSuccess, onDelete}: BranchFormProps) {
     const {t} = useSmartTranslation();
 
-    const {control, watch, setValue, submitting, handleSubmitRequest} = useRequestForm<CustomerBranchRequest>({
+    const {control, watch, setValue, getValues, submitting, handleSubmitRequest} = useRequestForm<CustomerBranchRequest>({
         formOptions: {
             defaultValues: {
                 customer_id: customerId,
@@ -42,6 +43,9 @@ export function BranchForm({record, customerId, customerName, onSubmit, onSucces
             },
         },
     });
+
+    // blank GL accounts start from System Setup (also fills a branch saved before they were required)
+    useSetupDefaults(getValues, setValue, BRANCH_ACCOUNT_DEFAULTS);
 
     const submit = (values: CustomerBranchRequest) => onSubmit({
         ...values,

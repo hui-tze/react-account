@@ -1,4 +1,4 @@
-import {Fragment, ReactNode, useState} from "react";
+import {Fragment, ReactNode, useRef, useState} from "react";
 import {Badge, Button, ButtonGroup, Card, Form, Table} from "react-bootstrap";
 import {ChevronDown, ChevronRight, Printer} from "react-feather";
 import {Link} from "@/components/Access/Guarded";
@@ -9,6 +9,7 @@ import {formatDecimal} from "@/views/Inventory/shared/options";
 import {useSmartTranslation} from "@/hooks/use-translation";
 import {getAccountTypeLabel} from "@/constants/AccountType";
 import {accountLedgerPath} from "../gl-menu";
+import {printElement} from "@/utils/print-area";
 
 /** Report money: negatives (abnormal balances) in brackets, zero as a dash. */
 export function money(value: number | string | null | undefined, blankZero = true): string {
@@ -58,17 +59,18 @@ export function DateRangeBar({range, onChange}: {range: Range, onChange: (r: Ran
 /** Report page: toolbar (filters + print) above a printable card. */
 export function ReportPage({title, subtitle, toolbar, children}: {title: string, subtitle?: ReactNode, toolbar?: ReactNode, children: ReactNode}) {
     const {t} = useSmartTranslation();
+    const sheet = useRef<HTMLDivElement>(null);
     return (
         <div className="app-body">
             <SimpleBar className="nicescroll-bar">
                 <div className="container-fluid py-3">
                     <div className="d-flex flex-wrap align-items-center gap-2 mb-3 d-print-none">
                         {toolbar}
-                        <Button variant="outline-secondary" size="sm" className="ms-auto" onClick={() => window.print()}>
+                        <Button variant="outline-secondary" size="sm" className="ms-auto" onClick={() => printElement(sheet.current)}>
                             <Printer size={14} className="me-1" />{t('print')}
                         </Button>
                     </div>
-                    <Card className="card-border gl-report">
+                    <Card ref={sheet} className="card-border gl-report">
                         <Card.Body>
                             <div className="gl-report-head">
                                 <h4 className="mb-0">{title}</h4>

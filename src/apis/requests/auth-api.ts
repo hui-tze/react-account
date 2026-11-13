@@ -1,7 +1,9 @@
+import {useState} from "react";
 import type {AccountUser, SuccessfulLoginResponse} from "@/apis/models/auth";
 import {authApiRequest, authFetcher, useConsoleSwr} from "@/lib/request-client/client";
 import {DeviceBind, UpdatePasswordRequest, UploadAvatarRequest, UserInfo, DepartmentInfo, SystemPrefRequest} from "../models/user";
 import {PaginationResponse} from "../pagination";
+import {loadAccountUser, saveAccountUser} from "@/utils/token-utility";
 
 export function useGetMe() {
     return useConsoleSwr<UserInfo>(`/me`, authFetcher, {
@@ -57,8 +59,13 @@ export function unlockScreen(password: string) {
 
 /** The signed-in user (top bar). */
 export function useGetCurrentUser() {
+    // read once per mount: a fresh object on every render would look like new fallback data to SWR
+    const [cached] = useState(loadAccountUser);
     return useConsoleSwr<AccountUser>(`/user`, authFetcher, {
-        revalidateOnFocus: false
+        revalidateOnFocus: false,
+        // shown at once (lock screen, top bar) and refreshed from the API
+        fallbackData: cached,
+        onSuccess: saveAccountUser,
     });
 }
 

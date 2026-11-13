@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {createPortal} from 'react-dom';
 import {Button, Card, Col, Container, Form, InputGroup, Row, Spinner} from 'react-bootstrap';
-import {Eye, EyeOff} from 'react-feather';
+import {Eye, EyeOff, User as UserIcon} from 'react-feather';
 import Footer from './Footer';
 import {useAuth} from '@/providers/auth';
 import {useGetCurrentUser} from '@/apis/requests/auth-api';
@@ -17,7 +17,8 @@ const initialsOf = (name: string | undefined) =>
 const LockScreen = () => {
     const { t } = useSmartTranslation();
     const auth = useAuth();
-    const { data: user } = useGetCurrentUser();
+    // the last known user shows at once; the API refreshes it (and a failed request no longer leaves a blank name)
+    const { data: user, error: userError } = useGetCurrentUser();
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [submitting, setSubmitting] = useState(false);
@@ -78,7 +79,7 @@ const LockScreen = () => {
                                                 <Card className="card-flush bg-transparent">
                                                     <Card.Body className="text-center">
                                                         <div className="avatar avatar-xl avatar-primary avatar-rounded position-relative mb-3">
-                                                            <span className="initial-wrap">{initialsOf(user?.name)}</span>
+                                                            <span className="initial-wrap">{user?.name ? initialsOf(user.name) : <UserIcon size={28} aria-hidden />}</span>
                                                             <div className="badge-icon badge-icon-xxs text-primary position-bottom-end-overflow-1">
                                                                 <div className="badge-icon-wrap">
                                                                     <i className="ri-lock-fill" />
@@ -91,7 +92,7 @@ const LockScreen = () => {
                                                                 </svg>
                                                             </div>
                                                         </div>
-                                                        <h4 className="text-white">{user?.name ?? '…'}</h4>
+                                                        <h4 className="text-white">{user?.name ?? (userError ? t('screenLocked') : '…')}</h4>
                                                         <p className="p-sm mb-1 text-white opacity-55">{user?.email}</p>
                                                         <p className="p-sm mb-4 text-white opacity-55">{t('screenLockedHint')}</p>
                                                         {/* lets the browser's password manager match the account */}

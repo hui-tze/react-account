@@ -153,6 +153,7 @@ import {DefaultsPage} from "@/views/Dimensions/Defaults/DefaultsPage";
 import {BudgetList, CreateBudget, EditBudget} from "@/views/Dimensions/Budgets/BudgetPages";
 import {BudgetVsActual, DimensionProfitLoss} from "@/views/Dimensions/Reports/DimensionReports";
 import {BUDGETS_PATH} from "@/views/Dimensions/dimensions-menu";
+import {reportRoutes} from "@/views/Reports/ReportPages";
 import {CreateRole, EditRole, Roles} from "@/views/Settings/Organization/Access/RolePages";
 import {Users} from "@/views/Settings/Organization/Access/UsersPage";
 
@@ -292,6 +293,8 @@ export const mainRouter = createBrowserRouter(
                     <Route path=":customerId/branches/:id" element={<EditBranch />} handle={{title: "Branch", canNavigate: false}} />
                 </Route>
 
+                {reportRoutes("sales")}
+
                 <Route path="setup" handle={{title: "Setup", canNavigate: false}}>
                     {salesSetupRoutes("/sales/setup")}
                 </Route>
@@ -317,6 +320,7 @@ export const mainRouter = createBrowserRouter(
                 </Route>
                 <Route path="allocation" element={<SupplierAllocationPage />} handle={{title: "Supplier Allocation", canNavigate: true}} />
                 {crudRoutes({path: "suppliers", basePath: SUPPLIERS_PATH, title: "Suppliers", newLabelKey: "newSupplier", List: Suppliers, Create: CreateSupplier, Edit: EditSupplier})}
+                {reportRoutes("purchases")}
             </Route>
 
             <Route path="/banking" element={<ModuleLayout />} handle={{title: "Banking", module: "banking", canNavigate: true}} >
@@ -333,6 +337,7 @@ export const mainRouter = createBrowserRouter(
                 <Route path="deposits/create" element={<CreateBankDeposit />} handle={{title: "Deposit", canNavigate: false}} />
                 <Route path="transfers/create" element={<CreateBankTransfer />} handle={{title: "Bank Account Transfer", canNavigate: false}} />
                 <Route path="reconciliation" element={<Reconciliation />} handle={{title: "Reconciliation", canNavigate: true}} />
+                {reportRoutes("banking")}
 
                 <Route path="setup" handle={{title: "Setup", canNavigate: false}}>
                     {bankingSetupRoutes("/banking/setup")}
@@ -352,6 +357,7 @@ export const mainRouter = createBrowserRouter(
                 <Route path="profit-loss" element={<ProfitAndLoss />} handle={{title: "Profit & Loss", canNavigate: true}} />
                 <Route path="balance-sheet" element={<BalanceSheet />} handle={{title: "Balance Sheet", canNavigate: true}} />
                 <Route path="trial-balance" element={<TrialBalance />} handle={{title: "Trial Balance", canNavigate: true}} />
+                {reportRoutes("gl")}
 
                 <Route path="setup" handle={{title: "Setup", canNavigate: false}}>
                     {glSetupRoutes("/gl/setup")}
@@ -372,6 +378,7 @@ export const mainRouter = createBrowserRouter(
                 </Route>
                 <Route path="budget-vs-actual" element={<BudgetVsActual />} handle={{title: "Budget vs Actual", canNavigate: true}} />
                 <Route path="profit-loss" element={<DimensionProfitLoss />} handle={{title: "Profit & Loss by Dimension", canNavigate: true}} />
+                {reportRoutes("dimensions")}
             </Route>
 
             <Route path="/einvoice" element={<ModuleLayout />} handle={{title: "E-Invoice", module: "einvoice", canNavigate: true}} >
@@ -383,6 +390,7 @@ export const mainRouter = createBrowserRouter(
                 <Route path="outstanding" element={<OutstandingEinvoices />} handle={{title: "Not Yet Submitted", canNavigate: true}} />
                 <Route path="consolidation" element={<ConsolidationPage />} handle={{title: "Consolidated (POS)", canNavigate: true}} />
                 <Route path="pos-pending" element={<PendingConsolidationPage />} handle={{title: "POS Not Yet Consolidated", canNavigate: true}} />
+                {reportRoutes("einvoice")}
                 <Route path="settings" element={<EinvoiceSettings />} handle={{title: "MyInvois Settings", canNavigate: true}} />
             </Route>
 
@@ -397,6 +405,7 @@ export const mainRouter = createBrowserRouter(
                 {crudRoutes({path: "location-transfers", basePath: TRANSFERS_PATH, title: "Location Transfers", newLabelKey: "newLocationTransfer", List: Transfers, Create: CreateTransfer, Edit: EditTransfer})}
                 {crudRoutes({path: "sales-pricing", basePath: SALES_PRICING_PATH, title: "Sales Pricing", newLabelKey: "newSalesPrice", List: SalesPricing, Create: CreateSalesPrice, Edit: EditSalesPrice})}
                 {crudRoutes({path: "purchasing-pricing", basePath: PURCHASING_PRICING_PATH, title: "Purchasing Pricing", newLabelKey: "newPurchasePrice", List: PurchasingPricing, Create: CreatePurchasePrice, Edit: EditPurchasePrice})}
+                {reportRoutes("inventory")}
 
                 <Route path="standard-costs" handle={{title: "Standard Costs", canNavigate: true}}>
                     <Route index element={<StandardCosts />} handle={{hide: true}} />

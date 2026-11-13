@@ -1,4 +1,4 @@
-import {BarChart2, Layers, PieChart, Sliders, Target} from "react-feather";
+import {BarChart2, Grid, Layers, PieChart, Sliders, Target} from "react-feather";
 import type {ModuleSidebarConfig} from "@/layout/Module/ModuleSidebarMenu";
 
 export const DIMENSIONS_PATH = "/dimensions";
@@ -29,6 +29,7 @@ export const dimensionsModule: ModuleSidebarConfig = {
             menus: [
                 {name: "Budget vs Actual", path: BUDGET_VS_ACTUAL_PATH, icon: BarChart2},
                 {name: "Profit & Loss by Dimension", path: DIMENSION_PROFIT_LOSS_PATH, icon: PieChart},
+                {name: "More Reports", path: `${DIMENSIONS_PATH}/reports`, icon: Grid},
             ],
         },
     ],

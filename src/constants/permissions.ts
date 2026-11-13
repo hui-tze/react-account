@@ -18,6 +18,7 @@ export const PERMISSION_MODULES = {
     pos_receipts: "pos_receipts",
     pos_credit_notes: "pos_credit_notes",
     customers: "customers",
+    sales_reports: "sales_reports",
     // Purchases
     purchase_orders: "purchase_orders",
     goods_receipts: "goods_receipts",
@@ -25,9 +26,11 @@ export const PERMISSION_MODULES = {
     supplier_credit_notes: "supplier_credit_notes",
     supplier_payments: "supplier_payments",
     suppliers: "suppliers",
+    purchase_reports: "purchase_reports",
     // Inventory
     items: "items",
     inventory: "inventory",
+    inventory_reports: "inventory_reports",
     // Finance
     banking: "banking",
     gl: "gl",

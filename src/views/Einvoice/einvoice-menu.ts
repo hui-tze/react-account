@@ -1,4 +1,4 @@
-import {Clock, FileText, Inbox, Layers, Settings} from "react-feather";
+import {BarChart2, Clock, FileText, Inbox, Layers, Settings} from "react-feather";
 import type {ModuleSidebarConfig} from "@/layout/Module/ModuleSidebarMenu";
 import {salesDocumentPath} from "@/views/Sales/sales-menu";
 import {purchaseDocumentPath} from "@/views/Purchases/purchases-menu";
@@ -28,6 +28,12 @@ export const einvoiceModule: ModuleSidebarConfig = {
         {name: "POS Not Yet Consolidated", path: EINVOICE_POS_PENDING_PATH, icon: Inbox},
     ],
     sections: [
+        {
+            title: "Reports",
+            menus: [
+                {name: "E-Invoice Reports", path: `${EINVOICE_PATH}/reports`, icon: BarChart2},
+            ],
+        },
         {
             title: "Setup",
             menus: [

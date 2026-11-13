@@ -14,7 +14,8 @@ import {ContactRows} from "@/views/Settings/Organization/Profile/ContactRows";
 import {addressesToForm, addressesToPayload, blankToNull, contactsToForm, contactsToPayload, EMPTY_ADDRESS, EMPTY_CONTACT} from "@/views/Settings/Organization/Profile/profile-form";
 import {useSmartTranslation} from "@/hooks/use-translation";
 import {CUSTOMERS_PATH} from "../sales-menu";
-import {BranchDefaultsFields, EMPTY_BRANCH_DEFAULTS} from "./BranchDefaultsFields";
+import {BRANCH_ACCOUNT_DEFAULTS_FIRST_BRANCH, BranchDefaultsFields, EMPTY_BRANCH_DEFAULTS} from "./BranchDefaultsFields";
+import {useSetupDefaults} from "@/hooks/use-setup-defaults";
 import {BranchesPanel} from "./BranchesPanel";
 import {AccountSummary} from "./AccountSummary";
 
@@ -35,7 +36,7 @@ export function CustomerForm({record, onSubmit, onSuccess, onDelete}: RecordForm
         .filter(s => s.status === "active" || s.id === record?.credit_status_id)
         .map(s => ({value: s.id, label: s.allow_invoice ? s.name : `${s.name} (${t('creditHold')})`}));
 
-    const {control, watch, setValue, submitting, handleSubmitRequest} = useRequestForm<CustomerRequest>({
+    const {control, watch, setValue, getValues, submitting, handleSubmitRequest} = useRequestForm<CustomerRequest>({
         formOptions: {
             defaultValues: {
                 name: record?.name ?? "",
@@ -59,6 +60,9 @@ export function CustomerForm({record, onSubmit, onSuccess, onDelete}: RecordForm
             },
         },
     });
+
+    // the first branch's GL accounts start from System Setup (only on a new customer: later branches have their own form)
+    useSetupDefaults(getValues, setValue, record ? {} : BRANCH_ACCOUNT_DEFAULTS_FIRST_BRANCH);
 
     const submit = (values: CustomerRequest) => onSubmit({
         ...values,

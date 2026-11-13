@@ -692,7 +692,63 @@
 	text-decoration: line-through;
 }
 
+/*------------- Printing one area (utils/print-area.ts) -------------*/
+#print-root {
+	display: none;
+}
+
 @media print {
+	@page {
+		margin: 12mm;
+	}
+
+	html.printing-area,
+	html.printing-area body {
+		height: auto !important;
+		min-height: 0 !important;
+		overflow: visible !important;
+		background: #fff !important;
+	}
+
+	// only the copy of the printed area: the app shell, dialogs and backdrops stay off the page
+	html.printing-area body > *:not(#print-root) {
+		display: none !important;
+	}
+
+	html.printing-area #print-root {
+		display: block;
+		width: 100%;
+
+		.card,
+		.card-body {
+			padding: 0 !important;
+			border: 0 !important;
+			box-shadow: none !important;
+		}
+
+		.table-responsive {
+			overflow: visible !important;
+			max-height: none !important;
+		}
+
+		table {
+			width: 100%;
+			font-size: 9pt;
+		}
+
+		th {
+			white-space: normal !important;
+		}
+
+		tr {
+			break-inside: avoid;
+		}
+
+		thead {
+			display: table-header-group;
+		}
+	}
+
 	.hk-menu,
 	.hk-navbar,
 	.app-sidebar,
@@ -2381,6 +2437,249 @@
 
 		.search-page-period {
 			flex-basis: 100%;
+		}
+	}
+}
+
+// Dashboard
+.dashboard {
+	.dash-stat {
+		transition: box-shadow .15s ease;
+
+		&:hover {
+			box-shadow: 0 2px 8px rgba(0, 0, 0, .06);
+		}
+	}
+
+	.dash-stat-label {
+		letter-spacing: .03em;
+		font-size: .75rem;
+	}
+
+	.dash-stat-value {
+		font-size: 1.6rem;
+		font-weight: 600;
+		line-height: 1.2;
+		margin: .35rem 0 .4rem;
+		font-variant-numeric: tabular-nums;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.dash-stat-currency {
+		font-size: .85rem;
+		font-weight: 500;
+		color: #6f6f6f;
+		margin-right: .35rem;
+	}
+
+	.dash-panel .card-header {
+		gap: .75rem;
+	}
+
+	.dash-bar-track {
+		height: 8px;
+		border-radius: 4px;
+		background: #f1f3f5;
+		overflow: hidden;
+	}
+
+	.dash-bar-fill {
+		height: 100%;
+		border-radius: 4px;
+	}
+
+	.dash-doc-list .list-group-item:first-child {
+		padding-top: 0;
+	}
+
+	.dash-profit-table td,
+	.dash-profit-table th,
+	.dash-doc-list,
+	.dash-bar-list {
+		font-variant-numeric: tabular-nums;
+	}
+
+	.dash-view-toggle {
+		margin-bottom: -2rem;
+		position: relative;
+		z-index: 1;
+	}
+}
+
+.dashboard .dash-actions .btn {
+	display: inline-flex;
+	align-items: center;
+	gap: .35rem;
+	white-space: nowrap;
+}
+
+/*------------- Reports (every module's report list and viewer) -------------*/
+.report-card {
+	transition: box-shadow .15s ease, border-color .15s ease;
+
+	&:hover {
+		border-color: $primary_light_3;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, .06);
+	}
+
+	.report-card-icon {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		flex-shrink: 0;
+		width: 36px;
+		height: 36px;
+		border-radius: .5rem;
+		color: $primary;
+		background: $primary_light_5;
+	}
+}
+
+.report-filters {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	gap: .75rem 1rem;
+
+	.report-filter {
+		width: 200px;
+		max-width: 100%;
+		margin-bottom: 0;
+
+		input[type="date"] {
+			height: 31px;
+		}
+	}
+
+	.report-filter-switch {
+		padding-bottom: .3rem;
+	}
+
+	.report-filter-actions {
+		display: flex;
+		gap: .5rem;
+		margin-left: auto;
+	}
+}
+
+.report-sheet {
+	.report-summary {
+		display: flex;
+		flex-wrap: wrap;
+		gap: .75rem;
+		margin-bottom: 1.25rem;
+	}
+
+	.report-figure {
+		min-width: 150px;
+		padding: .6rem .9rem;
+		border: 1px solid $gray_light_4;
+		border-radius: .5rem;
+		background: $gray_light_5;
+	}
+
+	.report-figure-label {
+		font-size: .75rem;
+		letter-spacing: .03em;
+		text-transform: uppercase;
+		color: $gray_dark_2;
+	}
+
+	.report-figure-value {
+		font-size: 1.125rem;
+		font-weight: 700;
+		color: $black_2;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.report-scroll {
+		max-height: calc(100vh - 230px);
+	}
+
+	.report-table {
+		font-size: .875rem;
+
+		thead th {
+			position: sticky;
+			top: 0;
+			z-index: 2;
+			background: $white;
+			white-space: nowrap;
+		}
+
+		td {
+			font-variant-numeric: tabular-nums;
+			vertical-align: top;
+		}
+
+		.gl-tree-class td {
+			text-transform: none;
+			letter-spacing: 0;
+			font-size: .9375rem;
+		}
+
+		.report-section-sub {
+			margin-left: .6rem;
+			font-size: .8125rem;
+			font-weight: 400;
+			color: $gray_dark_2;
+		}
+
+		.report-row-muted td {
+			color: $gray_dark_2;
+			font-style: italic;
+		}
+
+		.report-cell-wrap {
+			min-width: 180px;
+			max-width: 360px;
+			white-space: normal;
+		}
+	}
+
+	.report-notes {
+		margin-top: 1rem;
+		font-size: .8125rem;
+		color: $gray_dark_2;
+	}
+
+	.report-generated {
+		margin-top: .5rem;
+		font-size: .75rem;
+		color: $gray;
+	}
+}
+
+@media (max-width: 575.98px) {
+	.report-filters .report-filter {
+		width: 100%;
+	}
+
+	.report-filters .report-filter-actions {
+		margin-left: 0;
+	}
+}
+
+@media print {
+	.report-sheet {
+		.report-scroll {
+			max-height: none;
+			overflow: visible !important;
+		}
+
+		.report-table {
+			font-size: 10px;
+
+			thead th {
+				position: static;
+			}
+
+			a {
+				color: inherit !important;
+				text-decoration: none;
+			}
 		}
 	}
 }

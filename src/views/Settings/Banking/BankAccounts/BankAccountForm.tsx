@@ -7,6 +7,7 @@ import {SelectField, StatusField, SwitchField, TextField} from "@/components/For
 import SettingsFormPage, {FormSectionTitle} from "@/views/Settings/shared/SettingsFormPage";
 import {RecordFormProps} from "@/views/Settings/shared/SettingsEditPage";
 import {useAccountOptions} from "@/views/Settings/shared/options";
+import {useSetupDefaults} from "@/hooks/use-setup-defaults";
 import {useSmartTranslation} from "@/hooks/use-translation";
 import {BANK_ACCOUNT_TYPE_LABEL_KEYS, BANK_ACCOUNTS_PATH} from "./index";
 
@@ -18,7 +19,7 @@ export function BankAccountForm({record, onSubmit, onSuccess, onDelete}: RecordF
     const currencyOptions = (currencies ?? []).map(c => ({value: c.id, label: `${c.code} - ${c.name}`}));
     const typeOptions = Object.entries(BANK_ACCOUNT_TYPE_LABEL_KEYS).map(([value, key]) => ({value, label: t(key)}));
 
-    const {control, submitting, handleSubmitRequest} = useRequestForm<BankAccountRequest>({
+    const {control, getValues, setValue, submitting, handleSubmitRequest} = useRequestForm<BankAccountRequest>({
         formOptions: {
             defaultValues: {
                 account_name: record?.account_name ?? "",
@@ -34,6 +35,9 @@ export function BankAccountForm({record, onSubmit, onSuccess, onDelete}: RecordF
             },
         },
     });
+
+    // bank charges post to System Setup's default unless this bank needs its own
+    useSetupDefaults(getValues, setValue, {charge_account_id: "default_bank_charges_account_id"});
 
     return (
         <SettingsFormPage

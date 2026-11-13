@@ -1,4 +1,4 @@
-import {Box, DollarSign, Repeat, ShoppingBag, Sliders, TrendingUp, Truck} from "react-feather";
+import {BarChart2, Box, DollarSign, Repeat, ShoppingBag, Sliders, TrendingUp, Truck} from "react-feather";
 import type {ModuleSidebarConfig} from "@/layout/Module/ModuleSidebarMenu";
 import {moduleSetupSection} from "@/views/Settings/settings-menu";
 
@@ -33,6 +33,12 @@ export const inventoryModule: ModuleSidebarConfig = {
                 {name: "Sales Pricing", path: SALES_PRICING_PATH, icon: TrendingUp},
                 {name: "Purchasing Pricing", path: PURCHASING_PRICING_PATH, icon: ShoppingBag},
                 {name: "Standard Costs", path: STANDARD_COSTS_PATH, icon: DollarSign},
+            ],
+        },
+        {
+            title: "Reports",
+            menus: [
+                {name: "Inventory Reports", path: `${INVENTORY_PATH}/reports`, icon: BarChart2},
             ],
         },
         moduleSetupSection("settings_inventory"),

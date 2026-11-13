@@ -1,5 +1,5 @@
 import {AuthTokenName} from "@/config";
-import {LoggedInUser} from "@/apis/models/auth";
+import {AccountUser, LoggedInUser} from "@/apis/models/auth";
 
 export function saveToken(token: string) {
     localStorage.setItem(`${AuthTokenName}-token`, token);
@@ -11,6 +11,24 @@ export function loadToken(): string | null {
 
 export function removeToken() {
     localStorage.removeItem(`${AuthTokenName}-token`);
+    // the signed-in user's name belongs to the session
+    localStorage.removeItem(`${AuthTokenName}-account-user`);
+}
+
+/** Last known signed-in user (GET /user), so the lock screen and top bar can name them before the API answers. */
+export function saveAccountUser(user: AccountUser) {
+    try {
+        localStorage.setItem(`${AuthTokenName}-account-user`, JSON.stringify({id: user.id, name: user.name, email: user.email}));
+    } catch { /* storage unavailable */ }
+}
+
+export function loadAccountUser(): AccountUser | undefined {
+    try {
+        const user = localStorage.getItem(`${AuthTokenName}-account-user`);
+        return user ? JSON.parse(user) : undefined;
+    } catch {
+        return undefined;
+    }
 }
 
 export function saveUser(user: LoggedInUser) {

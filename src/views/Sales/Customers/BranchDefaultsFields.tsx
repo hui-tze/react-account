@@ -83,21 +83,37 @@ export function BranchDefaultsFields<T extends FieldValues>({control, prefix, sa
             <FormSectionTitle title={t('glAccounts')} hint={t('branchAccountsHint')} />
             <Row className="gx-3">
                 <Col md={6}>
-                    <SelectField control={control} name={name("receivable_account_id")} label={t('receivableAccount')} numeric placeholder="" options={accountOptions} />
+                    <SelectField control={control} name={name("receivable_account_id")} label={t('receivableAccount')} numeric required placeholder="" options={accountOptions} />
                 </Col>
                 <Col md={6}>
-                    <SelectField control={control} name={name("sales_account_id")} label={t('salesAccount')} numeric placeholder="" options={accountOptions} />
+                    <SelectField control={control} name={name("sales_account_id")} label={t('salesAccount')} numeric required placeholder="" options={accountOptions} />
                 </Col>
                 <Col md={6}>
-                    <SelectField control={control} name={name("sales_discount_account_id")} label={t('salesDiscountAccount')} numeric placeholder="" options={accountOptions} />
+                    <SelectField control={control} name={name("sales_discount_account_id")} label={t('salesDiscountAccount')} numeric required placeholder="" options={accountOptions} />
                 </Col>
                 <Col md={6}>
-                    <SelectField control={control} name={name("payment_discount_account_id")} label={t('paymentDiscountAccount')} numeric placeholder="" options={accountOptions} />
+                    <SelectField control={control} name={name("payment_discount_account_id")} label={t('paymentDiscountAccount')} numeric required placeholder="" options={accountOptions} />
                 </Col>
             </Row>
         </>
     );
 }
+
+/** Branch GL account → its System Setup default (prefilled by useSetupDefaults). */
+export const BRANCH_ACCOUNT_DEFAULTS = {
+    receivable_account_id: "default_receivable_account_id",
+    sales_account_id: "default_sales_account_id",
+    sales_discount_account_id: "default_sales_discount_account_id",
+    payment_discount_account_id: "default_prompt_payment_discount_account_id",
+} as const;
+
+/** The same, for the first branch inside the new-customer form. */
+export const BRANCH_ACCOUNT_DEFAULTS_FIRST_BRANCH = {
+    "branch.receivable_account_id": "default_receivable_account_id",
+    "branch.sales_account_id": "default_sales_account_id",
+    "branch.sales_discount_account_id": "default_sales_discount_account_id",
+    "branch.payment_discount_account_id": "default_prompt_payment_discount_account_id",
+} as const;
 
 export const EMPTY_BRANCH_DEFAULTS: CustomerBranchDefaults = {
     sales_type_id: null,

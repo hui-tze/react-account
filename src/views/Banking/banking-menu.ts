@@ -1,4 +1,4 @@
-import {Briefcase, CheckSquare, List, Settings} from "react-feather";
+import {BarChart2, Briefcase, CheckSquare, List, Settings} from "react-feather";
 import type {ModuleSidebarConfig} from "@/layout/Module/ModuleSidebarMenu";
 
 export const BANKING_PATH = "/banking";
@@ -34,6 +34,12 @@ export const bankingModule: ModuleSidebarConfig = {
         {name: "Reconciliation", path: BANK_RECONCILIATION_PATH, icon: CheckSquare},
     ],
     sections: [
+        {
+            title: "Reports",
+            menus: [
+                {name: "Banking Reports", path: `${BANKING_PATH}/reports`, icon: BarChart2},
+            ],
+        },
         {
             title: "Setup",
             menus: [

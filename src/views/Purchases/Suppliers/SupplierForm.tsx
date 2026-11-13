@@ -13,6 +13,7 @@ import {AddressRows} from "@/views/Settings/Organization/Profile/AddressRows";
 import {ContactRows} from "@/views/Settings/Organization/Profile/ContactRows";
 import {addressesToForm, addressesToPayload, blankToNull, contactsToForm, contactsToPayload, EMPTY_ADDRESS, EMPTY_CONTACT} from "@/views/Settings/Organization/Profile/profile-form";
 import {useAccountOptions} from "@/views/Settings/shared/options";
+import {useSetupDefaults} from "@/hooks/use-setup-defaults";
 import {useSmartTranslation} from "@/hooks/use-translation";
 import {SUPPLIERS_PATH} from "../purchases-menu";
 
@@ -32,7 +33,7 @@ export function SupplierForm({record, onSubmit, onSuccess, onDelete}: RecordForm
     const {data: taxGroups} = useGetTaxGroupOptions();
     const {options: accountOptions} = useAccountOptions();
 
-    const {control, watch, setValue, submitting, handleSubmitRequest} = useRequestForm<SupplierRequest>({
+    const {control, watch, setValue, getValues, submitting, handleSubmitRequest} = useRequestForm<SupplierRequest>({
         formOptions: {
             defaultValues: {
                 code: record?.code ?? "",
@@ -57,6 +58,13 @@ export function SupplierForm({record, onSubmit, onSuccess, onDelete}: RecordForm
                 contacts: record ? contactsToForm(record.contacts) : [{...EMPTY_CONTACT}],
             },
         },
+    });
+
+    // blank GL accounts start from System Setup (also fills a supplier saved before they were required)
+    useSetupDefaults(getValues, setValue, {
+        payable_account_id: "default_payable_account_id",
+        purchase_account_id: "default_purchase_account_id",
+        purchase_discount_account_id: "default_purchase_discount_account_id",
     });
 
     const submit = (values: SupplierRequest) => onSubmit({
@@ -124,13 +132,13 @@ export function SupplierForm({record, onSubmit, onSuccess, onDelete}: RecordForm
             <FormSectionTitle title={t('glAccounts')} hint={t('supplierAccountsHint')} />
             <Row className="gx-3">
                 <Col md={4}>
-                    <SelectField control={control} name="payable_account_id" label={t('payableAccount')} numeric placeholder="" options={accountOptions} />
+                    <SelectField control={control} name="payable_account_id" label={t('payableAccount')} numeric required placeholder="" options={accountOptions} />
                 </Col>
                 <Col md={4}>
-                    <SelectField control={control} name="purchase_account_id" label={t('purchaseAccount')} numeric placeholder="" options={accountOptions} />
+                    <SelectField control={control} name="purchase_account_id" label={t('purchaseAccount')} numeric required placeholder="" options={accountOptions} />
                 </Col>
                 <Col md={4}>
-                    <SelectField control={control} name="purchase_discount_account_id" label={t('purchaseDiscountAccount')} numeric placeholder="" options={accountOptions} />
+                    <SelectField control={control} name="purchase_discount_account_id" label={t('purchaseDiscountAccount')} numeric required placeholder="" options={accountOptions} />
                 </Col>
             </Row>
 

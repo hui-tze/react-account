@@ -1,4 +1,4 @@
-import {CornerUpLeft, CreditCard, FileMinus, FilePlus, FileText, Link2, Package, ShoppingCart, Users} from "react-feather";
+import {BarChart2, CornerUpLeft, CreditCard, FileMinus, FilePlus, FileText, Link2, Package, ShoppingCart, Users} from "react-feather";
 import type {ModuleSidebarConfig} from "@/layout/Module/ModuleSidebarMenu";
 
 export const PURCHASES_PATH = "/purchases";
@@ -61,6 +61,12 @@ export const purchasesModule: ModuleSidebarConfig = {
             menus: [
                 {name: "Self-billed Invoices", path: SELF_BILLED_PATH, icon: FilePlus},
                 {name: "Self-billed Credit Notes", path: SELF_BILLED_CREDIT_NOTES_PATH, icon: FileMinus},
+            ],
+        },
+        {
+            title: "Reports",
+            menus: [
+                {name: "Purchase Reports", path: `${PURCHASES_PATH}/reports`, icon: BarChart2},
             ],
         },
     ],

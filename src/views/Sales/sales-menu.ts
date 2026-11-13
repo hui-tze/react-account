@@ -1,4 +1,4 @@
-import {CornerUpLeft, CreditCard, FileText, Inbox, RotateCcw, ShoppingBag, ShoppingCart, Truck, Users} from "react-feather";
+import {BarChart2, CornerUpLeft, CreditCard, FileText, Inbox, RotateCcw, ShoppingBag, ShoppingCart, Truck, Users} from "react-feather";
 import type {ModuleSidebarConfig} from "@/layout/Module/ModuleSidebarMenu";
 import {moduleSetupSection} from "@/views/Settings/settings-menu";
 
@@ -67,6 +67,12 @@ export const salesModule: ModuleSidebarConfig = {
                 {name: "Customer Payments", path: PAYMENTS_PATH, icon: CreditCard},
                 {name: "Credit Notes", path: CREDIT_NOTES_PATH, icon: CornerUpLeft},
                 {name: "Customers", path: CUSTOMERS_PATH, icon: Users},
+            ],
+        },
+        {
+            title: "Reports",
+            menus: [
+                {name: "Sales Reports", path: `${SALES_PATH}/reports`, icon: BarChart2},
             ],
         },
         moduleSetupSection("settings_sales"),

@@ -1,4 +1,4 @@
-import {BarChart2, BookOpen, Columns, FileText, Layers, List, Percent} from "react-feather";
+import {BarChart2, BookOpen, Columns, FileText, Grid, Layers, List, Percent} from "react-feather";
 import type {ModuleSidebarConfig} from "@/layout/Module/ModuleSidebarMenu";
 import {moduleSetupSection} from "@/views/Settings/settings-menu";
 import {salesDocumentPath} from "@/views/Sales/sales-menu";
@@ -45,6 +45,7 @@ export const glModule: ModuleSidebarConfig = {
                 {name: "Profit & Loss", path: GL_PROFIT_LOSS_PATH, icon: BarChart2},
                 {name: "Balance Sheet", path: GL_BALANCE_SHEET_PATH, icon: FileText},
                 {name: "Trial Balance", path: GL_TRIAL_BALANCE_PATH, icon: Columns},
+                {name: "More Reports", path: `${GL_PATH}/reports`, icon: Grid},
             ],
         },
         // the chart is maintained here; "Chart Of Account" above is its read-only view
